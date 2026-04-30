@@ -6,7 +6,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EXT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-LEGION_SRC="$(cd "$EXT_ROOT/../legion/.cursor" && pwd)"
+LEGION_SRC="$(cd "$EXT_ROOT/../God/legion/.cursor" && pwd)"
 BUNDLED="$EXT_ROOT/bundled"
 
 if [ ! -d "$LEGION_SRC" ]; then
