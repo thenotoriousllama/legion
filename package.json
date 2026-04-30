@@ -2,7 +2,7 @@
   "name": "legion",
   "displayName": "Legion — Per-Repo Wiki for Code",
   "description": "Compounding entity-graph wiki for any codebase. Initialize, Document, Update, and Scan via Cursor agents (wiki-guardian + library-guardian).",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "thenotoriousllama",
   "license": "MIT",
   "repository": {

@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.2.0] — 2026-04-30
+
+### Added
+- `driver/chunkPlanner.ts` — `planChunks` groups repo files by top-level module boundary and splits groups exceeding `MAX_FILES_PER_CHUNK` (6) into ordered sub-chunks; `loadChunkContent` hydrates chunks into `ChunkFile[]` with graceful skip on unreadable files
+- `driver/documentPass.ts` — `runDocumentPass` orchestrates the full Document/Update/Scan-Directory pipeline: repo walk (respecting `.legionignore`), hash diff, chunk planning, git context pre-computation, parallel agent invocation (`legion.maxParallelAgents`), and post-pass reconciliation; includes hand-rolled frontmatter parser for `prior_state` loading in update mode and a dependency-free concurrency pool
+- `driver/reconciler.ts` — `reconcile` runs all 8 post-pass steps: invariant validation with descriptive error payloads, log.md prepend, index.md update, per-type `_index.md` maintenance, hot.md refresh from git context, ADR number allocation (`pending-*` → `ADR-NNN-*`), file-hashes.json update, VS Code notification flag surfacing, and `partial_scan_pending` flag persistence
+- `commands/document.ts` — wires "Document Repository" to `runDocumentPass(mode: "document")`
+- `commands/update.ts` — wires "Update Documentation" to `runDocumentPass(mode: "update")`
+- `commands/scanDirectory.ts` — wires "Scan Directory…" to `runDocumentPass(mode: "scan-directory", scopeDir)`
+
+### Architecture
+- `ChunkResult = {label, payload, response}` bundles each agent result with its payload so the reconciler has access to `git_context` for hot.md without a separate data-passing mechanism
+- Response invariants are enforced in the reconciler (not silently ignored): contradictions without meta reports, decisions absent from `pages_created`, and absolute/traversal paths all throw descriptive errors with the offending payload fragment
+- No new npm dependencies — all stdlib (`fs/promises`, `path`, `crypto`)
+
 ## [0.1.0] — 2026-04-29
 
 Initial scaffold.
