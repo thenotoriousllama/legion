@@ -1,0 +1,45 @@
+# .legionignore — patterns to skip during entity extraction
+# Same syntax as .gitignore (https://git-scm.com/docs/gitignore)
+# Independent of .gitignore — Legion does not auto-respect .gitignore.
+
+# Build outputs
+node_modules/
+dist/
+build/
+out/
+.next/
+.nuxt/
+coverage/
+.turbo/
+.cache/
+
+# Lock files
+*.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Minified
+*.min.js
+*.min.css
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Editor / OS
+.git/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Generated
+*.generated.ts
+*.generated.tsx
+*.d.ts
+
+# Legion's own state (don't recurse into the wiki itself)
+.legion/
+library/

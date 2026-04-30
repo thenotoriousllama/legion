@@ -1,0 +1,12 @@
+{
+  "version": "0.1.0",
+  "wiki_root": "library/knowledge-base/wiki",
+  "library_root": "library",
+  "guardians_installed": [],
+  "agent_invocation_mode": "cursor-cli",
+  "page_caps": {
+    "max_lines_per_page": 300,
+    "target_pages_per_chunk": [8, 15]
+  },
+  "callout_vocabulary": ["[!contradiction]", "[!stale]", "[!gap]", "[!key-insight]"]
+}

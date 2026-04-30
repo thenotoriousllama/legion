@@ -1,0 +1,106 @@
+{
+  "name": "legion",
+  "displayName": "Legion — Per-Repo Wiki for Code",
+  "description": "Compounding entity-graph wiki for any codebase. Initialize, Document, Update, and Scan via Cursor agents (wiki-guardian + library-guardian).",
+  "version": "0.1.0",
+  "publisher": "thenotoriousllama",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thenotoriousllama/legion"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other", "Education"],
+  "keywords": ["documentation", "wiki", "knowledge", "cursor", "ast"],
+  "activationEvents": [
+    "onView:legion.sidebar",
+    "onCommand:legion.initialize",
+    "onCommand:legion.document",
+    "onCommand:legion.update",
+    "onCommand:legion.scanDirectory",
+    "onCommand:legion.lint"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "legion",
+          "title": "Legion",
+          "icon": "$(book)"
+        }
+      ]
+    },
+    "views": {
+      "legion": [
+        {
+          "type": "webview",
+          "id": "legion.sidebar",
+          "name": "Legion",
+          "icon": "$(book)"
+        }
+      ]
+    },
+    "commands": [
+      { "command": "legion.initialize", "title": "Legion: Initialize Repository" },
+      { "command": "legion.document", "title": "Legion: Document Repository" },
+      { "command": "legion.update", "title": "Legion: Update Documentation" },
+      { "command": "legion.scanDirectory", "title": "Legion: Scan Directory…" },
+      { "command": "legion.lint", "title": "Legion: Lint Wiki" }
+    ],
+    "configuration": {
+      "title": "Legion",
+      "properties": {
+        "legion.agentInvocationMode": {
+          "type": "string",
+          "enum": ["cursor-cli", "queue-file", "direct-anthropic-api"],
+          "enumDescriptions": [
+            "Default. Shell out to `cursor agent <name> --input <path>`. Requires Cursor CLI on PATH.",
+            "Write JSON request files to `.legion/queue/`. A Cursor slash command (`/legion-drain`) processes them.",
+            "Call Claude API directly. Bypasses Cursor entirely. Requires legion.anthropicApiKey or LEGION_ANTHROPIC_API_KEY env var."
+          ],
+          "default": "cursor-cli",
+          "description": "How the extension invokes wiki-guardian and library-guardian."
+        },
+        "legion.anthropicApiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Required when `#legion.agentInvocationMode#` is `direct-anthropic-api`. For security, prefer setting via `LEGION_ANTHROPIC_API_KEY` environment variable."
+        },
+        "legion.cursorCliPath": {
+          "type": "string",
+          "default": "cursor",
+          "description": "Path to the Cursor CLI binary. Default `cursor` assumes it's on PATH."
+        },
+        "legion.maxParallelAgents": {
+          "type": "number",
+          "default": 3,
+          "minimum": 1,
+          "maximum": 8,
+          "description": "Maximum number of agent invocations to run in parallel during Document/Update."
+        },
+        "legion.installPostCommitHook": {
+          "type": "boolean",
+          "default": false,
+          "description": "Install a post-commit git hook that queues Update on every commit. (v0.2.0+)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
+    "watch": "npm run compile -- --watch",
+    "type-check": "tsc --noEmit",
+    "snapshot": "bash scripts/snapshot-bundled.sh",
+    "package": "npm run snapshot && npm run compile -- --minify && vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.24.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.0"
+  }
+}

@@ -1,0 +1,93 @@
+body {
+  font-family: var(--vscode-font-family);
+  color: var(--vscode-foreground);
+  background: transparent;
+  padding: 12px;
+  margin: 0;
+}
+
+.legion-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+header h1 {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 4px;
+}
+
+.tagline {
+  color: var(--vscode-descriptionForeground);
+  margin: 0;
+  font-size: 12px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+button {
+  background: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
+  border: 1px solid transparent;
+  padding: 8px 12px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+  font-family: inherit;
+  border-radius: 2px;
+}
+
+button:hover {
+  background: var(--vscode-button-secondaryHoverBackground);
+}
+
+button:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: 2px;
+}
+
+button.primary {
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+}
+
+button.primary:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+
+button.link {
+  background: transparent;
+  color: var(--vscode-textLink-foreground);
+  padding: 4px 0;
+  border: none;
+  font-size: 12px;
+}
+
+button.link:hover {
+  background: transparent;
+  color: var(--vscode-textLink-activeForeground);
+  text-decoration: underline;
+}
+
+.status h2 {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0 0 6px;
+}
+
+.muted {
+  color: var(--vscode-descriptionForeground);
+  font-size: 12px;
+  margin: 0;
+}
+
+footer {
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--vscode-panel-border);
+}
