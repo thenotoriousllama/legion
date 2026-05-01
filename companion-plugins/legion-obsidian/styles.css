@@ -1,0 +1,147 @@
+/* Legion Obsidian Plugin — UI styles
+ * These are automatically loaded by Obsidian for all plugin DOM elements.
+ * For file-explorer color-coding, enable the separate CSS snippet at:
+ *   .obsidian/snippets/legion-vault-colors.css */
+
+/* ── Status panel ─────────────────────────────────────────────────────────── */
+
+.legion-status-panel {
+  padding: 8px 12px;
+}
+
+.legion-status-panel h4 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-normal);
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding-bottom: 6px;
+}
+
+.legion-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--background-modifier-border-hover);
+  font-size: 12px;
+}
+
+.legion-status-row:last-child {
+  border-bottom: none;
+}
+
+.legion-label {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.legion-value {
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+.legion-has-contradictions {
+  cursor: pointer;
+}
+
+.legion-has-contradictions .legion-value {
+  color: var(--color-red);
+}
+
+.legion-has-contradictions:hover {
+  background: var(--background-modifier-hover);
+  border-radius: 4px;
+}
+
+.legion-not-initialized {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+/* ── Contradiction inbox ───────────────────────────────────────────────────── */
+
+.legion-contradiction-inbox {
+  padding: 8px 12px;
+}
+
+.legion-contradiction-inbox h4 {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-normal);
+}
+
+.legion-empty-inbox {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.legion-contradiction-card {
+  padding: 10px;
+  margin: 0 0 10px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--background-secondary);
+}
+
+.legion-contradiction-description {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: var(--text-normal);
+  line-height: 1.4;
+}
+
+.legion-contradiction-pages {
+  display: block;
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-bottom: 8px;
+  font-family: var(--font-monospace);
+}
+
+.legion-contradiction-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.legion-contradiction-actions button {
+  font-size: 11px;
+  padding: 3px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+  color: var(--text-normal);
+}
+
+.legion-contradiction-actions button:hover {
+  background: var(--background-modifier-hover);
+}
+
+/* ── Annotate button ───────────────────────────────────────────────────────── */
+
+.legion-annotate-bar {
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.legion-annotate-btn {
+  font-size: 11px;
+  padding: 3px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+.legion-annotate-btn:hover {
+  opacity: 1;
+  color: var(--text-normal);
+  background: var(--background-modifier-hover);
+}

@@ -1,8 +1,8 @@
-import { ItemView, WorkspaceLeaf, type App, TFile } from "obsidian";
+import { ItemView, WorkspaceLeaf, TFile } from "obsidian";
 import { readConfig, type LegionConfig } from "../utils/configReader";
+import { LEGION_CONTRADICTION_VIEW } from "./ContradictionInboxView";
 
 export const LEGION_STATUS_VIEW = "legion-status";
-export const LEGION_CONTRADICTION_VIEW = "legion-contradiction-inbox";
 
 export class LegionStatusPanel extends ItemView {
   private config: LegionConfig | null = null;
@@ -45,11 +45,10 @@ export class LegionStatusPanel extends ItemView {
     container.addClass("legion-status-panel");
 
     if (!this.config) {
-      const p = container.createEl("p", {
+      container.createEl("p", {
         text: "Legion not initialized in this vault.",
         cls: "legion-not-initialized",
       });
-      void p;
       container.createEl("a", {
         text: "Install the Legion VS Code Extension →",
         href: "https://marketplace.visualstudio.com/items?itemName=thenotoriousllama.legion",
@@ -81,7 +80,6 @@ export class LegionStatusPanel extends ItemView {
     );
     if (unresolvedCount > 0) {
       inboxRow.addClass("legion-has-contradictions");
-      inboxRow.style.cursor = "pointer";
       inboxRow.addEventListener("click", () => {
         void this.app.workspace
           .getLeaf("split")

@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, Notice } from "obsidian";
+import { ItemView, WorkspaceLeaf, Notice, TFile } from "obsidian";
 import { readConfig, writeConfig, type Contradiction } from "../utils/configReader";
 
 export const LEGION_CONTRADICTION_VIEW = "legion-contradiction-inbox";
@@ -80,11 +80,11 @@ export class ContradictionInboxView extends ItemView {
     const fileA = this.app.vault.getAbstractFileByPath(pageA);
     const fileB = this.app.vault.getAbstractFileByPath(pageB);
 
-    if (fileA && "stat" in fileA) {
-      await this.app.workspace.getLeaf("split").openFile(fileA as Parameters<typeof this.app.workspace.getLeaf>[0] extends string ? never : ReturnType<typeof this.app.vault.getFiles>[0]);
+    if (fileA instanceof TFile) {
+      await this.app.workspace.getLeaf("split").openFile(fileA);
     }
-    if (fileB && "stat" in fileB) {
-      await this.app.workspace.getLeaf("split").openFile(fileB as Parameters<typeof this.app.workspace.getLeaf>[0] extends string ? never : ReturnType<typeof this.app.vault.getFiles>[0]);
+    if (fileB instanceof TFile) {
+      await this.app.workspace.getLeaf("split").openFile(fileB);
     }
   }
 

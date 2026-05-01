@@ -1,5 +1,74 @@
 # Changelog
 
+## [0.7.0] — 2026-04-30
+
+### Added (Features 001–010 + Obsidian Companion Plugin)
+
+#### Feature 001 — Semantic Search with Cohere + TF-IDF Fallback
+- `src/driver/semanticSearch.ts` — `embedText` (Cohere `embed-english-v3.0`, batched 96/call), `buildIndex` (incremental SHA-256 cache at `.legion/embeddings.json`), `query` (Cohere dense vectors when key available; pure-TypeScript TF-IDF fallback otherwise)
+- `legion.findEntity` upgraded to semantic search with score badges; `legion.semanticSearchEnabled` and `legion.cohereApiKey` settings added
+- `buildIndex` runs in background after every Document/Update pass; `createSharedConfig` wizard includes optional Cohere key step
+- `.gitignore`: `.legion/embeddings.json` added
+
+#### Feature 002 — MCP Server (7 tools over stdio)
+- `src/mcp/legionMcpServer.ts` — `McpServer` + `StdioServerTransport` from `@modelcontextprotocol/sdk`; 7 tools: `legion_document`, `legion_update`, `legion_find_entity`, `legion_get_entity`, `legion_get_context`, `legion_autoresearch`, `legion_drain_agenda`
+- `src/mcp/mcpConfig.ts` — VS Code-free config resolution (env vars → `.legion/config.json` → defaults)
+- `src/mcp/toolHandlers.ts` — one async handler per tool
+- `"compile:mcp"` esbuild script added; outputs `dist/mcp-server.js`
+- Registration docs for Claude Code and Cursor in README
+
+#### Feature 003 — Wiki Export (Docusaurus / Static HTML / Markdown Bundle)
+- `src/driver/wikiExport.ts` — three export renderers with atomic tmp→rename; `[[wikilink]]` resolver; embedded CSS
+- `src/commands/exportWiki.ts` — QuickPick format selector with progress notification
+- `legion.exportWiki` command; `legion.exportTarget` and `legion.exportOutputDir` settings
+- "Export Wiki…" footer button in Legion sidebar
+
+#### Feature 004 — Scheduled Research (Cron on Activate)
+- `src/driver/cronParser.ts` — zero-dependency 5-field cron parser (`parseCron`, `prevFireTime`, `nextFireTime`, `isOverdue`)
+- Schedule check on `activate()`: "Run Now / Snooze 1 day / Disable Schedule" notification when overdue
+- `drainAgenda` writes `last_agenda_drain` timestamp; optional `git commit [skip ci]` when `legion.autoGitCommit`
+- `legion.researchSchedule` and `legion.researchScheduleEnabled` settings
+
+#### Feature 005 — Multi-workspace / Monorepo Support
+- `src/util/repoRoot.ts` — `resolveRepoRoot()` (4-step: `activeRoot` setting → session state → single-root passthrough → QuickPick), `resolveWikiRoot()`, `resolveScanRoots()`
+- All commands now resolve root at invocation time (no stale closure capture)
+- `documentPass.ts` walks each `scanRoot`; `resolveWikiRoot()` replaces hardcoded path
+- `legion.activeRoot`, `legion.scanRoots`, `legion.wikiRoot`, `legion.clearActiveRoot` added
+- Status bar active-root indicator for multi-root workspaces
+
+#### Feature 006 — PR Review Bot (GitHub Actions Wizard)
+- `src/util/gitRemote.ts` — `getOriginUrl()`, `parseGitHubRemote()` (HTTPS + SSH)
+- `src/commands/installPrReviewBot.ts` — 4-step wizard: remote detection → workflow idempotency check (diff editor on conflict) → browser open to GitHub Secrets → final instructions
+- `templates/legion-wiki-diff.yml` — upgraded with idempotent `<!-- legion-wiki-diff -->` marker, structured PR comment tables, Shields.io docs-health badge
+- "PR Bot" footer button in Legion sidebar
+
+#### Feature 007 — Claude Code Integration (3 layers)
+- `src/context/claudeMdWriter.ts` — writes/updates `CLAUDE.md` with fenced `## Legion Wiki` routing block (surgical replace on subsequent runs)
+- Reconciler Step 15: calls `injectClaudeContext()` after each pass; `legion.injectClaudeContext` setting (default `true`)
+- `templates/claude-plugin/` — `/legion-document`, `/legion-research`, `/legion-find` slash-command definitions copied to `.claude-plugin/` on Initialize
+- Initialize summary includes `claude mcp add-json` setup note when MCP server is compiled
+
+#### Feature 008 — Obsidian Companion Plugin
+- `companion-plugins/legion-obsidian/` — standalone Obsidian plugin (separate build, not in VSIX)
+- Status panel, contradiction inbox (mark-resolved with `.bak` backup), Trigger Update, Human Annotations, entity color-coding CSS snippet, dependency graph command
+- wiki-weapon Phase 3 updated with Human Notes Sanctity Rule (wiki-guardian must never overwrite `## Human Notes` sections)
+
+#### Feature 009 — Community Guardian Ecosystem
+- `src/guardians/types.ts` — `GuardianManifest`, `GuardianRegistry`, `RegistryEntry` interfaces
+- `src/guardians/communityGuardianManager.ts` — `fetchRegistry()` (ETag cache, 1-hour TTL), `install()`, `listInstalled()`
+- `legion.installGuardian` — registry browse → agent.md preview → install with progress
+- `legion.updateGuardians` — version diff → selective update; pin support
+- `discoverAllGuardians()` merges bundled + community guardians
+- `templates/guardian-template/` starter package; `schemas/guardian-schema.json`
+- `legion.guardianRegistryUrl` setting
+
+#### Feature 010 — Analytics Dashboard
+- `src/driver/snapshotManager.ts` — `writeSnapshot()`, `loadSnapshots()`, `pruneOld()` (max 90 snapshots at `.legion/snapshots/`)
+- Reconciler Step 16: persists snapshot after every pass; fires `legion.internal.dashboardRefresh`
+- `src/dashboard/charts/` — 5 pure-TypeScript SVG chart functions (line, stacked area, bar, horizontal bar, contradiction rate)
+- `src/dashboard/dashboardPanel.ts` — singleton `WebviewPanel`; "Copy as Markdown table" per chart
+- `legion.openDashboard` command; "Dashboard" sidebar footer button
+
 ## [0.6.0] — 2026-04-30
 
 ### Added (Long-term In-extension Features)

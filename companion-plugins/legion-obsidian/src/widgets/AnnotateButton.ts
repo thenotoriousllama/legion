@@ -1,4 +1,4 @@
-import { MarkdownPostProcessorContext, type App } from "obsidian";
+import { type App, TFile, MarkdownPostProcessorContext } from "obsidian";
 
 const WIKI_PATH_MARKER = "library/knowledge-base/wiki";
 const HUMAN_NOTES_HEADING = "## Human Notes";
@@ -32,27 +32,23 @@ export function createAnnotateProcessor(app: App) {
 
 async function appendHumanNotes(app: App, filePath: string): Promise<void> {
   const file = app.vault.getAbstractFileByPath(filePath);
-  if (!file || !("stat" in file)) return;
+  if (!(file instanceof TFile)) return;
 
-  const tFile = file as Parameters<typeof app.workspace.getLeaf>[0] extends string
-    ? never
-    : ReturnType<typeof app.vault.getFiles>[0];
-
-  const content = await app.vault.read(tFile);
+  const content = await app.vault.read(file);
 
   if (content.includes(HUMAN_NOTES_HEADING)) {
-    // Section already exists — just open for editing at that position
+    // Section already exists — just open for editing
     const leaf = app.workspace.getLeaf(false);
-    await leaf.openFile(tFile);
+    await leaf.openFile(file);
     return;
   }
 
   // Append the Human Notes section
   const separator = content.endsWith("\n") ? "\n" : "\n\n";
   const updated = content + separator + HUMAN_NOTES_HEADING + "\n\n";
-  await app.vault.modify(tFile, updated);
+  await app.vault.modify(file, updated);
 
   // Open in editing mode
   const leaf = app.workspace.getLeaf(false);
-  await leaf.openFile(tFile);
+  await leaf.openFile(file);
 }
