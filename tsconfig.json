@@ -12,5 +12,5 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "exclude": ["node_modules", "dist", "out", "bundled", "companion-plugins"]
+  "exclude": ["node_modules", "dist", "out", "bundled", "companion-plugins", "**/*.test.ts", "**/*.spec.ts"]
 }

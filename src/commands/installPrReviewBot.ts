@@ -76,7 +76,7 @@ export async function installPrReviewBot(
         "vscode.diff",
         vscode.Uri.file(workflowPath),
         vscode.Uri.parse(
-          `untitled:legion-wiki-diff.yml (latest template)`
+          `data:text/plain;charset=utf-8,${encodeURIComponent(bundledTemplate)}`
         ),
         "legion-wiki-diff.yml (existing ↔ latest)"
       );

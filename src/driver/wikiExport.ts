@@ -42,11 +42,10 @@ export async function exportWiki(options: ExportOptions): Promise<ExportResult> 
   const wikiIndex = buildWikiIndex(pages);
 
   const tmpDir = outputDir + "-tmp-" + Date.now();
+  let wikilinksResolved = 0;
 
   try {
     await fs.mkdir(tmpDir, { recursive: true });
-
-    let wikilinksResolved = 0;
 
     if (target === "markdown") {
       await exportMarkdownBundle(pages, wikiDir, tmpDir);
@@ -67,7 +66,7 @@ export async function exportWiki(options: ExportOptions): Promise<ExportResult> 
 
   return {
     pagesExported: pages.length,
-    wikilinksResolved: 0,
+    wikilinksResolved,
     outputDir,
     durationMs: Date.now() - startMs,
   };
