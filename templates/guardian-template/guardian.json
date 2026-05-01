@@ -1,0 +1,15 @@
+{
+  "name": "my-guardian",
+  "displayName": "My Domain Guardian",
+  "description": "A Legion guardian for <your domain>. Documents <specific patterns, frameworks, or conventions>.",
+  "version": "1.0.0",
+  "minLegionVersion": "0.6.0",
+  "agentFile": "agent.md",
+  "skillFiles": [
+    "skills/my-weapon.md"
+  ],
+  "author": "Your Name",
+  "homepage": "https://github.com/your-handle/legion-my-guardian",
+  "tags": ["domain", "framework", "pattern"],
+  "license": "MIT"
+}

@@ -1,0 +1,36 @@
+/* Legion Wiki — entity type color coding
+ * Enable in Obsidian → Appearance → CSS Snippets → legion-vault-colors
+ * Written once by the Legion Obsidian plugin on first install.
+ * Edit freely — the plugin will not overwrite this file after creation. */
+
+/* Entity type colors */
+.nav-file-title[data-path*="/entities/"] .nav-file-title-content { color: #5b9bd5; }
+.nav-file-title[data-path*="/concepts/"] .nav-file-title-content { color: #4caf82; }
+.nav-file-title[data-path*="/decisions/"] .nav-file-title-content { color: #9c6fbc; }
+.nav-file-title[data-path*="/questions/"] .nav-file-title-content { color: #e8a23d; }
+.nav-file-title[data-path*="/comparisons/"] .nav-file-title-content { color: #64748b; }
+
+/* Hover states */
+.nav-file-title[data-path*="/entities/"]:hover .nav-file-title-content { color: #7bb8e8; }
+.nav-file-title[data-path*="/concepts/"]:hover .nav-file-title-content { color: #66c79a; }
+.nav-file-title[data-path*="/decisions/"]:hover .nav-file-title-content { color: #b487d3; }
+.nav-file-title[data-path*="/questions/"]:hover .nav-file-title-content { color: #f0bb65; }
+
+/* Status panel styles */
+.legion-status-panel { padding: 8px; }
+.legion-status-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--background-modifier-border); }
+.legion-label { font-weight: 500; color: var(--text-muted); font-size: 12px; }
+.legion-value { font-weight: 600; font-size: 12px; }
+.legion-has-contradictions .legion-value { color: var(--color-red); }
+
+/* Contradiction inbox styles */
+.legion-contradiction-card { padding: 8px; margin: 8px 0; border: 1px solid var(--background-modifier-border); border-radius: 4px; }
+.legion-contradiction-description { margin: 0 0 4px; font-size: 13px; }
+.legion-contradiction-pages { color: var(--text-muted); font-size: 11px; }
+.legion-contradiction-actions { display: flex; gap: 8px; margin-top: 8px; }
+.legion-contradiction-actions button { font-size: 11px; padding: 2px 8px; cursor: pointer; }
+
+/* Annotate button */
+.legion-annotate-bar { margin-bottom: 12px; }
+.legion-annotate-btn { font-size: 11px; padding: 2px 8px; cursor: pointer; opacity: 0.7; }
+.legion-annotate-btn:hover { opacity: 1; }

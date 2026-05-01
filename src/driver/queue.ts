@@ -1,3 +1,4 @@
+import * as vscode from "vscode";
 import * as fs from "fs/promises";
 import * as path from "path";
 
@@ -54,4 +55,32 @@ export async function clearMarker(p: string): Promise<void> {
   } catch {
     // already gone
   }
+}
+
+/**
+ * Check for pending post-commit scan-needed markers and prompt the user to
+ * run an Update pass if any are found. Called from `activate()`.
+ *
+ * Only prompts when `legion.installPostCommitHook` is true — if the user never
+ * installed the hook, there are no markers and no prompt.
+ */
+export async function drainPostCommitQueue(
+  repoRoot: string,
+  onConfirm: () => Promise<void>
+): Promise<void> {
+  const config = vscode.workspace.getConfiguration("legion");
+  if (!config.get<boolean>("installPostCommitHook", false)) return;
+
+  const markers = await listScanNeededMarkers(repoRoot);
+  if (markers.length === 0) return;
+
+  const choice = await vscode.window.showInformationMessage(
+    `Legion: ${markers.length} commit(s) are pending wiki documentation. Run Update now?`,
+    "Update now",
+    "Later"
+  );
+  if (choice !== "Update now") return;
+
+  await onConfirm();
+  await Promise.all(markers.map(clearMarker));
 }

@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import * as fs from "fs/promises";
 import * as path from "path";
+import { loadSharedConfig } from "./sharedConfig";
+import { CommunityGuardianManager } from "../guardians/communityGuardianManager";
 
 const STRUCTURE = [
   ".legion",
@@ -28,30 +30,124 @@ const STRUCTURE = [
   ".cursor/skills",
 ];
 
-interface GuardianOption extends vscode.QuickPickItem {
+export interface GuardianOption extends vscode.QuickPickItem {
   agentName: string;
   weaponName: string;
 }
 
-const AVAILABLE_GUARDIANS: GuardianOption[] = [
-  { label: "wiki-guardian", detail: "Entity extraction + wiki maintenance (recommended)", agentName: "wiki-guardian", weaponName: "wiki-weapon", picked: true },
-  { label: "library-guardian", detail: "Module narrative + PRD authorship (recommended)", agentName: "library-guardian", weaponName: "library-weapon", picked: true },
-  { label: "quality-guardian", detail: "QA report authorship", agentName: "quality-guardian", weaponName: "quality-weapon" },
-  { label: "security-guardian", detail: "Security audit (CVEs, OWASP, PII)", agentName: "security-guardian", weaponName: "security-weapon" },
-  { label: "react-guardian", detail: "React-specific reviews", agentName: "react-guardian", weaponName: "react-weapon" },
-  { label: "ux-ui-guardian", detail: "UX/UI reviews", agentName: "ux-ui-guardian", weaponName: "ux-ui-weapon" },
-  { label: "design-system-guardian", detail: "Design system enforcement", agentName: "design-system-guardian", weaponName: "design-system-weapon" },
-  { label: "seo-aeo-guardian", detail: "SEO + AEO reviews", agentName: "seo-aeo-guardian", weaponName: "seo-aeo-weapon" },
-];
+/** Guardians pre-selected when the picker opens. */
+const DEFAULT_SELECTED = new Set(["wiki-guardian", "library-guardian"]);
+
+/**
+ * Dynamically discover guardians from the `bundled/agents/` folder that was
+ * populated by `npm run snapshot`. Each `<name>-guardian.md` agent file is
+ * included unless its frontmatter `description:` starts with "RETIRED".
+ * The matching weapon is derived as `<name>-weapon` and its existence in
+ * `bundled/skills/` is checked (missing weapons produce a warning at copy time,
+ * not here). Returns an empty array if the snapshot hasn't been run yet.
+ */
+export async function discoverGuardians(context: vscode.ExtensionContext): Promise<GuardianOption[]> {
+  const bundledAgentsDir = path.join(context.extensionPath, "bundled", "agents");
+
+  let entries: string[];
+  try {
+    entries = await fs.readdir(bundledAgentsDir);
+  } catch {
+    return []; // bundled/ not populated — snapshot hasn't been run
+  }
+
+  const guardians: GuardianOption[] = [];
+
+  for (const filename of entries) {
+    if (!filename.endsWith(".md")) continue;
+    const agentName = filename.replace(/\.md$/, "");
+    const weaponName = agentName.replace(/-guardian$/, "-weapon");
+
+    // Read description from YAML frontmatter.
+    let detail = agentName;
+    try {
+      const content = await fs.readFile(path.join(bundledAgentsDir, filename), "utf8");
+      const descMatch = content.match(/^description:\s*(.+)$/m);
+      if (descMatch) {
+        const raw = descMatch[1].trim();
+        // Skip agents whose description explicitly marks them retired.
+        if (raw.startsWith("RETIRED")) continue;
+        // Truncate long descriptions for the QuickPick detail line.
+        detail = raw.length > 100 ? raw.slice(0, 100) + "…" : raw;
+      }
+    } catch {
+      // Unreadable file — include with name as fallback detail.
+    }
+
+    guardians.push({
+      label: agentName,
+      detail,
+      agentName,
+      weaponName,
+      picked: DEFAULT_SELECTED.has(agentName),
+    });
+  }
+
+  // wiki-guardian and library-guardian float to the top; rest alphabetically.
+  guardians.sort((a, b) => {
+    const rank = (g: GuardianOption) =>
+      g.agentName === "wiki-guardian" ? 0 : g.agentName === "library-guardian" ? 1 : 2;
+    const dr = rank(a) - rank(b);
+    return dr !== 0 ? dr : a.agentName.localeCompare(b.agentName);
+  });
+
+  return guardians;
+}
+
+/**
+ * Feature 009: Extend guardian discovery to include installed community guardians.
+ * Merges bundled + community guardian lists.
+ */
+export async function discoverAllGuardians(
+  context: vscode.ExtensionContext,
+  legionSharedRoot: string
+): Promise<GuardianOption[]> {
+  const bundled = await discoverGuardians(context);
+
+  const manager = new CommunityGuardianManager(context, legionSharedRoot);
+  const community = await manager.listInstalled();
+
+  const communityOptions: GuardianOption[] = community.map((g) => ({
+    label: `${g.manifest.displayName} (community)`,
+    detail: g.manifest.description,
+    agentName: g.manifest.name,
+    weaponName: "",
+    picked: false,
+  }));
+
+  return [...bundled, ...communityOptions];
+}
 
 export async function runInitializer(
   repoRoot: string,
   context: vscode.ExtensionContext
 ): Promise<void> {
-  // 1. Pick guardians
-  const guardians = await vscode.window.showQuickPick(AVAILABLE_GUARDIANS, {
+  // 1. Discover bundled guardians and let the user pick.
+  const available = await discoverGuardians(context);
+  if (available.length === 0) {
+    vscode.window.showWarningMessage(
+      "Legion: No bundled guardians found. Run `npm run snapshot` in the extension repo first, then recompile."
+    );
+    return;
+  }
+
+  // Apply shared team defaults if a .legion-shared/config.json exists
+  const sharedCfg = await loadSharedConfig(repoRoot);
+  if (sharedCfg?.guardians_default && sharedCfg.guardians_default.length > 0) {
+    const sharedSet = new Set(sharedCfg.guardians_default);
+    for (const g of available) {
+      g.picked = sharedSet.has(g.agentName);
+    }
+  }
+
+  const guardians = await vscode.window.showQuickPick(available, {
     canPickMany: true,
-    placeHolder: "Select guardians to bundle in this repo (Space to toggle, Enter to confirm)",
+    placeHolder: `Select guardians to bundle in this repo (Space to toggle, Enter to confirm)${sharedCfg?.guardians_default ? " — defaults from .legion-shared/" : ""}`,
   });
   if (!guardians) {
     vscode.window.showInformationMessage("Legion: Initialize cancelled.");
@@ -111,6 +207,15 @@ export async function runInitializer(
         createdCount++;
       }
 
+      // 5b. .legion/address-counter.txt (stable page address counter)
+      const counterPath = path.join(repoRoot, ".legion", "address-counter.txt");
+      if (await exists(counterPath)) {
+        skippedCount++;
+      } else {
+        await fs.writeFile(counterPath, "1");
+        createdCount++;
+      }
+
       // 6. Wiki state files (idempotent — preserve existing)
       progress.report({ message: "Seeding wiki state files…", increment: 20 });
       const wikiRoot = path.join(repoRoot, "library", "knowledge-base", "wiki");
@@ -132,6 +237,13 @@ export async function runInitializer(
 
       // 7. Copy bundled agents + weapons for selected guardians
       progress.report({ message: "Copying bundled guardians…", increment: 50 });
+
+      // Feature 007 Layer 2: Copy .claude-plugin/ template (wiki-guardian only)
+      const selectedNames = guardians.map((g) => g.agentName);
+      if (selectedNames.includes("wiki-guardian")) {
+        await copyClaudePluginTemplate(context, repoRoot);
+      }
+
       const bundledRoot = path.join(context.extensionPath, "bundled");
       for (const g of guardians) {
         // Agent file
@@ -162,19 +274,71 @@ export async function runInitializer(
   );
 
   // 8. Report
-  const summary = `Legion: Initialized. ${createdCount} created, ${skippedCount} skipped (already existed).`;
+  const mcpNote = buildMcpSetupNote(repoRoot);
+  const summaryText = `Legion: Initialized. ${createdCount} created, ${skippedCount} skipped (already existed).`;
+  const fullSummary = mcpNote ? `${summaryText}\n\n${mcpNote}` : summaryText;
+
   if (warnings.length > 0) {
-    vscode.window.showWarningMessage(`${summary} ${warnings.length} warning(s).`, "Show details").then((choice) => {
+    vscode.window.showWarningMessage(`${summaryText} ${warnings.length} warning(s).`, "Show details").then((choice) => {
       if (choice === "Show details") {
         const channel = vscode.window.createOutputChannel("Legion");
-        channel.appendLine(summary);
+        channel.appendLine(fullSummary);
         warnings.forEach((w) => channel.appendLine(`  ⚠ ${w}`));
         channel.show();
       }
     });
   } else {
-    vscode.window.showInformationMessage(summary);
+    const choice = await vscode.window.showInformationMessage(summaryText, "Show setup notes");
+    if (choice === "Show setup notes" && mcpNote) {
+      const channel = vscode.window.createOutputChannel("Legion");
+      channel.appendLine(fullSummary);
+      channel.show();
+    }
   }
+}
+
+// ── Feature 007: Claude Code integration helpers ───────────────────────────────
+
+/**
+ * Copy the `.claude-plugin/` template into the target repo (no-clobber).
+ * Template source: `templates/claude-plugin/` in the extension directory.
+ */
+async function copyClaudePluginTemplate(
+  context: vscode.ExtensionContext,
+  repoRoot: string
+): Promise<void> {
+  const src = path.join(context.extensionPath, "templates", "claude-plugin");
+  const dest = path.join(repoRoot, ".claude-plugin");
+
+  if (await exists(dest)) return; // already installed — no-clobber
+
+  try {
+    await copyDir(src, dest);
+  } catch {
+    // Template may not exist if not yet compiled — skip silently
+  }
+}
+
+/**
+ * Returns a Claude Code MCP setup note string when the MCP server is compiled.
+ * Included in the Initialize summary when wiki-guardian is selected.
+ */
+function buildMcpSetupNote(repoRoot: string): string {
+  const mcpServerPath = path.join(repoRoot, "dist", "mcp-server.js");
+  // Synchronous check via require — if the file doesn't exist we get an empty note
+  const { existsSync } = require("fs") as typeof import("fs");
+  if (!existsSync(mcpServerPath)) return "";
+
+  const serverJson = JSON.stringify({
+    type: "stdio",
+    command: "node",
+    args: [mcpServerPath],
+    env: { LEGION_REPO_ROOT: repoRoot },
+  });
+
+  return `Claude Code MCP Setup (optional — requires dist/mcp-server.js):
+  claude mcp add-json legion '${serverJson}'
+After registration, run "claude mcp list" to confirm.`;
 }
 
 async function exists(p: string): Promise<boolean> {

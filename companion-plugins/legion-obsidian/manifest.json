@@ -1,0 +1,11 @@
+{
+  "id": "legion-obsidian",
+  "name": "Legion",
+  "version": "1.0.0",
+  "minAppVersion": "1.4.0",
+  "description": "Legion wiki status panel, contradiction inbox, update trigger, and human annotations for non-developer team members.",
+  "author": "Legion Project",
+  "authorUrl": "https://github.com/thenotoriousllama/legion",
+  "fundingUrl": "",
+  "isDesktopOnly": true
+}

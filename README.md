@@ -1,6 +1,8 @@
-# Legion — Per-Repo Wiki for Code
+# Legion
 
-A Cursor / VS Code extension that turns any codebase into a compounding entity-graph wiki. Pairs with the `wiki-guardian` and `library-guardian` Cursor subagents to extract code entities, file them as atomic markdown pages with `[[backlinks]]`, infer ADRs from commit messages, and run an active contradiction protocol when contracts change.
+**The God Protocol's Cursor extension.** Deploys a full AI agent army against any codebase — compounding entity-graph wiki, module narrative docs, cognitive-layer reviews, auth/DB/DevOps/payments audits, and more. All 14 guardians. All weapons. One sidebar.
+
+Proprietary software — all rights reserved. See [LICENSE](LICENSE).
 
 ## What it does
 
@@ -72,4 +74,4 @@ This is a v0.1.0 scaffold designed for iteration in Cursor with hot-reload via t
 
 ## License
 
-MIT
+Proprietary — all rights reserved. See [LICENSE](LICENSE).

@@ -1,35 +1,53 @@
 {
   "name": "legion",
-  "displayName": "Legion — Per-Repo Wiki for Code",
-  "description": "Compounding entity-graph wiki for any codebase. Initialize, Document, Update, and Scan via Cursor agents (wiki-guardian + library-guardian).",
-  "version": "0.2.0",
+  "displayName": "Legion",
+  "description": "The God Protocol's Cursor extension — a full AI agent army for any codebase. Deploys wiki-guardian (entity-graph wiki with [[backlinks]], ADR detection, contradiction protocol), library-guardian (module narrative + PRD authorship), mind-guardian (cognitive layer: RAG, coach routing, memory, evaluation), auth-guardian, db-guardian, devops-guardian, payments-guardian, quality-guardian, security-guardian, react-guardian, ux-ui-guardian, design-system-guardian, seo-aeo-guardian, and asset-guardian. Runs document/update/lint passes with parallel agent invocation, reconciles a compounding wiki, surfaces entity hovers and code-lens in the editor, generates Mermaid entity graphs, posts PR wiki diffs via GitHub Actions, and federates entity stubs across repos.",
+  "version": "0.6.0",
   "publisher": "thenotoriousllama",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/thenotoriousllama/legion"
-  },
+  "private": true,
+  "license": "SEE LICENSE IN LICENSE",
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.90.0"
   },
-  "categories": ["Other", "Education"],
-  "keywords": ["documentation", "wiki", "knowledge", "cursor", "ast"],
+  "icon": "media/legion-icon.png",
+  "categories": [
+    "Other",
+    "Education"
+  ],
+  "keywords": [
+    "documentation",
+    "wiki",
+    "knowledge",
+    "cursor",
+    "ast"
+  ],
   "activationEvents": [
     "onView:legion.sidebar",
     "onCommand:legion.initialize",
     "onCommand:legion.document",
     "onCommand:legion.update",
     "onCommand:legion.scanDirectory",
-    "onCommand:legion.lint"
+    "onCommand:legion.lint",
+    "onCommand:legion.openInObsidian",
+    "onCommand:legion.findEntity",
+    "onCommand:legion.drainQueue"
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "chatParticipants": [
+      {
+        "id": "legion.wiki",
+        "name": "legion",
+        "description": "Ask questions answered from your Legion wiki. Grounded in entity pages, ADRs, and git context.",
+        "isSticky": false
+      }
+    ],
     "viewsContainers": {
       "activitybar": [
         {
           "id": "legion",
           "title": "Legion",
-          "icon": "$(book)"
+          "icon": "media/legion-activitybar.svg"
         }
       ]
     },
@@ -40,22 +58,182 @@
           "id": "legion.sidebar",
           "name": "Legion",
           "icon": "$(book)"
+        },
+        {
+          "type": "tree",
+          "id": "legion.wikiTree",
+          "name": "Wiki",
+          "icon": "$(book)"
+        },
+        {
+          "type": "tree",
+          "id": "legion.backlinks",
+          "name": "Backlinks",
+          "icon": "$(references)"
         }
       ]
     },
     "commands": [
-      { "command": "legion.initialize", "title": "Legion: Initialize Repository" },
-      { "command": "legion.document", "title": "Legion: Document Repository" },
-      { "command": "legion.update", "title": "Legion: Update Documentation" },
-      { "command": "legion.scanDirectory", "title": "Legion: Scan Directory…" },
-      { "command": "legion.lint", "title": "Legion: Lint Wiki" }
+      {
+        "command": "legion.initialize",
+        "title": "Legion: Initialize Repository"
+      },
+      {
+        "command": "legion.document",
+        "title": "Legion: Document Repository"
+      },
+      {
+        "command": "legion.update",
+        "title": "Legion: Update Documentation"
+      },
+      {
+        "command": "legion.scanDirectory",
+        "title": "Legion: Scan Directory…"
+      },
+      {
+        "command": "legion.lint",
+        "title": "Legion: Lint Wiki"
+      },
+      {
+        "command": "legion.openInObsidian",
+        "title": "Legion: Open Wiki in Obsidian"
+      },
+      {
+        "command": "legion.findEntity",
+        "title": "Legion: Find Entity…"
+      },
+      {
+        "command": "legion.drainQueue",
+        "title": "Legion: Drain Post-Commit Queue"
+      },
+      {
+        "command": "legion.viewEntityGraph",
+        "title": "Legion: View Entity Graph"
+      },
+      {
+        "command": "legion.foldLog",
+        "title": "Legion: Fold Log…"
+      },
+      {
+        "command": "legion.autoresearch",
+        "title": "Legion: Autoresearch…"
+      },
+      {
+        "command": "legion.saveConversation",
+        "title": "Legion: Save Note…"
+      },
+      {
+        "command": "legion.refreshContractDiagnostics",
+        "title": "Legion: Refresh Contract Diagnostics"
+      },
+      {
+        "command": "legion.archaeologyFile",
+        "title": "Legion: Explain Why This Was Built"
+      },
+      {
+        "command": "legion.generateOnboardingBrief",
+        "title": "Legion: Generate Onboarding Brief…"
+      },
+      {
+        "command": "legion.ingestUrl",
+        "title": "Legion: Ingest URL…"
+      },
+      {
+        "command": "legion.drainAgenda",
+        "title": "Legion: Drain Research Agenda"
+      },
+      {
+        "command": "legion.refreshWikiTree",
+        "title": "Legion: Refresh Wiki Tree",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "legion.resolveContradiction",
+        "title": "Legion: Resolve Contradictions…"
+      },
+      {
+        "command": "legion.createSharedConfig",
+        "title": "Legion: Create Shared Team Config"
+      },
+      {
+        "command": "legion.clearActiveRoot",
+        "title": "Legion: Clear Active Workspace Root"
+      },
+      {
+        "command": "legion.exportWiki",
+        "title": "Legion: Export Wiki…"
+      },
+      {
+        "command": "legion.installPrReviewBot",
+        "title": "Legion: Install PR Review Bot"
+      },
+      {
+        "command": "legion.openDashboard",
+        "title": "Legion: Open Analytics Dashboard"
+      },
+      {
+        "command": "legion.installGuardian",
+        "title": "Legion: Install Community Guardian…"
+      },
+      {
+        "command": "legion.updateGuardians",
+        "title": "Legion: Update Community Guardians"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "legion.archaeologyFile",
+          "group": "legion@1",
+          "when": "resourceExtname =~ /\\.(ts|tsx|js|jsx|py|go|rs|java|cs)$/"
+        },
+        {
+          "command": "legion.refreshContractDiagnostics",
+          "group": "legion@2",
+          "when": "resourceExtname =~ /\\.(ts|tsx|js|jsx)$/"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "legion.refreshWikiTree",
+          "when": "view == legion.wikiTree",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "legion.findEntity",
+        "key": "ctrl+shift+alt+l",
+        "mac": "cmd+shift+alt+l",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "legion.saveConversation",
+        "key": "ctrl+shift+alt+s",
+        "mac": "cmd+shift+alt+s"
+      },
+      {
+        "command": "legion.autoresearch",
+        "key": "ctrl+shift+alt+r",
+        "mac": "cmd+shift+alt+r"
+      },
+      {
+        "command": "legion.ingestUrl",
+        "key": "ctrl+shift+alt+u",
+        "mac": "cmd+shift+alt+u"
+      }
     ],
     "configuration": {
       "title": "Legion",
       "properties": {
         "legion.agentInvocationMode": {
           "type": "string",
-          "enum": ["cursor-cli", "queue-file", "direct-anthropic-api"],
+          "enum": [
+            "cursor-cli",
+            "queue-file",
+            "direct-anthropic-api"
+          ],
           "enumDescriptions": [
             "Default. Shell out to `cursor agent <name> --input <path>`. Requires Cursor CLI on PATH.",
             "Write JSON request files to `.legion/queue/`. A Cursor slash command (`/legion-drain`) processes them.",
@@ -85,22 +263,219 @@
           "type": "boolean",
           "default": false,
           "description": "Install a post-commit git hook that queues Update on every commit. (v0.2.0+)"
+        },
+        "legion.federation.publishManifest": {
+          "type": "boolean",
+          "default": false,
+          "description": "After each reconcile pass, write federation-manifest.json with all entity stubs so peer repos can reference your entities."
+        },
+        "legion.federation.peers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "URLs to remote `federation-manifest.json` files (e.g. raw GitHub URLs). Legion fetches these and writes read-only stub pages to `library/knowledge-base/wiki/external/<repo>/`."
+        },
+        "legion.injectCursorContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "After each Document/Update pass, write .cursor/rules/wiki-hot-context.md with the hot cache so Cursor automatically loads recent wiki context in chat sessions."
+        },
+        "legion.showCodeLens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show 'Legion wiki page' code lens above function/class definitions that have a matching entity page."
+        },
+        "legion.obsidianVaultPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Absolute path to your Obsidian vault folder. When set, the **Open in Obsidian** sidebar button jumps to `library/knowledge-base/wiki/` inside that vault. The vault must already be open in Obsidian at least once so Obsidian registers its name."
+        },
+        "legion.apiProvider": {
+          "type": "string",
+          "default": "anthropic",
+          "enum": [
+            "anthropic",
+            "openrouter"
+          ],
+          "enumDescriptions": [
+            "Direct Anthropic API. Requires legion.anthropicApiKey. Supports Claude models only.",
+            "OpenRouter gateway. Requires legion.openRouterApiKey. Supports 300+ models: Claude, GPT-4o, Gemini, Llama, Mistral, and more."
+          ],
+          "description": "Which LLM API provider Legion uses for direct-anthropic-api mode and Autoresearch."
+        },
+        "legion.openRouterApiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "OpenRouter API key. Get yours at [openrouter.ai/keys](https://openrouter.ai/keys). Can also be set via `LEGION_OPENROUTER_API_KEY` environment variable. Required when `legion.apiProvider` is `openrouter`."
+        },
+        "legion.openRouterModel": {
+          "type": "string",
+          "default": "anthropic/claude-sonnet-4-5",
+          "markdownDescription": "Model to use when `legion.apiProvider` is `openrouter`. Use the fully-qualified OpenRouter model ID, e.g. `anthropic/claude-sonnet-4-5`, `openai/gpt-4o`, `google/gemini-pro`, `meta-llama/llama-3.1-70b-instruct`. Browse available models at [openrouter.ai/models](https://openrouter.ai/models)."
+        },
+        "legion.model": {
+          "type": "string",
+          "default": "claude-sonnet-4-5",
+          "enum": [
+            "claude-sonnet-4-5",
+            "claude-opus-4-5",
+            "claude-haiku-4-5"
+          ],
+          "description": "Claude model used when legion.apiProvider is 'anthropic'. Ignored when using OpenRouter (use legion.openRouterModel instead)."
+        },
+        "legion.logFoldK": {
+          "type": "number",
+          "default": 3,
+          "minimum": 1,
+          "maximum": 5,
+          "description": "k value for log folding: folds 2^k entries into a checkpoint page. Default 3 → 8 entries."
+        },
+        "legion.researchRounds": {
+          "type": "number",
+          "default": 3,
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Number of synthesis rounds for Autoresearch. More rounds = deeper coverage, more API calls."
+        },
+        "legion.researchProvider": {
+          "type": "string",
+          "default": "model-only",
+          "enum": [
+            "model-only",
+            "exa",
+            "firecrawl",
+            "context7"
+          ],
+          "enumDescriptions": [
+            "Use Anthropic model knowledge only — no web calls. Fast, no extra API key needed.",
+            "Exa neural web search — finds semantically relevant pages, extracts clean text. Requires legion.exaApiKey.",
+            "Firecrawl — searches and scrapes web pages as clean markdown. Requires legion.firecrawlApiKey.",
+            "Context7 — fetches official library/framework documentation. Best for technology topics. No key required for basic use."
+          ],
+          "description": "Web search provider for Autoresearch. Grounding synthesis in real web content produces more accurate, up-to-date wiki pages."
+        },
+        "legion.exaApiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Exa API key for Autoresearch web search. Get yours at [exa.ai](https://exa.ai). Can also be set via `LEGION_EXA_API_KEY` environment variable."
+        },
+        "legion.firecrawlApiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Firecrawl API key for Autoresearch web scraping. Get yours at [firecrawl.dev](https://firecrawl.dev). Can also be set via `LEGION_FIRECRAWL_API_KEY` environment variable."
+        },
+        "legion.context7ApiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Context7 API key for higher-rate library documentation access. Optional — Context7 works without a key for basic usage. Can also be set via `LEGION_CONTEXT7_API_KEY` environment variable."
+        },
+        "legion.researchMaxResults": {
+          "type": "number",
+          "default": 5,
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Maximum number of search results to fetch per research round when a web provider is configured."
+        },
+        "legion.contractValidation": {
+          "type": "boolean",
+          "default": true,
+          "description": "On every file save, compare exported function signatures against wiki entity pages and show a warning when they diverge."
+        },
+        "legion.autoGitCommit": {
+          "type": "boolean",
+          "default": false,
+          "description": "Auto-commit wiki changes to git after each Document/Update pass (equivalent to claude-obsidian's PostToolUse hook)."
+        },
+        "legion.semanticSearchEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable semantic search (Cohere or TF-IDF) for Find Entity. When false, uses the original fuzzy string match."
+        },
+        "legion.cohereApiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Cohere API key for semantic search embeddings. Prefer setting via `LEGION_COHERE_API_KEY` environment variable. When empty, TF-IDF fallback is used (no API key required)."
+        },
+        "legion.researchSchedule": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Cron expression for automatic research agenda draining. Examples: `\"0 9 * * 1\"` (Monday 9am), `\"0 8 * * *\"` (daily 8am). Empty string disables. Requires `legion.researchScheduleEnabled`."
+        },
+        "legion.researchScheduleEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Safety gate — must be explicitly set to true for the research schedule to fire."
+        },
+        "legion.activeRoot": {
+          "type": "string",
+          "default": "",
+          "description": "Pin a specific workspace folder path for all Legion commands. When set, skips the workspace root picker. Relative paths resolved from the first workspace folder."
+        },
+        "legion.scanRoots": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "Monorepo sub-paths to scan as separate module groups (e.g. `[\"packages/api\", \"packages/web\"]`). Empty = single-root mode."
+        },
+        "legion.wikiRoot": {
+          "type": "string",
+          "default": "",
+          "description": "Override the default wiki output path. Default: <repoRoot>/library/knowledge-base/wiki/. Relative paths resolved from repo root."
+        },
+        "legion.exportTarget": {
+          "type": "string",
+          "default": "html",
+          "enum": [
+            "docusaurus",
+            "html",
+            "markdown"
+          ],
+          "enumDescriptions": [
+            "Docusaurus v3 — generates MDX files, sidebars.js, and docusaurus.config.js. Run npx docusaurus build to publish.",
+            "Static HTML — self-contained site with sidebar nav. Open index.html directly in a browser.",
+            "Markdown Bundle — flat copy of the wiki tree. Import into Confluence, Notion, or GitBook."
+          ],
+          "description": "Default export format for legion.exportWiki. The format QuickPick always lets you choose a different format per run."
+        },
+        "legion.exportOutputDir": {
+          "type": "string",
+          "default": "./docs-export",
+          "description": "Output directory for wiki exports. Relative paths resolved from repo root."
+        },
+        "legion.injectClaudeContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "After each reconcile pass, write or update a ## Legion Wiki section in CLAUDE.md at the repo root. Claude Code auto-loads this file at session start, giving it immediate wiki routing context."
+        },
+        "legion.guardianRegistryUrl": {
+          "type": "string",
+          "default": "https://raw.githubusercontent.com/legion-project/legion-guardian-registry/main/registry.json",
+          "description": "URL of the Legion community guardian registry JSON file. Override to use a private or fork registry."
         }
       }
     }
   },
   "scripts": {
     "compile": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
+    "compile:cli": "esbuild src/cli/legionCli.ts --bundle --outfile=dist/cli.js --format=cjs --platform=node --sourcemap",
+    "compile:mcp": "esbuild src/mcp/legionMcpServer.ts --bundle --outfile=dist/mcp-server.js --format=cjs --platform=node --external:vscode --sourcemap",
+    "compile:all": "npm run compile && npm run compile:cli && npm run compile:mcp",
     "watch": "npm run compile -- --watch",
     "type-check": "tsc --noEmit",
     "snapshot": "bash scripts/snapshot-bundled.sh",
-    "package": "npm run snapshot && npm run compile -- --minify && vsce package --no-dependencies"
+    "package": "npm run snapshot && npm run compile:all -- --minify && vsce package --no-dependencies --baseContentUrl https://localhost --baseImagesUrl https://localhost"
   },
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.85.0",
     "@vscode/vsce": "^2.24.0",
     "esbuild": "^0.20.0",
-    "typescript": "^5.3.0"
+    "typescript": "^5.3.0",
+    "zod": "^3.25.76"
   }
 }

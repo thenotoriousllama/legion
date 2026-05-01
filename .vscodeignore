@@ -12,3 +12,6 @@ node_modules/**
 out/**
 scripts/**
 esbuild.config.mjs
+companion-plugins/**
+schemas/**
+library/**

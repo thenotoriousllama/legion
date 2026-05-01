@@ -4,3 +4,5 @@ out/
 *.vsix
 .vscode-test/
 bundled/
+.cursor/
+.legion/embeddings.json

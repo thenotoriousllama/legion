@@ -5,11 +5,14 @@ import type { Mode, InvocationPayload, PriorPage } from "../types/payload";
 import type { LegionIgnore } from "./legionignore";
 import type { HashManifest } from "./hashDiff";
 import { loadLegionIgnore } from "./legionignore";
+import { mergeSharedIgnore } from "./sharedConfig";
 import { diffFiles, loadManifest } from "./hashDiff";
-import { planChunks, loadChunkContent } from "./chunkPlanner";
+import { planChunks, loadChunkContent, topLevelModule } from "./chunkPlanner";
 import { getGitContextMany } from "./gitContext";
 import { invokeAgent } from "./agentInvoker";
 import { reconcile, type ChunkResult } from "./reconciler";
+import { autoCommitWiki } from "./gitCommit";
+import { resolveWikiRoot, resolveScanRoots } from "../util/repoRoot";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -56,11 +59,21 @@ export async function runDocumentPass(
       cancellable: false,
     },
     async (progress) => {
-      // ── 1. Walk the repo ─────────────────────────────────────────────────
+      // ── 1. Walk the repo (monorepo-aware) ────────────────────────────────
       progress.report({ message: "Walking repository…", increment: 5 });
-      const ignore = await loadLegionIgnore(repoRoot);
+      const baseIgnore = await loadLegionIgnore(repoRoot);
+      const ignore = await mergeSharedIgnore(repoRoot, baseIgnore);
       const allAbsFiles: string[] = [];
-      await walkDir(scopeDir ?? repoRoot, ignore, allAbsFiles);
+
+      if (scopeDir) {
+        await walkDir(scopeDir, ignore, allAbsFiles);
+      } else {
+        // Feature 005: walk each scan root; fall back to repoRoot in single-root mode
+        const scanRoots = resolveScanRoots(repoRoot);
+        for (const sr of scanRoots) {
+          await walkDir(sr, ignore, allAbsFiles);
+        }
+      }
 
       // ── 2. Filter by mode ────────────────────────────────────────────────
       progress.report({ message: "Computing file diff…", increment: 5 });
@@ -90,7 +103,8 @@ export async function runDocumentPass(
         increment: 5,
       });
       const chunks = planChunks(repoRoot, filesToScan, mode);
-      const wikiRoot = path.join(repoRoot, "library", "knowledge-base", "wiki");
+      // Feature 005: use resolveWikiRoot so legion.wikiRoot setting is respected
+      const wikiRoot = resolveWikiRoot(repoRoot);
 
       // ── 4. Load manifest (prior_state in update mode) ────────────────────
       const manifest = await loadManifest(repoRoot);
@@ -149,10 +163,64 @@ export async function runDocumentPass(
         }
       });
 
-      // ── 6. Reconcile global wiki state ───────────────────────────────────
+      // ── 6a. Invoke library-guardian per top-level module (parallel) ──────
+      if (mode !== "lint") {
+        progress.report({ message: "Invoking library-guardian…", increment: 3 });
+        const libGuardianAvailable = await agentExists(repoRoot, "library-guardian");
+        if (libGuardianAvailable) {
+          const moduleGroups = groupByModule(repoRoot, filesToScan);
+          await runWithConcurrency(
+            [...moduleGroups.entries()],
+            maxParallel,
+            async ([moduleName, absModFiles]) => {
+              const moduleChunkFiles = await Promise.all(
+                absModFiles.map(async (abs) => {
+                  const rel = path.relative(repoRoot, abs).replace(/\\/g, "/");
+                  try {
+                    const content = await fs.readFile(abs, "utf8");
+                    return { path: rel, content };
+                  } catch {
+                    return null;
+                  }
+                })
+              ).then((r) => r.filter((f): f is { path: string; content: string } => f !== null));
+
+              if (moduleChunkFiles.length === 0) return;
+              const gitCtx = await getGitContextMany(repoRoot, absModFiles);
+              const libPayload: InvocationPayload = {
+                mode,
+                chunk: moduleChunkFiles,
+                git_context: gitCtx,
+                prior_state: [],
+                wiki_root: wikiRoot,
+                page_caps: PAGE_CAPS,
+                callout_vocabulary: CALLOUT_VOCABULARY,
+              };
+              try {
+                await invokeAgent("library-guardian", libPayload, repoRoot, context);
+              } catch (e) {
+                chunkErrors.push(
+                  `library-guardian for "${moduleName}" failed: ${e instanceof Error ? e.message : String(e)}`
+                );
+              }
+            }
+          );
+        }
+      }
+
+      // ── 6b. Reconcile global wiki state ──────────────────────────────────
       progress.report({ message: "Reconciling wiki state…", increment: 5 });
       const summary = await reconcile(repoRoot, chunkResults);
       summary.errors.push(...chunkErrors);
+
+      // ── 6c. Auto git-commit if enabled ───────────────────────────────────
+      if (summary.pagesAffected > 0 && vsConfig.get<boolean>("autoGitCommit", false)) {
+        try {
+          await autoCommitWiki(repoRoot);
+        } catch (e) {
+          summary.errors.push(`auto git-commit failed: ${e instanceof Error ? e.message : String(e)}`);
+        }
+      }
 
       // ── 7. Surface results ───────────────────────────────────────────────
       const parts: string[] = [
@@ -192,7 +260,7 @@ async function walkDir(
   ignore: LegionIgnore,
   result: string[]
 ): Promise<void> {
-  let entries: fs.Dirent[];
+  let entries: import("fs").Dirent[];
   try {
     entries = await fs.readdir(dir, { withFileTypes: true });
   } catch {
@@ -313,4 +381,26 @@ function modeLabel(mode: Mode): string {
     case "lint":
       return "Lint Wiki";
   }
+}
+
+/** Check whether a bundled agent is installed in the repo's .cursor/agents/. */
+async function agentExists(repoRoot: string, agentName: string): Promise<boolean> {
+  try {
+    await fs.access(path.join(repoRoot, ".cursor", "agents", `${agentName}.md`));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Group absolute file paths by top-level module key. */
+function groupByModule(repoRoot: string, absFiles: string[]): Map<string, string[]> {
+  const groups = new Map<string, string[]>();
+  for (const abs of absFiles) {
+    const mod = topLevelModule(repoRoot, abs);
+    const list = groups.get(mod) ?? [];
+    list.push(abs);
+    groups.set(mod, list);
+  }
+  return groups;
 }

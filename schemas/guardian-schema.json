@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/legion-project/legion-guardian-registry/schemas/guardian-schema.json",
+  "title": "Legion Community Guardian Manifest",
+  "description": "Schema for guardian.json in a Legion community guardian package.",
+  "type": "object",
+  "required": ["name", "displayName", "description", "version", "minLegionVersion", "agentFile", "author", "homepage", "tags", "license"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Package name: lowercase-kebab, no spaces. Must be globally unique in the registry."
+    },
+    "displayName": {
+      "type": "string",
+      "maxLength": 60,
+      "description": "Human-readable display name shown in the VS Code QuickPick."
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 120,
+      "description": "Short description (≤ 120 chars) shown in the QuickPick detail line."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver version string."
+    },
+    "minLegionVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Minimum Legion VS Code extension version required."
+    },
+    "agentFile": {
+      "type": "string",
+      "description": "Relative path to the guardian agent prompt (typically 'agent.md')."
+    },
+    "skillFiles": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Relative paths to skill weapon files (under skills/)."
+    },
+    "author": {
+      "type": "string",
+      "description": "Author display name or GitHub handle."
+    },
+    "homepage": {
+      "type": "string",
+      "format": "uri",
+      "description": "GitHub repository URL."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+      "minItems": 1,
+      "maxItems": 10,
+      "description": "Searchable tags (lowercase-kebab)."
+    },
+    "license": {
+      "type": "string",
+      "description": "SPDX license identifier (must be OSI-approved, e.g. 'MIT', 'Apache-2.0')."
+    },
+    "pinned": {
+      "type": "boolean",
+      "description": "If true, this guardian is excluded from auto-update checks."
+    }
+  }
+}

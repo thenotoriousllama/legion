@@ -9,6 +9,13 @@ import {
   hashFile,
   updateManifestEntry,
 } from "./hashDiff";
+import { buildEntityGraph } from "./graphBuilder";
+import { publishFederationManifest } from "./federationPublisher";
+import { fetchFederationPeers } from "./federationFetcher";
+import { injectAddresses } from "./addressAllocator";
+import { computeCoverage, saveCoverage } from "./coverageTracker";
+import { writeSnapshot } from "./snapshotManager";
+import { injectClaudeContext } from "../context/claudeMdWriter";
 
 // ── Public types ─────────────────────────────────────────────────────────────
 
@@ -110,6 +117,13 @@ export async function reconcile(
 
   if (validResults.length === 0) return summary;
 
+  // ── Step 0.5: Inject stable page addresses ────────────────────────────────
+  try {
+    await injectAddresses(repoRoot, wikiRoot, [...allCreated]);
+  } catch (e) {
+    summary.errors.push(`address injection failed: ${errMsg(e)}`);
+  }
+
   // ── Step 1: Prepend log entries ──────────────────────────────────────────
   try {
     await prependToLog(wikiRoot, validResults, now);
@@ -203,7 +217,330 @@ export async function reconcile(
     }
   }
 
+  // ── Step 9: Rebuild entity graph (graph.md) ───────────────────────────────
+  try {
+    await buildEntityGraph(repoRoot);
+  } catch (e) {
+    summary.errors.push(`graph.md build failed: ${errMsg(e)}`);
+  }
+
+  // ── Step 10: Requirements → entity traceability ──────────────────────────
+  try {
+    await linkRequirementsToEntities(repoRoot, validResults);
+  } catch (e) {
+    summary.errors.push(`requirements traceability failed: ${errMsg(e)}`);
+  }
+
+  // ── Step 11: Inject hot.md into .cursor/rules/wiki-hot-context.md ────────
+  const injectContext = vscode.workspace
+    .getConfiguration("legion")
+    .get<boolean>("injectCursorContext", true);
+  if (injectContext) {
+    try {
+      await injectHotContext(repoRoot, wikiRoot);
+    } catch (e) {
+      summary.errors.push(`cursor context injection failed: ${errMsg(e)}`);
+    }
+  }
+
+  // ── Step 12: Federation publish + fetch ──────────────────────────────────
+  const fedConfig = vscode.workspace.getConfiguration("legion").get<{
+    publishManifest?: boolean;
+    peers?: string[];
+  }>("federation", {});
+  if (fedConfig.publishManifest) {
+    try {
+      await publishFederationManifest(repoRoot);
+    } catch (e) {
+      summary.errors.push(`federation publish failed: ${errMsg(e)}`);
+    }
+  }
+  if (fedConfig.peers && fedConfig.peers.length > 0) {
+    try {
+      await fetchFederationPeers(repoRoot, fedConfig.peers);
+    } catch (e) {
+      summary.errors.push(`federation fetch failed: ${errMsg(e)}`);
+    }
+  }
+
+  // ── Step 13: Persist contradiction inbox to .legion/config.json ───────────
+  const newContradictions = validResults.flatMap((cr) =>
+    cr.response.contradictions_flagged.map((c) => ({
+      ...c,
+      date: now.toISOString().slice(0, 10),
+    }))
+  );
+  if (newContradictions.length > 0) {
+    try {
+      await appendContradictionInbox(repoRoot, newContradictions);
+    } catch (e) {
+      summary.errors.push(`contradiction inbox update failed: ${errMsg(e)}`);
+    }
+  }
+
+  // ── Step 14: Compute and save wiki coverage (knowledge debt tracker) ───────
+  let coverage: Awaited<ReturnType<typeof computeCoverage>> | undefined;
+  try {
+    coverage = await computeCoverage(repoRoot);
+    await saveCoverage(repoRoot, coverage);
+    // Push to sidebar
+    void vscode.commands.executeCommand("legion.internal.coverageUpdate", coverage);
+  } catch (e) {
+    summary.errors.push(`coverage tracker failed: ${errMsg(e)}`);
+  }
+
+  // ── Step 15: Claude Code context injection (feature-007) ──────────────────
+  if (coverage && vscode.workspace.getConfiguration("legion").get<boolean>("injectClaudeContext", true)) {
+    try {
+      await injectClaudeContext(repoRoot, coverage.total);
+    } catch (e) {
+      summary.errors.push(`CLAUDE.md injection failed: ${errMsg(e)}`);
+    }
+  }
+
+  // ── Step 16: Persist analytics snapshot (feature-010) ────────────────────
+  if (coverage) {
+    try {
+      await writeSnapshot(repoRoot, {
+        entityCount: coverage.total,
+        byStatus: {
+          seed: coverage.byStatus["seed"] ?? 0,
+          developing: coverage.byStatus["developing"] ?? 0,
+          mature: coverage.byStatus["mature"] ?? 0,
+          evergreen: coverage.byStatus["evergreen"] ?? 0,
+        },
+        byModule: Object.fromEntries(
+          Object.entries(coverage.byModule).map(([k, v]) => [
+            k,
+            {
+              total: v.total,
+              mature: v.mature,
+              pct: v.total > 0 ? Math.round((v.mature / v.total) * 100) : 0,
+            },
+          ])
+        ),
+        adrCount: summary.decisionsAllocated,
+        contradictionsDetected: summary.contradictions,
+        contradictionsResolved: 0,
+        maturityPct: coverage.maturityPct,
+      });
+      void vscode.commands.executeCommand("legion.internal.dashboardRefresh");
+    } catch (e) {
+      summary.errors.push(`snapshot write failed: ${errMsg(e)}`);
+    }
+  }
+
+  // Refresh wiki tree after each pass
+  void vscode.commands.executeCommand("legion.refreshWikiTree");
+
   return summary;
+}
+
+// ── Contradiction inbox helpers ───────────────────────────────────────────────
+
+export interface ContradictionEntry {
+  old: string;
+  new: string;
+  reason: string;
+  commit: string;
+  date: string;
+}
+
+async function appendContradictionInbox(
+  repoRoot: string,
+  entries: ContradictionEntry[]
+): Promise<void> {
+  const configPath = path.join(repoRoot, ".legion", "config.json");
+  let config: Record<string, unknown> = {};
+  try {
+    config = JSON.parse(await fs.readFile(configPath, "utf8")) as Record<string, unknown>;
+  } catch {
+    // Config may not exist yet — start fresh.
+  }
+  const existing = (config.contradiction_inbox as ContradictionEntry[] | undefined) ?? [];
+  config.contradiction_inbox = [...existing, ...entries];
+  await fs.mkdir(path.dirname(configPath), { recursive: true });
+  await fs.writeFile(configPath, JSON.stringify(config, null, 2));
+}
+
+export async function readContradictionInbox(repoRoot: string): Promise<ContradictionEntry[]> {
+  const configPath = path.join(repoRoot, ".legion", "config.json");
+  try {
+    const config = JSON.parse(await fs.readFile(configPath, "utf8")) as Record<string, unknown>;
+    return (config.contradiction_inbox as ContradictionEntry[] | undefined) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function removeContradictionFromInbox(
+  repoRoot: string,
+  index: number
+): Promise<void> {
+  const configPath = path.join(repoRoot, ".legion", "config.json");
+  const config = JSON.parse(await fs.readFile(configPath, "utf8")) as Record<string, unknown>;
+  const inbox = (config.contradiction_inbox as ContradictionEntry[] | undefined) ?? [];
+  inbox.splice(index, 1);
+  config.contradiction_inbox = inbox;
+  await fs.writeFile(configPath, JSON.stringify(config, null, 2));
+}
+
+// ── Cursor context injection ──────────────────────────────────────────────────
+
+/**
+ * Write `.cursor/rules/wiki-hot-context.md` in the target repo so Cursor's
+ * context system automatically picks up the recently-touched entities and
+ * modules on every chat session.
+ *
+ * The file wraps `hot.md` content in a Cursor rules frontmatter block.
+ * Controlled by `legion.injectCursorContext` (default `true`).
+ */
+export async function injectHotContext(repoRoot: string, wikiRoot: string): Promise<void> {
+  const hotPath = path.join(wikiRoot, "hot.md");
+  let hotContent: string;
+  try {
+    hotContent = await fs.readFile(hotPath, "utf8");
+  } catch {
+    return; // hot.md not yet written
+  }
+
+  // Strip frontmatter from hot.md before embedding
+  const bodyStart = hotContent.indexOf("\n# ");
+  const body = bodyStart >= 0 ? hotContent.slice(bodyStart + 1) : hotContent;
+
+  const rulesContent = [
+    `---`,
+    `description: Legion wiki hot cache — recently touched entities and modules.`,
+    `globs: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]`,
+    `alwaysApply: false`,
+    `---`,
+    ``,
+    `<!-- Auto-generated by Legion after each Document/Update pass. Do not edit. -->`,
+    ``,
+    body.trim(),
+  ].join("\n");
+
+  const rulesDir = path.join(repoRoot, ".cursor", "rules");
+  await fs.mkdir(rulesDir, { recursive: true });
+  await fs.writeFile(path.join(rulesDir, "wiki-hot-context.md"), rulesContent);
+}
+
+// ── Requirements → entity traceability ───────────────────────────────────────
+
+/**
+ * Cross-reference detected entities against requirement files in
+ * `library/requirements/features/*.md` and `library/requirements/issues/*.md`.
+ *
+ * For each match (entity name found in requirement title or body):
+ *  - Appends `satisfies: [[requirements/features/<name>]]` to the entity page
+ *  - Appends `implemented_by: [[entities/<entity>]]` to the requirement page
+ *
+ * All writes are idempotent — checks for existing links before appending.
+ */
+async function linkRequirementsToEntities(
+  repoRoot: string,
+  results: ChunkResult[]
+): Promise<void> {
+  const reqDirs = [
+    path.join(repoRoot, "library", "requirements", "features"),
+    path.join(repoRoot, "library", "requirements", "issues"),
+  ];
+  const wikiEntityDir = path.join(repoRoot, "library", "knowledge-base", "wiki", "entities");
+
+  // Collect all requirement files
+  const reqFiles: Array<{ absPath: string; relPath: string; content: string }> = [];
+  for (const dir of reqDirs) {
+    let entries: string[];
+    try {
+      entries = await fs.readdir(dir);
+    } catch {
+      continue;
+    }
+    for (const file of entries) {
+      if (!file.endsWith(".md")) continue;
+      const absPath = path.join(dir, file);
+      try {
+        const content = await fs.readFile(absPath, "utf8");
+        const relPath = path
+          .relative(path.join(repoRoot, "library"), absPath)
+          .replace(/\\/g, "/");
+        reqFiles.push({ absPath, relPath, content });
+      } catch {
+        // skip
+      }
+    }
+  }
+
+  if (reqFiles.length === 0) return;
+
+  // For each detected entity, search requirement files
+  const allEntities = results.flatMap((r) => r.response.entities_detected);
+  for (const entity of allEntities) {
+    const entityName = entity.name;
+    const entityPageAbs = path.join(wikiEntityDir, `${entityName}.md`);
+    // Try kebab-case fallback
+    const kebabName = entityName.replace(/([A-Z])/g, "-$1").toLowerCase().replace(/^-/, "");
+    const entityPageKebab = path.join(wikiEntityDir, `${kebabName}.md`);
+
+    let entityAbsPath = "";
+    for (const candidate of [entityPageAbs, entityPageKebab]) {
+      try {
+        await fs.access(candidate);
+        entityAbsPath = candidate;
+        break;
+      } catch {
+        // try next
+      }
+    }
+    if (!entityAbsPath) continue;
+
+    for (const req of reqFiles) {
+      // Simple name match — entity name appears in the requirement file
+      if (!req.content.includes(entityName)) continue;
+
+      const reqWikilink = `[[${req.relPath.replace(/\.md$/, "")}]]`;
+      const entityWikilink = `[[entities/${path.basename(entityAbsPath, ".md")}]]`;
+
+      // Append `satisfies:` to entity page if not already present
+      let entityContent = await fs.readFile(entityAbsPath, "utf8");
+      if (!entityContent.includes(reqWikilink)) {
+        entityContent = appendFrontmatterField(entityContent, "satisfies", reqWikilink);
+        await fs.writeFile(entityAbsPath, entityContent);
+      }
+
+      // Append `implemented_by:` to requirement page if not already present
+      if (!req.content.includes(entityWikilink)) {
+        const newReqContent = appendFrontmatterField(req.content, "implemented_by", entityWikilink);
+        await fs.writeFile(req.absPath, newReqContent);
+        req.content = newReqContent; // update in-memory to avoid re-writing
+      }
+    }
+  }
+}
+
+/**
+ * Append a value to a YAML frontmatter field. If the field already exists,
+ * appends to the existing value (comma-separated). If not, adds a new field
+ * after the closing `---` delimiter.
+ */
+function appendFrontmatterField(content: string, field: string, value: string): string {
+  const lines = content.split("\n");
+  const closeIdx = lines.findIndex((l, i) => i > 0 && l.trim() === "---");
+  if (closeIdx === -1) return content;
+
+  // Check if field already exists in frontmatter
+  const fieldIdx = lines.findIndex(
+    (l, i) => i > 0 && i < closeIdx && l.startsWith(`${field}:`)
+  );
+
+  if (fieldIdx >= 0) {
+    // Append to existing field
+    lines[fieldIdx] = `${lines[fieldIdx].trimEnd()}, ${value}`;
+  } else {
+    // Insert new field before closing ---
+    lines.splice(closeIdx, 0, `${field}: ${value}`);
+  }
+  return lines.join("\n");
 }
 
 // ── Step 0: Invariant validation ─────────────────────────────────────────────

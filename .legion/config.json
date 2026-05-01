@@ -1,0 +1,35 @@
+{
+  "version": "0.1.0",
+  "wiki_root": "library/knowledge-base/wiki",
+  "library_root": "library",
+  "guardians_installed": [
+    "wiki-guardian",
+    "library-guardian",
+    "asset-guardian",
+    "auth-guardian",
+    "db-guardian",
+    "design-system-guardian",
+    "devops-guardian",
+    "mind-guardian",
+    "payments-guardian",
+    "quality-guardian",
+    "react-guardian",
+    "security-guardian",
+    "seo-aeo-guardian",
+    "ux-ui-guardian"
+  ],
+  "agent_invocation_mode": "cursor-cli",
+  "page_caps": {
+    "max_lines_per_page": 300,
+    "target_pages_per_chunk": [
+      8,
+      15
+    ]
+  },
+  "callout_vocabulary": [
+    "[!contradiction]",
+    "[!stale]",
+    "[!gap]",
+    "[!key-insight]"
+  ]
+}

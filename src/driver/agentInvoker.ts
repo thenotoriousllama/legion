@@ -1,10 +1,12 @@
 import * as vscode from "vscode";
+import * as https from "https";
 import { execFile } from "child_process";
 import { promisify } from "util";
 import * as fs from "fs/promises";
 import * as path from "path";
 import type { InvocationPayload } from "../types/payload";
 import type { InvocationResponse } from "../types/response";
+import { callLlm, type LlmConfig } from "./llmClient";
 
 const exec = promisify(execFile);
 
@@ -117,30 +119,107 @@ async function invokeQueueFile(
 // ──────────────────────────────────────────────────────────────────────────────
 
 async function invokeAnthropicApi(
-  _agentName: string,
-  _payload: InvocationPayload,
+  agentName: string,
+  payload: InvocationPayload,
   config: vscode.WorkspaceConfiguration
 ): Promise<InvocationResponse> {
-  const apiKey =
-    config.get<string>("anthropicApiKey") ||
-    process.env.LEGION_ANTHROPIC_API_KEY ||
-    "";
-  if (!apiKey) {
+  // ── Build LLM config (Anthropic or OpenRouter) ────────────────────────────
+  const provider = config.get<"anthropic" | "openrouter">("apiProvider", "anthropic");
+  const llmConfig: LlmConfig = {
+    provider,
+    anthropicApiKey:
+      config.get<string>("anthropicApiKey") || process.env.LEGION_ANTHROPIC_API_KEY || "",
+    openRouterApiKey:
+      config.get<string>("openRouterApiKey") || process.env.LEGION_OPENROUTER_API_KEY || "",
+    model:
+      provider === "openrouter"
+        ? (config.get<string>("openRouterModel") || "anthropic/claude-sonnet-4-5")
+        : (config.get<string>("model") || "claude-sonnet-4-5"),
+    maxTokens: 8192,
+  };
+
+  // 1. Load agent system prompt from .cursor/agents/<agentName>.md
+  const repoRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? "";
+  const agentPath = path.join(repoRoot, ".cursor", "agents", `${agentName}.md`);
+  let systemPrompt: string;
+  try {
+    systemPrompt = await fs.readFile(agentPath, "utf8");
+  } catch {
     throw new Error(
-      "legion.anthropicApiKey or LEGION_ANTHROPIC_API_KEY required for direct-anthropic-api mode."
+      `direct-api: agent file not found at ${agentPath}. ` +
+        "Run Legion: Initialize Repository first."
     );
   }
-  // TODO v0.2.0:
-  //  1. Read .cursor/agents/<agentName>.md (the Angel) for the system prompt.
-  //  2. Read every file referenced in the Angel's "References to skill files" section,
-  //     concatenated into the system context.
-  //  3. POST /v1/messages with model=claude-sonnet-X, system=<above>, user=<JSON of payload>.
-  //  4. Parse model response (it should return a JSON object matching InvocationResponse).
-  //  5. Return the parsed response.
-  //  Add @anthropic-ai/sdk to package.json dependencies for v0.2.0.
-  throw new Error(
-    "direct-anthropic-api mode is a v0.2.0 stub. Use cursor-cli or queue-file mode for v0.1.0."
-  );
+
+  // 2. Append skill files referenced in the agent's ## References section
+  const skillRefs = extractSkillRefs(systemPrompt);
+  const skillContents: string[] = [];
+  for (const ref of skillRefs) {
+    const refPath = path.join(repoRoot, ".cursor", ref.replace(/^\//, ""));
+    try {
+      const content = await fs.readFile(refPath, "utf8");
+      skillContents.push(`\n\n<!-- skill: ${ref} -->\n${content}`);
+    } catch {
+      // Skill file missing — skip, don't abort.
+    }
+  }
+  const fullSystem = systemPrompt + skillContents.join("");
+
+  // 3. Call the configured LLM provider
+  const text = await callLlm(llmConfig, fullSystem, JSON.stringify(payload, null, 2));
+
+  // 4. Parse the agent's JSON response (may be wrapped in chatter/markdown)
+  return parseResponse(text);
+}
+
+/** Extract skill/reference file paths from an agent's ## References section. */
+function extractSkillRefs(agentContent: string): string[] {
+  const refs: string[] = [];
+  // Match markdown links like [label](path) or bare paths under ## References
+  const section = agentContent.match(/##\s+References[\s\S]*?(?=^##|\z)/m)?.[0] ?? "";
+  const linkRe = /\[.*?\]\(([^)]+\.md)\)/g;
+  let m: RegExpExecArray | null;
+  while ((m = linkRe.exec(section)) !== null) {
+    refs.push(m[1]);
+  }
+  return refs;
+}
+
+/** Simple HTTPS POST using Node's built-in https module (no npm dependency). */
+function httpsPost(
+  hostname: string,
+  path_: string,
+  body: string,
+  headers: Record<string, string>
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      {
+        hostname,
+        path: path_,
+        method: "POST",
+        headers: {
+          ...headers,
+          "content-length": Buffer.byteLength(body),
+        },
+      },
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on("data", (d: Buffer) => chunks.push(d));
+        res.on("end", () => {
+          const text = Buffer.concat(chunks).toString("utf8");
+          if ((res.statusCode ?? 0) >= 400) {
+            reject(new Error(`Anthropic HTTP ${res.statusCode}: ${text.slice(0, 300)}`));
+          } else {
+            resolve(text);
+          }
+        });
+      }
+    );
+    req.on("error", reject);
+    req.write(body);
+    req.end();
+  });
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
