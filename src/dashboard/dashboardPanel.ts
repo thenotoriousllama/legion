@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import * as crypto from "crypto";
 import { loadSnapshots, type Snapshot } from "../driver/snapshotManager";
 import { renderLineChart } from "./charts/lineChart";
 import { renderStackedAreaChart } from "./charts/stackedAreaChart";
@@ -200,8 +201,5 @@ export class DashboardPanel {
 }
 
 function getNonce(): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let text = "";
-  for (let i = 0; i < 32; i++) text += chars.charAt(Math.floor(Math.random() * chars.length));
-  return text;
+  return crypto.randomBytes(16).toString("hex");
 }

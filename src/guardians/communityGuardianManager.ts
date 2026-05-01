@@ -84,6 +84,20 @@ export class CommunityGuardianManager {
     }
     const manifest = JSON.parse(manifestResult.body) as GuardianManifest;
 
+    // ── Path-traversal guards ─────────────────────────────────────────────────
+    // manifest.name must be a safe npm-package-name style identifier so it cannot
+    // escape the community-guardians/ directory (e.g. "../../.cursor/rules/evil").
+    assertSafeGuardianName(manifest.name);
+
+    const communityRoot = path.join(this.legionSharedRoot, "community-guardians");
+    const destDir = path.resolve(communityRoot, manifest.name);
+    // Double-check after resolve (should be redundant after name validation, but
+    // defence-in-depth requires the prefix check here too).
+    assertWithinRoot(communityRoot, destDir, "guardian name");
+
+    // agentFile must resolve inside destDir
+    assertWithinRoot(destDir, path.resolve(destDir, manifest.agentFile), "agentFile");
+
     // Fetch agent.md
     const agentResult = await httpsGet(`${baseUrl}/${manifest.agentFile}`, {});
     if (agentResult.statusCode !== 200) {
@@ -91,9 +105,10 @@ export class CommunityGuardianManager {
     }
     const agentContent = agentResult.body;
 
-    // Fetch skill files
+    // Fetch skill files — each must also stay within destDir
     const skillContents: Record<string, string> = {};
     for (const skillFile of manifest.skillFiles ?? []) {
+      assertWithinRoot(destDir, path.resolve(destDir, skillFile), `skillFile "${skillFile}"`);
       const skillResult = await httpsGet(`${baseUrl}/${skillFile}`, {});
       if (skillResult.statusCode !== 200) {
         throw new Error(`Failed to fetch skill file: ${skillFile} (HTTP ${skillResult.statusCode})`);
@@ -102,14 +117,13 @@ export class CommunityGuardianManager {
     }
 
     // Write to disk
-    const destDir = path.join(this.legionSharedRoot, "community-guardians", manifest.name);
     await fs.mkdir(path.join(destDir, "skills"), { recursive: true });
 
     await fs.writeFile(path.join(destDir, "guardian.json"), JSON.stringify(manifest, null, 2));
     await fs.writeFile(path.join(destDir, manifest.agentFile), agentContent);
 
     for (const [filePath, content] of Object.entries(skillContents)) {
-      const dest = path.join(destDir, filePath);
+      const dest = path.resolve(destDir, filePath);
       await fs.mkdir(path.dirname(dest), { recursive: true });
       await fs.writeFile(dest, content);
     }
@@ -140,6 +154,40 @@ export class CommunityGuardianManager {
     } catch {
       return [];
     }
+  }
+}
+
+// ── Path-traversal guard helpers ──────────────────────────────────────────────
+
+/**
+ * Validates that `name` is a safe npm-package-name style identifier:
+ * lowercase letters, digits, hyphens, and underscores only, starting with
+ * a letter or digit.  Rejects anything containing slashes, dots, or `..`.
+ */
+function assertSafeGuardianName(name: string): void {
+  if (!/^[a-z0-9][a-z0-9\-_]{0,213}$/.test(name)) {
+    throw new Error(
+      `Guardian name "${name}" is invalid. Expected lowercase-kebab format (letters, digits, hyphens, underscores only).`
+    );
+  }
+}
+
+/**
+ * Asserts that `resolved` (an absolute path that is already path.resolve()-d)
+ * is a strict sub-path of `root` (also absolute).
+ * Throws if `resolved` equals `root` (must be *inside*, not at root itself)
+ * or if it escapes the root via traversal.
+ */
+function assertWithinRoot(root: string, resolved: string, label: string): void {
+  const normalizedRoot = path.normalize(root);
+  const normalizedResolved = path.normalize(resolved);
+  if (
+    normalizedResolved !== normalizedRoot &&
+    !normalizedResolved.startsWith(normalizedRoot + path.sep)
+  ) {
+    throw new Error(
+      `Unsafe ${label}: path escapes the allowed directory ("${normalizedResolved}" is not inside "${normalizedRoot}")`
+    );
   }
 }
 

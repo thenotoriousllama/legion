@@ -17,6 +17,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+import * as path from "path";
 
 import {
   handleDocument,
@@ -27,7 +28,57 @@ import {
   handleDrainAgenda,
 } from "./toolHandlers.js";
 
-// ── Server definition ──────────────────────────────────────────────────────────
+// ── Repo-root validation ───────────────────────────────────────────────────────
+//
+// The MCP server accepts a caller-supplied `repoRoot` parameter.  Without
+// validation a malicious MCP host could pass `repoRoot: "/"` and trigger a
+// full filesystem walk whose contents are then sent to the Anthropic API.
+//
+// Mitigation strategy (defence-in-depth):
+//   1. `repoRoot` must be absolute and fully-normalised (no `..` segments).
+//   2. If LEGION_REPO_ROOT is set, `repoRoot` must equal or be a sub-directory
+//      of that value.  This is the recommended production configuration — set
+//      LEGION_REPO_ROOT in the MCP server launch command to lock it down.
+//   3. If LEGION_REPO_ROOT is not set, repoRoot defaults to process.cwd() and
+//      any caller-supplied value that is NOT equal to or inside process.cwd()
+//      triggers a logged warning (non-fatal, to avoid breaking existing flows).
+
+function validateRepoRoot(candidate: string): string {
+  const normalized = path.normalize(candidate);
+
+  if (!path.isAbsolute(normalized)) {
+    throw new Error(`Legion MCP: repoRoot must be an absolute path (got: "${candidate}")`);
+  }
+
+  const allowedRoot = process.env.LEGION_REPO_ROOT
+    ? path.normalize(process.env.LEGION_REPO_ROOT)
+    : path.normalize(process.cwd());
+
+  const isAllowed =
+    normalized === allowedRoot ||
+    normalized.startsWith(allowedRoot + path.sep);
+
+  if (!isAllowed) {
+    if (process.env.LEGION_REPO_ROOT) {
+      // Hard block when an explicit allowed root is configured.
+      throw new Error(
+        `Legion MCP: repoRoot "${normalized}" is outside LEGION_REPO_ROOT "${allowedRoot}". ` +
+        `Update LEGION_REPO_ROOT to include this path if this is intentional.`
+      );
+    } else {
+      // Soft warning when no explicit root is configured (preserves backward compatibility
+      // for multi-repo setups).  Operators should set LEGION_REPO_ROOT to harden this.
+      process.stderr.write(
+        `[Legion MCP] WARNING: repoRoot "${normalized}" is outside process.cwd() "${allowedRoot}". ` +
+        `Set LEGION_REPO_ROOT env var to restrict allowed roots.\n`
+      );
+    }
+  }
+
+  return normalized;
+}
+
+
 
 const server = new Server(
   { name: "legion", version: "1.0.0" },
@@ -113,7 +164,18 @@ const CallArgsSchema = z.object({
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
   const a = (args ?? {}) as Record<string, unknown>;
-  const repoRoot = (typeof a["repoRoot"] === "string" ? a["repoRoot"] : null) ?? process.env.LEGION_REPO_ROOT ?? process.cwd();
+  const rawRoot = (typeof a["repoRoot"] === "string" ? a["repoRoot"] : null) ?? process.env.LEGION_REPO_ROOT ?? process.cwd();
+  let repoRoot: string;
+  try {
+    repoRoot = validateRepoRoot(rawRoot);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    process.stderr.write(`[Legion MCP] Rejected repoRoot: ${msg}\n`);
+    return {
+      content: [{ type: "text", text: JSON.stringify({ error: msg }) }],
+      isError: true,
+    };
+  }
 
   process.stderr.write(`[Legion MCP] tool=${name} repoRoot=${repoRoot}\n`);
 
