@@ -40,6 +40,47 @@ Thumbs.db
 *.generated.tsx
 *.d.ts
 
+# AI / agent tool folders (we own these — extracting them creates noise + recursion)
+.cursor/
+.claude/
+.claude-plugin/
+.aider/
+.continue/
+.windsurf/
+.codeium/
+.tabnine/
+
+# Secrets and environment files (never index)
+.env
+.env.*
+.envrc
+*.pem
+*.key
+secrets/
+.secrets/
+
+# CI / Cloud config (rarely useful as entities)
+.github/
+.gitlab/
+.circleci/
+.azure-pipelines/
+.husky/
+
+# Lockfiles + checksums for non-JS ecosystems
+Gemfile.lock
+Cargo.lock
+composer.lock
+poetry.lock
+Pipfile.lock
+go.sum
+
+# Test / coverage artifacts
+.nyc_output/
+.pytest_cache/
+.mypy_cache/
+.tox/
+
 # Legion's own state (don't recurse into the wiki itself)
 .legion/
 library/
+bundled/

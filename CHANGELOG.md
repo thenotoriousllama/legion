@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.14] — 2026-05-02
+
+### Fixed
+- **`god` skill still wasn't pulling for users with a stale or partial `god/` folder.** The v1.2.11 fix added an unconditional copy step but kept the same "skip if destination exists" guard the per-guardian loop uses. Users who had a half-broken `god/` folder from an earlier botched install hit the skip branch and reported "god still isn't pulling". Initializer now force-overwrites `.cursor/skills/god/` on every run — wipes the destination first (so removed files in newer god/ don't linger as orphans), then copies the fresh bundled version. Safe because god is centrally maintained — no per-user customization is expected and every release ships an authoritative copy.
+
+### Changed
+- **`.legionignore` expanded** with patterns that should never be indexed: AI/agent tool folders (`.cursor/`, `.claude/`, `.claude-plugin/`, `.aider/`, `.continue/`, `.windsurf/`, `.codeium/`, `.tabnine/`), secrets and env files (`.env`, `.env.*`, `.envrc`, `*.pem`, `*.key`, `secrets/`, `.secrets/`), CI/cloud config (`.github/`, `.gitlab/`, `.circleci/`, `.azure-pipelines/`, `.husky/`), non-JS lockfiles (`Gemfile.lock`, `Cargo.lock`, `composer.lock`, `poetry.lock`, `Pipfile.lock`, `go.sum`), test/coverage artifacts (`.nyc_output/`, `.pytest_cache/`, `.mypy_cache/`, `.tox/`), and `bundled/` (extension-only bundle dir).
+
 ## [1.2.13] — 2026-05-02
 
 ### Fixed

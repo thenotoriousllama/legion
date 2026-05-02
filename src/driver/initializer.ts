@@ -250,18 +250,28 @@ export async function runInitializer(
 
       // v1.2.11: Always install the `god` skill — it's the meta-orchestration
       // protocol that routes user requests to the correct guardian. Not paired
-      // with any single guardian, so it falls outside the per-guardian loop
-      // below. Without this, `god` was silently never copied to .cursor/skills/
-      // even when the user selected guardians that depend on it for routing.
+      // with any single guardian, so it falls outside the per-guardian loop.
+      //
+      // v1.2.14: Force-overwrite instead of skip-if-exists. God is centrally
+      // maintained — every release ships an updated copy in bundled/skills/god/
+      // and there's no per-user customization expected. Pre-v1.2.14 logic
+      // ("skip if exists") meant users who had a stale or partial god/ folder
+      // from an earlier botched install could never recover without manually
+      // deleting it; running Initialize would silently skip and they'd report
+      // "god still isn't pulling".
       const godSrc = path.join(bundledRoot, "skills", "god");
       const godDst = path.join(repoRoot, ".cursor", "skills", "god");
-      if (await exists(godDst)) {
-        skippedCount++;
-      } else if (!(await exists(godSrc))) {
+      if (!(await exists(godSrc))) {
         warnings.push(
           `Bundled skill missing: god/ (run \`npm run snapshot\` in the extension repo before packaging)`
         );
       } else {
+        // Wipe destination first so removed files in newer god/ don't linger.
+        // copyDir preserves files in the destination that no longer exist in
+        // source, which would leak old guides/ pages across upgrades.
+        if (await exists(godDst)) {
+          await fs.rm(godDst, { recursive: true, force: true });
+        }
         await copyDir(godSrc, godDst);
         createdCount++;
       }
