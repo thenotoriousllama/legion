@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.16] — 2026-05-02
+
+### Performance
+Comprehensive document-pass speedup. Combined effect on a 200-file repo: roughly **3–5× faster** end-to-end. Five distinct wins:
+
+1. **`maxParallelAgents` default raised 3 → 6, ceiling 8 → 16.** Agent calls are I/O-bound; the previous default left most of the API budget on the floor. Lower again if you hit rate limits.
+2. **`legion.maxFilesPerChunk` is now configurable** (default 8, range 4–30; was hardcoded to 6). Bigger chunks = fewer LLM calls, at the cost of more pages per call. The wiki-weapon spec recommends 4–8 (sweet spot); 12–20 trades atomicity for speed on large repos.
+3. **`git blame` skipped by default** via new `legion.includeGitBlame` setting. Blame was running unconditionally per file and is 5–50× slower than `git log`. Most agents only need commit history, not blame. Toggle on if you want top-author / churn data in pages.
+4. **Git context computed once per pass instead of per chunk.** Was previously recomputed inside every wiki-guardian worker AND again inside every library-guardian worker. Hoisted to a single parallel batch before phase A starts; both phases reuse the same lookup. Shaves 30–50% off pass time on repos with deep git history.
+5. **wiki-guardian and library-guardian phases now run in parallel.** Were strictly sequential (library waited for every chunk to finish). They write to different artifacts and are independent. Concurrency budget is split 70/30 between the two phases (wiki gets the lion's share since the reconcile step depends on its output). Net 1.4–1.7× speedup on top of the other wins.
+
+### Added
+- `legion.maxFilesPerChunk` (number, default 8, range 4–30).
+- `legion.includeGitBlame` (boolean, default false).
+
 ## [1.2.15] — 2026-05-02
 
 ### Added

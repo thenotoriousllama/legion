@@ -9,27 +9,34 @@ export interface PlannedChunk {
   files: string[];
 }
 
-/** Soft cap: split modules larger than this into sub-chunks. */
-const MAX_FILES_PER_CHUNK = 6;
+/**
+ * Default cap when the caller doesn't pass an explicit `maxFilesPerChunk`.
+ * Was 6 in v1.2.15 and earlier (bottom of the wiki-weapon sweet spot).
+ * Bumped to 8 (top of sweet spot) in v1.2.16 to halve LLM call counts on
+ * large repos. Users can override via `legion.maxFilesPerChunk` (4–30).
+ */
+const DEFAULT_MAX_FILES_PER_CHUNK = 8;
 
 /**
  * Plan chunks for a Document/Update/Scan-Directory pass.
  *
  * Groups `filesToScan` (absolute paths) by their top-level module boundary.
- * If a module group exceeds MAX_FILES_PER_CHUNK, it is split into ordered
+ * If a module group exceeds `maxFilesPerChunk`, it is split into ordered
  * sub-chunks so each stays under the 8–15 page-per-chunk target from the
  * wiki-weapon atomic-page rule (roughly 1 file → 1–3 pages, so 4–8 files
- * per chunk is the sweet spot).
+ * per chunk is the sweet spot; 12–20 trades atomicity for speed on huge
+ * repos and is opt-in via the user setting).
  *
  * The planner is mode-agnostic: the caller is responsible for filtering
- * `filesToScan` to just the files that need processing (all files for
- * `document`, only added+modified for `update`, subtree for `scan-directory`).
+ * `filesToScan` to just the files that need processing.
  */
 export function planChunks(
   repoRoot: string,
   filesToScan: string[], // absolute paths
-  _mode: Mode
+  _mode: Mode,
+  maxFilesPerChunk: number = DEFAULT_MAX_FILES_PER_CHUNK
 ): PlannedChunk[] {
+  const cap = Math.max(1, Math.floor(maxFilesPerChunk));
   if (filesToScan.length === 0) return [];
 
   // Group files by top-level module
@@ -44,12 +51,12 @@ export function planChunks(
 
   const chunks: PlannedChunk[] = [];
   for (const [mod, files] of groups) {
-    const totalParts = Math.ceil(files.length / MAX_FILES_PER_CHUNK);
-    for (let i = 0; i < files.length; i += MAX_FILES_PER_CHUNK) {
-      const slice = files.slice(i, i + MAX_FILES_PER_CHUNK);
+    const totalParts = Math.ceil(files.length / cap);
+    for (let i = 0; i < files.length; i += cap) {
+      const slice = files.slice(i, i + cap);
       const partSuffix =
         totalParts > 1
-          ? ` [${Math.floor(i / MAX_FILES_PER_CHUNK) + 1}/${totalParts}]`
+          ? ` [${Math.floor(i / cap) + 1}/${totalParts}]`
           : "";
       chunks.push({
         label: `${mod} (${slice.length} file${slice.length !== 1 ? "s" : ""})${partSuffix}`,

@@ -11,10 +11,17 @@ const exec = promisify(execFile);
  *
  * Shells out to `git` directly — no library dependency. Caller is responsible
  * for ensuring `git` is on PATH and `repoRoot` is inside a git repo.
+ *
+ * `includeBlame` (default false in v1.2.16+, was unconditionally true before):
+ * controls whether `git blame --line-porcelain` runs. Blame is the slowest
+ * git call by 5–50x; most agents only need commit history, not authorship.
+ * Toggle on via the `legion.includeGitBlame` setting if you want top-author
+ * and churn data in your wiki pages.
  */
 export async function getGitContext(
   repoRoot: string,
-  absFilePath: string
+  absFilePath: string,
+  includeBlame: boolean = false
 ): Promise<FileGitContext> {
   const rel = path.relative(repoRoot, absFilePath).replace(/\\/g, "/");
   const opts = { cwd: repoRoot, maxBuffer: 8 * 1024 * 1024 };
@@ -80,30 +87,35 @@ export async function getGitContext(
     // ignore
   }
 
-  // Blame summary — top 3 contributors by line count
+  // Blame summary — top 3 contributors by line count.
+  // Skipped by default in v1.2.16+ (5–50x slower than git log). Opt-in via
+  // legion.includeGitBlame. When skipped, churn_rate is still derived from
+  // the cheap `git log -10` we already ran above.
   let top_authors: string[] = [];
   let churn_rate = `${recent_commits.length} commits in last 10`;
-  try {
-    const { stdout } = await exec(
-      "git",
-      ["blame", "--line-porcelain", rel],
-      opts
-    );
-    const authors = stdout
-      .split("\n")
-      .filter((l) => l.startsWith("author "))
-      .map((l) => l.slice(7));
-    const counts = new Map<string, number>();
-    for (const a of authors) {
-      counts.set(a, (counts.get(a) ?? 0) + 1);
+  if (includeBlame) {
+    try {
+      const { stdout } = await exec(
+        "git",
+        ["blame", "--line-porcelain", rel],
+        opts
+      );
+      const authors = stdout
+        .split("\n")
+        .filter((l) => l.startsWith("author "))
+        .map((l) => l.slice(7));
+      const counts = new Map<string, number>();
+      for (const a of authors) {
+        counts.set(a, (counts.get(a) ?? 0) + 1);
+      }
+      const total = authors.length || 1;
+      top_authors = [...counts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([name, n]) => `${name} (${Math.round((n / total) * 100)}%)`);
+    } catch {
+      // file may be untracked or binary
     }
-    const total = authors.length || 1;
-    top_authors = [...counts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3)
-      .map(([name, n]) => `${name} (${Math.round((n / total) * 100)}%)`);
-  } catch {
-    // file may be untracked or binary
   }
 
   return {
@@ -122,7 +134,8 @@ export async function getGitContext(
 export async function getGitContextMany(
   repoRoot: string,
   absFiles: string[],
-  concurrency = 8
+  concurrency = 8,
+  includeBlame: boolean = false
 ): Promise<Record<string, FileGitContext>> {
   const result: Record<string, FileGitContext> = {};
   let cursor = 0;
@@ -133,9 +146,8 @@ export async function getGitContextMany(
       const abs = absFiles[i];
       const rel = path.relative(repoRoot, abs).replace(/\\/g, "/");
       try {
-        result[rel] = await getGitContext(repoRoot, abs);
+        result[rel] = await getGitContext(repoRoot, abs, includeBlame);
       } catch (e) {
-        // Failed git context — record minimal entry so the chunk can still proceed
         result[rel] = {
           created_commit: "",
           created_at: "",

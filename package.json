@@ -2,7 +2,7 @@
   "name": "legion",
   "displayName": "Legion",
   "description": "The top tool for AI augmented development — a full AI agent army for any codebase. Deploys wiki-guardian (entity-graph wiki with [[backlinks]], ADR detection, contradiction protocol), library-guardian (module narrative + PRD authorship), mind-guardian (cognitive layer: RAG, coach routing, memory, evaluation), auth-guardian, db-guardian, devops-guardian, payments-guardian, quality-guardian, security-guardian, react-guardian, ux-ui-guardian, design-system-guardian, seo-aeo-guardian, and asset-guardian. Runs document/update/lint passes with parallel agent invocation, reconciles a compounding wiki, surfaces entity hovers and code-lens in the editor, generates Mermaid entity graphs, posts PR wiki diffs via GitHub Actions, and federates entity stubs across repos.",
-  "version": "1.2.15",
+  "version": "1.2.16",
   "publisher": "thenotoriousllama",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
@@ -300,10 +300,22 @@
         },
         "legion.maxParallelAgents": {
           "type": "number",
-          "default": 3,
+          "default": 6,
           "minimum": 1,
-          "maximum": 8,
-          "description": "Maximum number of agent invocations to run in parallel during Document/Update."
+          "maximum": 16,
+          "markdownDescription": "Maximum number of agent invocations to run in parallel during Document/Update. **v1.2.16:** raised default from 3→6 and ceiling from 8→16 (agent calls are I/O-bound; previous default left most of the API budget on the floor). Lower this if you hit rate limits."
+        },
+        "legion.maxFilesPerChunk": {
+          "type": "number",
+          "default": 8,
+          "minimum": 4,
+          "maximum": 30,
+          "markdownDescription": "How many source files per wiki-guardian invocation. Bigger chunks = fewer LLM calls = faster pass, but more pages per chunk and higher per-call cost. The wiki-weapon spec recommends 4–8 (sweet spot); 12–20 trades some atomicity for speed on large repos. **v1.2.16:** introduced (was hardcoded to 6)."
+        },
+        "legion.includeGitBlame": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Whether to run `git blame` on every file when computing git context for wiki-guardian. **v1.2.16:** default flipped to `false` — blame is the slowest git call (5–50x slower than `git log`) and most agents only need commit history, not blame. Turn on if you want top-author / churn data in your wiki pages."
         },
         "legion.installPostCommitHook": {
           "type": "boolean",
