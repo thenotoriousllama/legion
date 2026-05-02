@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.0.4] — 2026-05-02
+
+Distribution-only release. Republished to push the v1.0.3 sidebar fix to the [Open VSX Registry](https://open-vsx.org/extension/thenotoriousllama/legion) now that the `OVSX_PAT` repository secret is configured. No functional code changes since v1.0.3 — the version bump is required because both the VS Code Marketplace and Open VSX reject duplicate version uploads.
+
+### Distribution
+- **Open VSX coverage restored.** The `open-vsx` job in `.github/workflows/release.yml` was already wired up but gated on `secrets.OVSX_PAT` being present, so it skipped silently on every release between v1.0.1 and v1.0.3. With the token now configured, v1.0.4 ships to both the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=thenotoriousllama.legion) and the [Open VSX Registry](https://open-vsx.org/extension/thenotoriousllama/legion) in parallel. Open VSX is the package source used by [VSCodium](https://vscodium.com/), [Eclipse Theia](https://theia-ide.org/), [Gitpod](https://www.gitpod.io/), and other VS Code-compatible editors that don't ship Microsoft's proprietary marketplace endpoint — so Legion is now installable in those editors via the same `Extensions` panel flow.
+
+## [1.0.3] — 2026-05-01
+
+### Fixed
+- **Sidebar status now refreshes after every wiki mutation.** The "Initialized / Not initialized" badge, page count, and last-scan timestamp in the Legion sidebar were computed once on extension activation and cached in `LegionSidebarProvider._pendingState`. After running `Legion: Initialize Repository` (or `Document` / `Update` / `Scan Dir…`), nothing re-probed disk, so the badge stayed stuck on the activation snapshot until the user manually reloaded the window. Now the four wiki-mutating commands (`legion.initialize`, `legion.document`, `legion.update`, `legion.scanDirectory`) explicitly refresh the sidebar after they resolve, and the `requestState` message re-detects from disk on every call so the panel self-heals when commands are invoked from the Command Palette while the sidebar is collapsed.
+
+### Added
+- **`.gitattributes`** at repo root. Enforces `text eol=lf` for `*.sh`, `*.bash`, `*.yml`, `*.yaml`, and the canonical dotfiles; declares common image/font formats as `binary`. Prevents Git for Windows' default `core.autocrlf=true` from silently rewriting `scripts/snapshot-bundled.sh` to CRLF on `git clone`, which broke `npm run package` with `$'\r': command not found` and `: invalid option nameled.sh: line 12: set: pipefail` errors when invoked from WSL bash on Windows.
+
 ## [1.0.2] — 2026-05-01
 
 Documentation-only release. Republished to push the updated README to the VS Code Marketplace listing (the Marketplace freezes the README at publish time).
