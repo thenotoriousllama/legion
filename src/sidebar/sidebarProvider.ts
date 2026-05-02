@@ -223,6 +223,8 @@ export class LegionSidebarProvider implements vscode.WebviewViewProvider {
           await vscode.commands.executeCommand("legion.openDashboard");
           break;
         case "runWizard":
+        case "setupWizard":      // v1.2.5: COMMANDS-array convention
+        case "setupReconfigure": // v1.2.5: COMMANDS-array convention
           await vscode.commands.executeCommand("legion.setupWizard");
           break;
         case "enterKey":
@@ -289,17 +291,18 @@ export class LegionSidebarProvider implements vscode.WebviewViewProvider {
       </div>
     </header>
 
-    <!-- ── Setup section (v1.2.0) ──────────── -->
+    <!-- ── Setup section (v1.2.0+, ID convention v1.2.5) ──────────── -->
+    <!-- IDs setupWizard + setupReconfigure match COMMANDS-array entries -->
     <div class="setup-card" id="setupCard" style="display:none">
       <details id="setupDetails" open>
         <summary>
-          <div class="setup-complete-line" id="setupCompleteLine" style="display:none">
+          <div class="setup-complete-line" id="setupCompleteLine">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
               <circle cx="6" cy="6" r="5.5" stroke="var(--vscode-testing-iconPassed,#73c991)" stroke-width="1"/>
               <path d="M3 6l2 2 4-4" stroke="var(--vscode-testing-iconPassed,#73c991)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             <span>Setup complete</span>
-            <button class="setup-complete-reconfig" id="setupReconfig" type="button">Reconfigure</button>
+            <button class="setup-complete-reconfig" id="setupReconfigure" type="button">Reconfigure</button>
           </div>
           <div class="setup-header-title" id="setupIncompleteTitle">Setup</div>
           <div class="setup-progress-ring" id="setupRing">
@@ -314,7 +317,7 @@ export class LegionSidebarProvider implements vscode.WebviewViewProvider {
         </summary>
         <div class="setup-body" id="setupBody">
           <div class="setup-wizard-row">
-            <button class="setup-wizard-btn" id="setupWizardBtn" type="button">Run Setup Wizard →</button>
+            <button class="setup-wizard-btn" id="setupWizard" type="button">Run Setup Wizard →</button>
           </div>
         </div>
       </details>

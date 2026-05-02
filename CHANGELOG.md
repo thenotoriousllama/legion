@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.5] — 2026-05-02
+
+Two structural fixes for sidebar issues that reproduced even after multiple version updates.
+
+### Fixed
+- **"Run Setup Wizard" and "Reconfigure" buttons did nothing.** The buttons were wired with custom `addEventListener` handlers in webview.js, separate from the auto-wiring used by every other sidebar button (Initialize, Document, Update, etc.). Reports indicated the custom handlers weren't firing for some users while the auto-wired ones worked fine. Both buttons now use the proven `COMMANDS`-array convention: button ID matches command name (`setupWizard` / `setupReconfigure`), webview.js posts `{ command: id }` to host, sidebarProvider's message handler routes both to `legion.setupWizard`. Same path the working buttons use.
+- **"Setup Complete" summary showing with 0/0 keys configured.** The previous renderer set `style.display = ""` on the complete-line element to show it, which removed the inline `display:none` and let the CSS class's `display: flex` take over. If a stale older-version webview JS ever set that inline style, it stuck across renders. v1.2.5 switches to class-based visibility: `.setup-card.legion-setup-complete` is the single source of truth, with `!important` declarations on `.setup-complete-line` so the rule beats any leftover inline styles. The renderer just adds/removes the class.
+
 ## [1.2.4] — 2026-05-02
 
 Two defensive fixes plus a diagnostic breadcrumb to debug stuck installs.

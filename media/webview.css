@@ -743,12 +743,26 @@ footer {
 
 /* ── Complete state (collapsed summary) ─────────── */
 
+/* v1.2.5: bulletproof class-based visibility. The `legion-setup-complete`
+ * class on .setup-card is the single source of truth for whether the card
+ * is in its "done" state. !important wins over any stale inline styles
+ * left over from previous-version webview JS that may still be in memory.
+ */
 .setup-complete-line {
-  display: flex;
+  display: none !important;
   align-items: center;
   gap: 6px;
   font-size: 10.5px;
   color: var(--vscode-testing-iconPassed, #73c991);
+}
+
+.setup-card.legion-setup-complete .setup-complete-line {
+  display: flex !important;
+}
+.setup-card.legion-setup-complete .setup-header-title,
+.setup-card.legion-setup-complete .setup-progress-ring,
+.setup-card.legion-setup-complete .setup-toggle-icon {
+  display: none !important;
 }
 
 .setup-complete-reconfig {

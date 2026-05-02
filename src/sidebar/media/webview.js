@@ -20,6 +20,13 @@
     "showCoverageDetails",
     "openContradictionInbox",
     "openSettings",
+    // v1.2.5: setupWizard moved into the auto-wired COMMANDS list. The
+    // previous custom handler (setupWizardBtn / setupReconfig with their own
+    // addEventListener calls) was failing for some users — most likely a
+    // stale webview cache issue. The COMMANDS array convention is proven
+    // working for every other button.
+    "setupWizard",
+    "setupReconfigure",
   ];
 
   COMMANDS.forEach((cmd) => {
@@ -42,18 +49,16 @@
   }
 
   // ── Setup section wiring ──────────────────────────
-  const setupWizardBtn = document.getElementById("setupWizardBtn");
-  if (setupWizardBtn) {
-    setupWizardBtn.addEventListener("click", () => vscode.postMessage({ command: "runWizard" }));
-  }
-  const setupReconfig = document.getElementById("setupReconfig");
-  if (setupReconfig) {
-    setupReconfig.addEventListener("click", (e) => {
+  // v1.2.5: setupWizard / setupReconfigure are now wired via COMMANDS array
+  // above. The Reconfigure button additionally needs to open the <details>
+  // (since it's normally inside the collapsed-complete summary) before firing.
+  const setupReconfigBtn = document.getElementById("setupReconfigure");
+  if (setupReconfigBtn) {
+    setupReconfigBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       const details = document.getElementById("setupDetails");
       if (details) details.setAttribute("open", "");
-      vscode.postMessage({ command: "runWizard" });
-    });
+    }, true); // capture phase — runs BEFORE the COMMANDS click handler
   }
 
   // ── Request initial state from host ──────────────
@@ -242,22 +247,18 @@
     _prevConfiguredCount = displayConfigured;
 
     // Complete vs. incomplete summary
-    // Defensive: only show "Setup complete" if we actually have keys AND
-    // they're all configured. Belt-and-suspenders against rendering with
-    // an empty keys array or weird state where allRequiredDone evaluates
-    // true on a zero-key list.
-    const wasComplete = completeLine.style.display !== "none";
+    // v1.2.5: class-based visibility. Adds .legion-setup-complete on the
+    // card to flip the summary; CSS uses !important so it beats any stale
+    // inline display style left over from previous-version webview JS.
     const trulyComplete =
       keys.length > 0 &&
       totalConfigured > 0 &&
       allRequiredDone &&
-      // Belt #2: at least one key relevant to the current mode must be configured
       (requiredTotal === 0 ? totalConfigured > 0 : requiredConfigured === requiredTotal);
 
+    const wasComplete = card.classList.contains("legion-setup-complete");
     if (trulyComplete) {
-      completeLine.style.display = "";
-      if (incompleteTitle) incompleteTitle.style.display = "none";
-      if (toggleIcon) toggleIcon.style.display = "none";
+      card.classList.add("legion-setup-complete");
       if (details && !wasComplete) {
         // Just became complete — glow + collapse
         card.classList.remove("setup-done-glow");
@@ -266,9 +267,7 @@
         details.removeAttribute("open");
       }
     } else {
-      completeLine.style.display = "none";
-      if (incompleteTitle) incompleteTitle.style.display = "";
-      if (toggleIcon) toggleIcon.style.display = "";
+      card.classList.remove("legion-setup-complete");
       if (details) details.setAttribute("open", "");
     }
 
