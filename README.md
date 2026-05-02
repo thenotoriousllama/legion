@@ -16,7 +16,7 @@ Auth, DB, DevOps, payments, security, UX, design-system, SEO/AEO audits.<br/>
 [![Release pipeline](https://img.shields.io/github/actions/workflow/status/thenotoriousllama/legion/release.yml?style=for-the-badge&label=release&color=0B0F19)](https://github.com/thenotoriousllama/legion/actions/workflows/release.yml)
 [![Last commit](https://img.shields.io/github/last-commit/thenotoriousllama/legion?style=for-the-badge&color=0B0F19)](https://github.com/thenotoriousllama/legion/commits/main)
 [![GitHub stars](https://img.shields.io/github/stars/thenotoriousllama/legion?style=for-the-badge&color=0B0F19)](https://github.com/thenotoriousllama/legion)
-[![License](https://img.shields.io/github/license/thenotoriousllama/legion?style=for-the-badge&color=0B0F19)](LICENSE)
+[![License](https://img.shields.io/badge/license-Source%20Available-0B0F19?style=for-the-badge)](LICENSE)
 
 <br/>
 
