@@ -1,24 +1,57 @@
 {
   "name": "legion",
   "displayName": "Legion",
-  "description": "The God Protocol's Cursor extension — a full AI agent army for any codebase. Deploys wiki-guardian (entity-graph wiki with [[backlinks]], ADR detection, contradiction protocol), library-guardian (module narrative + PRD authorship), mind-guardian (cognitive layer: RAG, coach routing, memory, evaluation), auth-guardian, db-guardian, devops-guardian, payments-guardian, quality-guardian, security-guardian, react-guardian, ux-ui-guardian, design-system-guardian, seo-aeo-guardian, and asset-guardian. Runs document/update/lint passes with parallel agent invocation, reconciles a compounding wiki, surfaces entity hovers and code-lens in the editor, generates Mermaid entity graphs, posts PR wiki diffs via GitHub Actions, and federates entity stubs across repos.",
+  "description": "The top tool for AI augmented development — a full AI agent army for any codebase. Deploys wiki-guardian (entity-graph wiki with [[backlinks]], ADR detection, contradiction protocol), library-guardian (module narrative + PRD authorship), mind-guardian (cognitive layer: RAG, coach routing, memory, evaluation), auth-guardian, db-guardian, devops-guardian, payments-guardian, quality-guardian, security-guardian, react-guardian, ux-ui-guardian, design-system-guardian, seo-aeo-guardian, and asset-guardian. Runs document/update/lint passes with parallel agent invocation, reconciles a compounding wiki, surfaces entity hovers and code-lens in the editor, generates Mermaid entity graphs, posts PR wiki diffs via GitHub Actions, and federates entity stubs across repos.",
   "version": "0.7.0",
   "publisher": "thenotoriousllama",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
+  "author": {
+    "name": "Mario Aldayuz",
+    "url": "https://www.marioaldayuz.com"
+  },
+  "homepage": "https://github.com/thenotoriousllama/legion#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thenotoriousllama/legion.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thenotoriousllama/legion/issues"
+  },
+  "sponsor": {
+    "url": "https://www.paypal.com/ncp/payment/7F5JZAHDHGCXC"
+  },
+  "qna": "https://github.com/thenotoriousllama/legion/discussions",
   "engines": {
     "vscode": "^1.90.0"
   },
   "icon": "media/legion-icon.png",
+  "galleryBanner": {
+    "color": "#0B0F19",
+    "theme": "dark"
+  },
   "categories": [
-    "Other",
-    "Education"
+    "AI",
+    "Machine Learning",
+    "Education",
+    "Other"
   ],
   "keywords": [
+    "ai",
+    "ai-agents",
     "documentation",
     "wiki",
     "knowledge",
+    "entity-graph",
     "cursor",
+    "claude",
+    "mcp",
+    "obsidian",
+    "mermaid",
+    "monorepo",
+    "prd",
+    "adr",
+    "code-review",
     "ast"
   ],
   "activationEvents": [
@@ -467,7 +500,7 @@
     "watch": "npm run compile -- --watch",
     "type-check": "tsc --noEmit",
     "snapshot": "bash scripts/snapshot-bundled.sh",
-    "package": "npm run snapshot && npm run compile:all -- --minify && vsce package --no-dependencies --baseContentUrl https://localhost --baseImagesUrl https://localhost"
+    "package": "npm run snapshot && npm run compile:all -- --minify && vsce package --no-dependencies --baseContentUrl https://github.com/thenotoriousllama/legion/raw/HEAD --baseImagesUrl https://github.com/thenotoriousllama/legion/raw/HEAD"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

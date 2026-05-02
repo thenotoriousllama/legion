@@ -1,16 +1,34 @@
 {
   "name": "legion-obsidian",
   "version": "1.0.0",
-  "description": "Legion Obsidian companion plugin",
+  "description": "Legion Obsidian companion plugin — wiki status, contradiction inbox, human annotations, and incremental scan triggers for the Legion VS Code extension.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "node esbuild.config.mjs production",
     "version": "node version-bump.mjs && git add manifest.json versions.json"
   },
-  "keywords": [],
-  "author": "Legion Project",
+  "keywords": [
+    "obsidian-plugin",
+    "obsidian",
+    "wiki",
+    "knowledge-management",
+    "legion",
+    "documentation",
+    "ai"
+  ],
+  "author": "Mario Aldayuz",
   "license": "MIT",
+  "homepage": "https://github.com/thenotoriousllama/legion/tree/HEAD/companion-plugins/legion-obsidian#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thenotoriousllama/legion.git",
+    "directory": "companion-plugins/legion-obsidian"
+  },
+  "bugs": {
+    "url": "https://github.com/thenotoriousllama/legion/issues"
+  },
+  "funding": "https://www.paypal.com/ncp/payment/7F5JZAHDHGCXC",
   "devDependencies": {
     "@types/node": "^20.0.0",
     "builtin-modules": "^3.3.0",

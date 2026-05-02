@@ -3,9 +3,9 @@
   "name": "Legion",
   "version": "1.0.0",
   "minAppVersion": "1.4.0",
-  "description": "Legion wiki status panel, contradiction inbox, update trigger, and human annotations for non-developer team members.",
-  "author": "Legion Project",
-  "authorUrl": "https://github.com/thenotoriousllama/legion",
-  "fundingUrl": "",
+  "description": "Bring Legion's wiki into Obsidian: live status panel, contradiction inbox, one-click incremental scans, and human annotations the AI guardians will never overwrite.",
+  "author": "Mario Aldayuz",
+  "authorUrl": "https://linktr.ee/marioaldayuz",
+  "fundingUrl": "https://www.paypal.com/ncp/payment/7F5JZAHDHGCXC",
   "isDesktopOnly": true
 }
