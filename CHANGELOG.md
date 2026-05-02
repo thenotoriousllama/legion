@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.7] — 2026-05-02
+
+### Fixed
+- **Setup page hero icon shows the actual Legion logo** (hexagonal violet shield + cyan entity-graph nodes from `media/legion-icon.svg`) instead of the placeholder "L" letterform on a gradient. Inlined as SVG to comply with the panel's strict CSP.
+- **Sidebar "Run Setup Wizard" + "Reconfigure" buttons** now use defensive re-wiring inside `renderSetupSection`. The wizard row's button is recreated on every setupState message with a fresh inline click handler, and the Reconfigure button gets a one-time `data-wired` flag plus its own handler. Previously these relied solely on the COMMANDS-array auto-wiring at script-load time, which apparently wasn't firing on some installs (Command Palette → Legion: Setup worked, but the sidebar buttons didn't). Now both have THREE independent click pathways: COMMANDS-array auto-wiring (load time), capture-phase listener (load time), and renderer-attached handler (every setupState). At least one will fire. Also added `console.log` breadcrumbs so users can verify in DevTools (`Help → Toggle Developer Tools` → Console tab) whether the click handler is reaching JS.
+- **Sidebar button text changed from "Run Setup Wizard" to "Open Setup Page"** to better reflect what it does (opens the new full webview page, not the legacy QuickPick chain).
+
 ## [1.2.6] — 2026-05-02
 
 The Setup Wizard is now a real settings page in the editor area instead of a chain of one-question-at-a-time QuickPick prompts. User feedback was unambiguous: the dropdown chain felt cumbersome and several users reported the sidebar-button entry point silently failing on stuck installs.

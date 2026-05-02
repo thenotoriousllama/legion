@@ -334,6 +334,40 @@
         body.appendChild(row);
       }
     });
+
+    // ── v1.2.7 defensive wiring ────────────────────────
+    // Re-create the wizard row's button on every render with a fresh inline
+    // click handler. This is belt-and-suspenders on top of the COMMANDS-array
+    // auto-wiring at script-load time. Reports indicated the auto-wired
+    // handler wasn't firing on some installs; this guarantees a working
+    // handler exists after every setupState message arrives.
+    if (wizardRow) {
+      wizardRow.innerHTML = `<button class="setup-wizard-btn" id="setupWizard" type="button">Open Setup Page →</button>`;
+      const btn = wizardRow.querySelector("#setupWizard");
+      if (btn) {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          // eslint-disable-next-line no-console
+          console.log("[Legion] Setup button clicked, posting setupWizard message");
+          vscode.postMessage({ command: "setupWizard" });
+        });
+      }
+    }
+    // Same defensive treatment for Reconfigure (inside the summary)
+    const reconfigBtn = document.getElementById("setupReconfigure");
+    if (reconfigBtn && !reconfigBtn.hasAttribute("data-wired")) {
+      reconfigBtn.setAttribute("data-wired", "1");
+      reconfigBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // eslint-disable-next-line no-console
+        console.log("[Legion] Reconfigure button clicked, posting setupWizard message");
+        const details = document.getElementById("setupDetails");
+        if (details) details.setAttribute("open", "");
+        vscode.postMessage({ command: "setupWizard" });
+      });
+    }
   }
 
   function escHtml(str) {

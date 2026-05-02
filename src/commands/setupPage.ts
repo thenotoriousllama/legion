@@ -233,11 +233,12 @@ export class SetupPagePanel {
     width: 44px; height: 44px;
     border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, var(--accent), var(--link));
-    color: var(--accent-fg);
-    font-weight: 700;
-    font-size: 18px;
+    overflow: hidden;
     box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  .hero-icon svg {
+    width: 100%; height: 100%;
+    display: block;
   }
   .hero h1 {
     font-size: 22px;
@@ -476,7 +477,21 @@ export class SetupPagePanel {
 <div class="container">
 
   <header class="hero">
-    <div class="hero-icon">L</div>
+    <div class="hero-icon" aria-hidden="true">
+      <svg width="44" height="44" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+        <rect width="128" height="128" rx="22" fill="#1a1d2e"/>
+        <path d="M64 14 L110 38 L110 90 L64 114 L18 90 L18 38 Z" fill="none" stroke="#a78bfa" stroke-width="3"/>
+        <path d="M64 26 L100 44 L100 84 L64 102 L28 84 L28 44 Z" fill="none" stroke="#a78bfa" stroke-width="1" opacity="0.35"/>
+        <line x1="48" y1="48" x2="48" y2="80" stroke="#22d3ee" stroke-width="3" stroke-linecap="round"/>
+        <line x1="48" y1="80" x2="80" y2="80" stroke="#22d3ee" stroke-width="3" stroke-linecap="round"/>
+        <line x1="48" y1="48" x2="80" y2="80" stroke="#22d3ee" stroke-width="1" opacity="0.45" stroke-dasharray="3,3"/>
+        <circle cx="48" cy="48" r="6.5" fill="#22d3ee"/>
+        <circle cx="48" cy="80" r="6.5" fill="#22d3ee"/>
+        <circle cx="80" cy="80" r="6.5" fill="#22d3ee"/>
+        <circle cx="64" cy="64" r="3" fill="#a78bfa"/>
+        <circle cx="74" cy="50" r="2" fill="#a78bfa" opacity="0.7"/>
+      </svg>
+    </div>
     <div>
       <h1>Legion Setup</h1>
     </div>
