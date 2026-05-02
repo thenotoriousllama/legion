@@ -131,12 +131,109 @@ jobs:
           retention-days: 30
 
   # ──────────────────────────────────────────────────────────────────────────
-  # Release job — single, depends on build matrix. Downloads all 5 VSIXes
-  # and creates one GitHub Release with all of them attached.
+  # Universal build — produces a VSIX with no --target flag so the extension
+  # appears in the Extensions panel search for ALL clients (including older
+  # VS Code / Cursor versions and any platform we don't ship a native VSIX
+  # for). This is the "fallback" listing. Platform-specific VSIXes still win
+  # when the IDE requests one for a matched platform.
+  #
+  # The universal VSIX excludes @cursor/sdk / sqlite3 native binaries because
+  # it can't know the target platform, so cursor-sdk mode won't work on it.
+  # Users on unsupported platforms (Windows ARM, Intel Mac, etc.) should set
+  # legion.agentInvocationMode to direct-anthropic-api. The VSIX description
+  # and the sidebar Setup section both guide users to this fallback.
+  # ──────────────────────────────────────────────────────────────────────────
+  build-universal:
+    name: Build VSIX (universal)
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.value }}
+
+    steps:
+      - name: Resolve tag
+        id: tag
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "value=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.tag.outputs.value }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run type-check
+
+      - name: Verify package.json version matches tag
+        shell: bash
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG_VERSION="${{ steps.tag.outputs.value }}"
+          TAG_VERSION="${TAG_VERSION#v}"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::package.json version ($PKG_VERSION) does not match tag ($TAG_VERSION)"
+            exit 1
+          fi
+
+      - name: Checkout legion-project source-of-truth
+        uses: actions/checkout@v4
+        with:
+          repository: thenotoriousllama/legion-project
+          ref: main
+          path: legion-project-src
+
+      - name: Snapshot bundled guardians
+        shell: bash
+        env:
+          LEGION_SOURCE: ${{ github.workspace }}/legion-project-src/legion/.cursor
+        run: npm run snapshot
+
+      - name: Compile
+        run: npm run compile:all -- --minify
+
+      - name: Package universal VSIX (no --target)
+        shell: bash
+        run: |
+          npx --yes @vscode/vsce package \
+            --no-dependencies \
+            --baseContentUrl https://github.com/thenotoriousllama/legion/raw/HEAD \
+            --baseImagesUrl https://github.com/thenotoriousllama/legion/raw/HEAD
+
+      - name: Locate + size VSIX
+        id: vsix
+        shell: bash
+        run: |
+          VSIX_PATH=$(ls -1 *.vsix | head -n 1)
+          SIZE_KB=$(($(wc -c < "$VSIX_PATH") / 1024))
+          echo "path=$VSIX_PATH" >> "$GITHUB_OUTPUT"
+          echo "Built universal: $VSIX_PATH (${SIZE_KB} KB)"
+
+      - name: Upload universal VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: legion-vsix-universal
+          path: "*.vsix"
+          if-no-files-found: error
+          retention-days: 30
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Release job — single, depends on build matrix. Downloads all VSIXes
+  # (platform-specific + universal) and creates one GitHub Release.
   # ──────────────────────────────────────────────────────────────────────────
   release:
     name: Create GitHub Release
-    needs: build
+    needs: [build, build-universal]
     runs-on: ubuntu-latest
 
     steps:
@@ -152,6 +249,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: vsixes
+          pattern: "legion-vsix-*"
           merge-multiple: true
 
       - name: Inventory artifacts
@@ -184,7 +282,7 @@ jobs:
   # ──────────────────────────────────────────────────────────────────────────
   vscode-marketplace:
     name: Publish to VS Code Marketplace
-    needs: [build, release]
+    needs: [build, build-universal, release]
     runs-on: ubuntu-latest
     if: ${{ !cancelled() && needs.release.result == 'success' }}
 
@@ -241,7 +339,7 @@ jobs:
   # ──────────────────────────────────────────────────────────────────────────
   open-vsx:
     name: Publish to Open VSX (optional)
-    needs: [build, release]
+    needs: [build, build-universal, release]
     runs-on: ubuntu-latest
     if: ${{ !cancelled() && needs.release.result == 'success' }}
 

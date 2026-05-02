@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2] — 2026-05-02
+
+Fixes extension discoverability in the Cursor and VS Code Extensions panel search. Since v1.1.0 the release pipeline only produced platform-specific VSIXes (`--target win32-x64`, etc.). The Extensions panel search hides platform-specific-only extensions from general search results — the extension was present on the Marketplace and installable via direct URL or ID, but not surfacing in the Extensions panel's search box.
+
+### Fixed
+- **`.github/workflows/release.yml`** — added a `build-universal` job that produces a standard VSIX (no `--target`, `--no-dependencies`) alongside the four platform-specific builds. The universal VSIX is what the Extensions panel search indexes for discovery; the platform-specific VSIXes are what gets served on install when the IDE requests one for a matched platform. The universal build is small (~1.6 MB, same as pre-v1.1.0 releases) because it bundles neither `@cursor/sdk` nor the native `sqlite3` binary. On the universal VSIX, `cursor-sdk` invocation mode will fail to load the SDK at runtime and surface a clear message directing the user to `direct-anthropic-api` mode — this is the existing documented fallback for unsupported platforms.
+
 ## [1.2.1] — 2026-05-02
 
 Patch addressing all issues found by the post-ship QA pass on v1.2.0.
