@@ -20,13 +20,13 @@
     "showCoverageDetails",
     "openContradictionInbox",
     "openSettings",
-    // v1.2.5: setupWizard moved into the auto-wired COMMANDS list. The
-    // previous custom handler (setupWizardBtn / setupReconfig with their own
-    // addEventListener calls) was failing for some users — most likely a
-    // stale webview cache issue. The COMMANDS array convention is proven
-    // working for every other button.
+    // v1.2.5: setupWizard moved into the auto-wired COMMANDS list.
     "setupWizard",
     "setupReconfigure",
+    // v1.2.9: Brand-new ID for the sidebar Setup button. Eliminates any
+    // collision/cache risk with the previous "setupWizard" name that was
+    // silently failing for several releases.
+    "openSetupPage",
   ];
 
   COMMANDS.forEach((cmd) => {

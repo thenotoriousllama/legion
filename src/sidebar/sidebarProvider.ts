@@ -227,6 +227,9 @@ export class LegionSidebarProvider implements vscode.WebviewViewProvider {
         case "setupReconfigure": // v1.2.5: COMMANDS-array convention
           await vscode.commands.executeCommand("legion.setupWizard");
           break;
+        case "openSetupPage":    // v1.2.9: fresh route, isolated from above
+          await vscode.commands.executeCommand("legion.openSetupPage");
+          break;
         case "enterKey":
           if (msg.key && this._extContext) {
             const { promptForKey } = await import("../commands/setupWizard");
@@ -309,8 +312,8 @@ export class LegionSidebarProvider implements vscode.WebviewViewProvider {
     <!-- ── Actions ──────────────────────────── -->
     <div class="actions-area">
 
-      <!-- Primary: Setup (v1.2.8 — moved out of broken setup-card into proven action area) -->
-      <button id="setupWizard" class="btn-primary" type="button"
+      <!-- Primary: Setup (v1.2.9 — fresh ID + command to eliminate any collision with prior broken state) -->
+      <button id="openSetupPage" class="btn-primary" type="button"
         title="Open the full Legion Setup page — pick invocation mode, configure API keys, paste from clipboard, all on one screen.">
         Open Setup Page
       </button>

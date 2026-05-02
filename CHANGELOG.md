@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.9] — 2026-05-02
+
+The sidebar Setup button has now been broken across v1.2.0–v1.2.8 despite identical wiring to working buttons. Working theory: a name collision or stale cached state somewhere in Cursor that intercepts the `setupWizard` command name. v1.2.9 sidesteps the entire problem with a brand-new, never-used identifier end-to-end.
+
+### Changed
+- **Sidebar Setup button uses brand-new identifier `openSetupPage`** at every layer of the chain — button HTML id, COMMANDS-array entry, sidebarProvider switch case, VS Code command name (`legion.openSetupPage`). The new command is also registered in the Command Palette as `Legion: Open Setup Page`. The original `legion.setupWizard` command is unchanged and still does the same thing — both open the Setup Page WebviewPanel — but the sidebar now routes through the fresh path with zero shared state.
+
+### Notes
+- `Cmd/Ctrl+Shift+P → Legion: Setup` continues to work as before. So does `Legion: Open Setup Page` (new alias). If the sidebar button still doesn't open the page after this release, the fallback documented in the README and the Setup section is: open Command Palette and run either command.
+
 ## [1.2.8] — 2026-05-02
 
 Strategy reset on the sidebar setup UX. Six releases (v1.2.0–v1.2.7) tried progressively more defensive fixes for the in-sidebar setup card — broken buttons, "Setup complete" with 0/0, click handlers not firing — without resolution. v1.2.8 deletes the setup card entirely from the sidebar and replaces it with a single "Open Setup Page" button in the same proven environment as the 14 other working sidebar buttons (Initialize, Document, Update, etc.).

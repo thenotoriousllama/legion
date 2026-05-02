@@ -151,6 +151,18 @@ export function activate(context: vscode.ExtensionContext): void {
         await sidebarProvider.refreshSetupState(context).catch(() => undefined);
       });
     }),
+    // v1.2.9: Brand-new command name + ID for the sidebar button. The
+    // sidebar's `setupWizard` button has been silently failing for several
+    // releases despite identical wiring to working buttons. Hypothesis: a
+    // stale cached webview or a name collision somewhere in Cursor's
+    // routing. Using a completely fresh `openSetupPage` name end-to-end —
+    // new button ID, new posted command, new VS Code command — eliminates
+    // any chance of collision with prior state.
+    vscode.commands.registerCommand("legion.openSetupPage", () => {
+      SetupPagePanel.open(context, async () => {
+        await sidebarProvider.refreshSetupState(context).catch(() => undefined);
+      });
+    }),
     // v1.2.0: onDidChangeConfiguration — move any API key set via Settings UI
     // into SecretStorage immediately, clearing the plaintext setting.
     vscode.workspace.onDidChangeConfiguration(async (e) => {
