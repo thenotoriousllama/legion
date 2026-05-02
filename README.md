@@ -4,11 +4,13 @@
 
 # Legion
 
-### The God Protocol's Cursor extension. A full AI agent army for any codebase.
+### Built for **Cursor**. Works in VS Code. A full AI agent army for any codebase.
 
 Compounding entity-graph wiki. Module narrative docs. Cognitive-layer reviews.<br/>
 Auth, DB, DevOps, payments, security, UX, design-system, SEO/AEO audits.<br/>
 **Fourteen guardians. One sidebar.**
+
+<sub>The God Protocol's flagship extension — engineered around Cursor's subagent model first, packaged for the VS Code Marketplace so it installs in either editor.</sub>
 
 <br/>
 
@@ -20,7 +22,7 @@ Auth, DB, DevOps, payments, security, UX, design-system, SEO/AEO audits.<br/>
 
 <br/>
 
-[**Install on VS Code**](https://marketplace.visualstudio.com/items?itemName=thenotoriousllama.legion) &nbsp;·&nbsp; [**Source**](https://github.com/thenotoriousllama/legion) &nbsp;·&nbsp; [**Sponsor**](https://www.paypal.com/ncp/payment/7F5JZAHDHGCXC) &nbsp;·&nbsp; [**Linktree**](https://linktr.ee/marioaldayuz)
+[**Install in Cursor**](#quickstart) &nbsp;·&nbsp; [**Install in VS Code**](https://marketplace.visualstudio.com/items?itemName=thenotoriousllama.legion) &nbsp;·&nbsp; [**Source**](https://github.com/thenotoriousllama/legion) &nbsp;·&nbsp; [**Sponsor**](https://www.paypal.com/ncp/payment/7F5JZAHDHGCXC) &nbsp;·&nbsp; [**Linktree**](https://linktr.ee/marioaldayuz)
 
 </div>
 
@@ -102,12 +104,20 @@ The frontline guardians for everything users actually see. Plus an asset guardia
 
 ## Quickstart
 
-```bash
-# 1. Install Legion from the VS Code Marketplace
-# 2. Open your repo in VS Code or Cursor
-# 3. Command Palette → "Legion: Initialize Repository"
-# 4. Command Palette → "Legion: Document Repository"
-```
+### In Cursor (recommended)
+
+1. Open Cursor → **Extensions** panel (`Ctrl/Cmd + Shift + X`)
+2. Search for **`Legion`** (publisher: `thenotoriousllama`)
+3. Click **Install** — Cursor reads the same VS Code Marketplace, so the extension you see is this one
+4. Open the Command Palette (`Ctrl/Cmd + Shift + P`) → **`Legion: Initialize Repository`** → then **`Legion: Document Repository`**
+
+> **Why Cursor first?** Legion's guardians are subagents that talk to each other through Cursor's native subagent runtime. They run in VS Code too (via the same `cursor agent` CLI bridge or direct Anthropic API mode), but Cursor is where the architecture lights up — fan-out, parallel reasoning, and shared chat context all just work.
+
+### In VS Code
+
+1. Install from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=thenotoriousllama.legion) (or `ext install thenotoriousllama.legion` from the Command Palette)
+2. Set `legion.agentInvocationMode` to `direct-anthropic-api` and add your `legion.anthropicApiKey` (or set `LEGION_ANTHROPIC_API_KEY`) — this bypasses the Cursor CLI requirement
+3. Same Command Palette flow: **`Legion: Initialize Repository`** → **`Legion: Document Repository`**
 
 That's it. The wiki lives at `library/knowledge-base/wiki/`. Commit it. Your future self thanks you.
 
