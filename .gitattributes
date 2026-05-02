@@ -1,0 +1,35 @@
+# Default: let Git auto-detect text vs. binary, normalize text on commit.
+* text=auto
+
+# Files that MUST stay LF on every checkout, on every OS.
+# Without this, Git for Windows (core.autocrlf=true by default) rewrites them
+# to CRLF on `git clone`, and POSIX shell / YAML parsers break with errors like
+# "$'\r': command not found". Already burned us once on snapshot-bundled.sh.
+*.sh             text eol=lf
+*.bash           text eol=lf
+*.bats           text eol=lf
+*.yml            text eol=lf
+*.yaml           text eol=lf
+
+# Common LF-only configs.
+.gitattributes   text eol=lf
+.gitignore       text eol=lf
+.editorconfig    text eol=lf
+Dockerfile       text eol=lf
+*.dockerfile     text eol=lf
+
+# Binary assets — never normalize.
+*.png            binary
+*.jpg            binary
+*.jpeg           binary
+*.gif            binary
+*.webp           binary
+*.ico            binary
+*.pdf            binary
+*.vsix           binary
+*.zip            binary
+*.gz             binary
+*.woff           binary
+*.woff2          binary
+*.ttf            binary
+*.otf            binary

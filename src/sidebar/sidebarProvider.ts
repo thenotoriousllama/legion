@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import { readContradictionInbox } from "../driver/reconciler";
-import type { RepoState } from "../driver/repoState";
+import { detectRepoState, type RepoState } from "../driver/repoState";
 import type { WikiCoverage } from "../driver/coverageTracker";
 import { buildCoverageSummary, buildModuleBreakdown, loadCoverage } from "../driver/coverageTracker";
 
@@ -17,6 +17,22 @@ export class LegionSidebarProvider implements vscode.WebviewViewProvider {
     if (this._view) {
       void this._view.webview.postMessage({ type: "repoState", state });
     }
+  }
+
+  /**
+   * Re-detect repo state from disk and push the fresh state to the webview.
+   *
+   * Call this after any command that may have changed the wiki on disk
+   * (initialize, document, update, scanDirectory). The cached `_pendingState`
+   * is updated so subsequent webview reloads (e.g. user collapses + reopens
+   * the sidebar) read the fresh state instead of the stale activation snapshot.
+   */
+  async refresh(): Promise<void> {
+    const folders = vscode.workspace.workspaceFolders;
+    if (!folders || folders.length === 0) return;
+    const repoRoot = folders[0].uri.fsPath;
+    const fresh = await detectRepoState(repoRoot);
+    this.pushRepoState(fresh);
   }
 
   /** Push a coverage update to the webview (called from reconciler Step 14). */
@@ -103,19 +119,23 @@ export class LegionSidebarProvider implements vscode.WebviewViewProvider {
             invocationMode: modelBadge,
             researchProvider: cfg.get<string>("researchProvider", "model-only"),
           });
-          // Send current repo state (cached from startup detection)
-          if (this._pendingState) {
-            await webviewView.webview.postMessage({ type: "repoState", state: this._pendingState });
-          }
-          // Send contradiction count + coverage
+          // Re-detect repo state on every requestState so the sidebar self-heals
+          // when Initialize is run from the Command Palette (or any other entry
+          // point that bypasses sidebarProvider.refresh()), and so reopening the
+          // panel after Initialize never shows the stale "Not initialized" badge.
           const folders = vscode.workspace.workspaceFolders;
           if (folders?.[0]) {
-            const inbox = await readContradictionInbox(folders[0].uri.fsPath);
+            const repoRoot = folders[0].uri.fsPath;
+            const fresh = await detectRepoState(repoRoot);
+            this._pendingState = fresh;
+            await webviewView.webview.postMessage({ type: "repoState", state: fresh });
+
+            const inbox = await readContradictionInbox(repoRoot);
             await webviewView.webview.postMessage({
               type: "contradictionCount",
               count: inbox.length,
             });
-            const cov = await loadCoverage(folders[0].uri.fsPath);
+            const cov = await loadCoverage(repoRoot);
             if (cov && cov.total > 0) {
               await webviewView.webview.postMessage({
                 type: "coverageUpdate",

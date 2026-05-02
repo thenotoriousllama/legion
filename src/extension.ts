@@ -60,11 +60,26 @@ export function activate(context: vscode.ExtensionContext): void {
   }
 
   // ── Commands ──────────────────────────────────────────────────────────────────
+  // These four mutate the wiki on disk. Wrap each so the sidebar re-detects
+  // RepoState (initialized flag, page count, last-scan timestamp) afterwards
+  // — otherwise the badge stays stuck on the activation snapshot until reload.
   context.subscriptions.push(
-    vscode.commands.registerCommand("legion.initialize", () => initialize(context)),
-    vscode.commands.registerCommand("legion.document", () => documentRepository(context)),
-    vscode.commands.registerCommand("legion.update", () => updateDocumentation(context)),
-    vscode.commands.registerCommand("legion.scanDirectory", () => scanDirectory(context)),
+    vscode.commands.registerCommand("legion.initialize", async () => {
+      await initialize(context);
+      await sidebarProvider.refresh();
+    }),
+    vscode.commands.registerCommand("legion.document", async () => {
+      await documentRepository(context);
+      await sidebarProvider.refresh();
+    }),
+    vscode.commands.registerCommand("legion.update", async () => {
+      await updateDocumentation(context);
+      await sidebarProvider.refresh();
+    }),
+    vscode.commands.registerCommand("legion.scanDirectory", async () => {
+      await scanDirectory(context);
+      await sidebarProvider.refresh();
+    }),
     vscode.commands.registerCommand("legion.lint", () => lintWiki(context)),
     vscode.commands.registerCommand("legion.openInObsidian", () => openInObsidian()),
     // Feature 005: findEntity now resolves root via context
