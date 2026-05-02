@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.17] — 2026-05-02
+
+### Added
+- **OpenRouter model picker in the Setup Page.** When OpenRouter mode is selected, a new section appears below the API key showing every model available on `openrouter.ai/api/v1/models` — searchable, with context length and per-1M-token pricing for both input and output. Click a model to set `legion.openRouterModel`. The full catalog (~370 models at time of writing) is fetched once and cached for 24 h in `globalState`; the **Refresh** button forces a re-fetch. Stale-while-revalidate: a failed refresh keeps showing the cached list rather than going blank. Implementation: `src/util/openrouterModels.ts` with HTTPS client, normalizer, and 24 h TTL cache.
+- **`legion.documentMode`** (`"all" | "diff"`, default `"all"`). When `"diff"`, the **Document Repository** command behaves like Update — skips files whose hash matches the manifest and loads prior_state for the rest. Useful for fast repeat document passes.
+- **`legion.fastModelEnabled`** (boolean, default `false`). When `true`, agentInvoker swaps every guardian invocation to `claude-haiku-4-5` (Anthropic) or `anthropic/claude-haiku-4-5` (OpenRouter). Trades prose polish for ~3-5× lower latency. Frontmatter and structure are preserved, so pages still render correctly.
+
+### Performance
+- **Per-file git context disk cache.** New `.legion/git-context-cache.json` keyed on HEAD SHA. On subsequent passes with no new commits, the entire git phase is a single `git rev-parse` lookup — zero per-file subprocesses. With new commits, ONE `git diff --name-only <oldHead> HEAD` invalidates only the touched files; the rest are reused. On a typical Update flow with small commits this is a 95–99 % cache hit and effectively eliminates the git phase as a bottleneck.
+- **3 git log calls collapsed into 1 in `getGitContext`.** Was previously: separate calls for creation commit, last commit, and recent commits. Now a single `git log --follow --format=%H|%aI|%an|%s -- <file>` call returns all three (oldest line = creation, first line = last, first 10 = recent). 3× fewer subprocess spawns per uncached file. `--follow` also adds rename-tracing for free, so the creation commit is genuinely "first commit that introduced this content" rather than the most recent rename.
+
 ## [1.2.16] — 2026-05-02
 
 ### Performance

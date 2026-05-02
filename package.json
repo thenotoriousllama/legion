@@ -2,7 +2,7 @@
   "name": "legion",
   "displayName": "Legion",
   "description": "The top tool for AI augmented development — a full AI agent army for any codebase. Deploys wiki-guardian (entity-graph wiki with [[backlinks]], ADR detection, contradiction protocol), library-guardian (module narrative + PRD authorship), mind-guardian (cognitive layer: RAG, coach routing, memory, evaluation), auth-guardian, db-guardian, devops-guardian, payments-guardian, quality-guardian, security-guardian, react-guardian, ux-ui-guardian, design-system-guardian, seo-aeo-guardian, and asset-guardian. Runs document/update/lint passes with parallel agent invocation, reconciles a compounding wiki, surfaces entity hovers and code-lens in the editor, generates Mermaid entity graphs, posts PR wiki diffs via GitHub Actions, and federates entity stubs across repos.",
-  "version": "1.2.16",
+  "version": "1.2.17",
   "publisher": "thenotoriousllama",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
@@ -316,6 +316,17 @@
           "type": "boolean",
           "default": false,
           "markdownDescription": "Whether to run `git blame` on every file when computing git context for wiki-guardian. **v1.2.16:** default flipped to `false` — blame is the slowest git call (5–50x slower than `git log`) and most agents only need commit history, not blame. Turn on if you want top-author / churn data in your wiki pages."
+        },
+        "legion.documentMode": {
+          "type": "string",
+          "enum": ["all", "diff"],
+          "default": "all",
+          "markdownDescription": "How **Document Repository** picks files to process. **`all`** (default): walk every file in scope. **`diff`**: skip files whose hash matches the manifest (same behavior as Update mode). Use `diff` for fast repeat document passes that only re-process files changed since the last run. **v1.2.17:** introduced."
+        },
+        "legion.fastModelEnabled": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Use a faster, cheaper model for guardian invocations. Swaps `legion.model` → `claude-haiku-4-5` (Anthropic) or `legion.openRouterModel` → `anthropic/claude-haiku-4-5` (OpenRouter) for this single setting. Pages still render correctly (frontmatter + structure preserved) but prose is terser. Turn off when you want polished long-form pages. **v1.2.17:** introduced."
         },
         "legion.installPostCommitHook": {
           "type": "boolean",

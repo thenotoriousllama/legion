@@ -26,6 +26,12 @@ import {
   type SecretKey,
   type SetupKeyState,
 } from "../util/secretStore";
+import {
+  getOpenRouterModels,
+  formatPrice,
+  formatContext,
+  type OpenRouterModel,
+} from "../util/openrouterModels";
 
 export class SetupPagePanel {
   static currentPanel: SetupPagePanel | undefined;
@@ -76,6 +82,8 @@ export class SetupPagePanel {
         key?: SecretKey;
         value?: string;
         mode?: string;
+        modelId?: string;
+        forceRefresh?: boolean;
       }) => {
         try {
           switch (msg.command) {
@@ -159,6 +167,48 @@ export class SetupPagePanel {
             case "close":
               this._panel.dispose();
               break;
+
+            case "fetchOpenRouterModels":
+              // Pull the model catalog (24h cached). Streams two replies:
+              // "openRouterModelsLoading" so the UI can show a spinner, then
+              // "openRouterModels" with the data once resolved.
+              void this._panel.webview.postMessage({ type: "openRouterModelsLoading" });
+              try {
+                const { models, cached, fetchedAt } = await getOpenRouterModels(
+                  this._context,
+                  msg.forceRefresh === true
+                );
+                void this._panel.webview.postMessage({
+                  type: "openRouterModels",
+                  models,
+                  cached,
+                  fetchedAt,
+                });
+              } catch (e) {
+                void this._panel.webview.postMessage({
+                  type: "openRouterModelsError",
+                  message: e instanceof Error ? e.message : String(e),
+                });
+              }
+              break;
+
+            case "setOpenRouterModel":
+              if (msg.modelId) {
+                const cfg = vscode.workspace.getConfiguration("legion");
+                await cfg.update(
+                  "openRouterModel",
+                  msg.modelId,
+                  vscode.ConfigurationTarget.Global
+                );
+                await this._pushState();
+                await this._sidebarRefresh?.();
+                void this._panel.webview.postMessage({
+                  type: "toast",
+                  message: `OpenRouter model set to ${msg.modelId}.`,
+                  kind: "success",
+                });
+              }
+              break;
           }
         } catch (err) {
           void this._panel.webview.postMessage({
@@ -190,7 +240,13 @@ export class SetupPagePanel {
     else if (apiProvider === "openrouter") uiMode = "direct-openrouter";
     else uiMode = "direct-anthropic";
     const keys = await getSetupState(this._context, uiMode);
-    void this._panel.webview.postMessage({ type: "setupState", keys, mode: uiMode });
+    const openRouterModel = cfg.get<string>("openRouterModel", "anthropic/claude-sonnet-4-5");
+    void this._panel.webview.postMessage({
+      type: "setupState",
+      keys,
+      mode: uiMode,
+      openRouterModel,
+    });
   }
 
   dispose(): void {
@@ -450,6 +506,78 @@ export class SetupPagePanel {
     color: var(--muted);
   }
 
+  /* ── OpenRouter model picker ─────────────────────── */
+  .or-toolbar {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 8px;
+  }
+  .or-search {
+    flex: 1 1 auto; min-width: 0;
+    padding: 7px 10px;
+    background: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    border: 1px solid var(--vscode-input-border, var(--border));
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 12px;
+    outline: none;
+  }
+  .or-search:focus { border-color: var(--accent); }
+  .or-status {
+    font-size: 11px; color: var(--muted);
+    white-space: nowrap;
+  }
+  .or-list {
+    max-height: 380px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-elevated);
+  }
+  .or-item {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.1s;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 12px;
+    align-items: baseline;
+  }
+  .or-item:last-child { border-bottom: none; }
+  .or-item:hover { background: var(--bg-hover); }
+  .or-item.selected {
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    border-left: 3px solid var(--accent);
+    padding-left: 11px;
+  }
+  .or-item-id {
+    font-family: var(--vscode-editor-font-family, monospace);
+    font-size: 12px;
+    font-weight: 600;
+    word-break: break-all;
+  }
+  .or-item-meta {
+    grid-column: 1 / -1;
+    display: flex; flex-wrap: wrap; gap: 6px;
+    font-size: 10.5px;
+    color: var(--muted);
+  }
+  .or-meta-pill {
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: var(--vscode-badge-background, rgba(128,128,128,0.18));
+    color: var(--vscode-badge-foreground, var(--muted));
+    white-space: nowrap;
+    font-family: var(--vscode-editor-font-family, monospace);
+  }
+  .or-meta-pill.in { background: color-mix(in srgb, var(--success) 18%, transparent); color: var(--success); }
+  .or-meta-pill.out { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
+  .or-empty {
+    padding: 20px; text-align: center;
+    color: var(--muted); font-size: 12px;
+  }
+
   /* ── Footer ──────────────────────────────────────── */
   .footer {
     margin-top: 24px;
@@ -542,6 +670,23 @@ export class SetupPagePanel {
     <div id="requiredKeysContainer"></div>
   </section>
 
+  <!-- ── OpenRouter model picker (only when uiMode = direct-openrouter) ── -->
+  <section id="orModelSection" style="display:none">
+    <div class="section-header">
+      <span class="section-title">OpenRouter model</span>
+      <span class="section-meta" id="orModelMeta">Searchable; pricing per 1M tokens</span>
+    </div>
+    <div class="or-toolbar">
+      <input class="or-search" id="orSearch" type="text"
+             placeholder="Filter models — try 'claude', 'gpt', 'haiku', '200k'…" />
+      <button class="btn" id="orRefresh" type="button" title="Re-fetch from openrouter.ai">Refresh</button>
+      <span class="or-status" id="orStatus"></span>
+    </div>
+    <div class="or-list" id="orList">
+      <div class="or-empty">Loading models from openrouter.ai…</div>
+    </div>
+  </section>
+
   <!-- ── All other keys ────────────────────────────────── -->
   <section>
     <div class="section-header">
@@ -588,6 +733,10 @@ export class SetupPagePanel {
 
   let currentMode = "direct-anthropic";
   let currentKeys = [];
+  let orModels = [];
+  let orFilter = "";
+  let orCurrentModel = "";
+  let orHasFetched = false;
 
   // ── Mode picker ─────────────────────────────────
   function renderModeGrid() {
@@ -737,12 +886,100 @@ export class SetupPagePanel {
     vscode.postMessage({ command: "close" });
   });
 
+  // ── OpenRouter model picker ─────────────────────
+  function formatPrice(perToken) {
+    if (!isFinite(perToken)) return "n/a";
+    if (perToken === 0) return "free";
+    const perM = perToken * 1_000_000;
+    if (perM >= 100) return "$" + perM.toFixed(0) + "/M";
+    if (perM >= 10) return "$" + perM.toFixed(1) + "/M";
+    return "$" + perM.toFixed(2) + "/M";
+  }
+  function formatContext(tokens) {
+    if (!tokens) return "?";
+    if (tokens >= 1_000_000) return (tokens / 1_000_000).toFixed(tokens % 1_000_000 === 0 ? 0 : 1) + "M";
+    if (tokens >= 1000) return Math.round(tokens / 1000) + "k";
+    return String(tokens);
+  }
+
+  function renderOrSection() {
+    const section = document.getElementById("orModelSection");
+    section.style.display = currentMode === "direct-openrouter" ? "" : "none";
+    if (currentMode !== "direct-openrouter") return;
+
+    if (!orHasFetched) {
+      orHasFetched = true;
+      vscode.postMessage({ command: "fetchOpenRouterModels" });
+    }
+
+    const list = document.getElementById("orList");
+    if (!orModels.length) {
+      list.innerHTML = '<div class="or-empty">Loading models from openrouter.ai…</div>';
+      return;
+    }
+    const filter = orFilter.trim().toLowerCase();
+    const filtered = filter
+      ? orModels.filter((m) => {
+          const haystack = (m.id + " " + m.name + " " + (m.description || "") + " " + formatContext(m.context_length)).toLowerCase();
+          return haystack.includes(filter);
+        })
+      : orModels;
+
+    if (filtered.length === 0) {
+      list.innerHTML = '<div class="or-empty">No models match "' + escHtml(orFilter) + '".</div>';
+      return;
+    }
+
+    const frag = document.createDocumentFragment();
+    for (const m of filtered.slice(0, 200)) {
+      const row = document.createElement("div");
+      const isSelected = m.id === orCurrentModel;
+      row.className = "or-item" + (isSelected ? " selected" : "");
+      row.innerHTML = \`
+        <div class="or-item-id">\${escHtml(m.id)}</div>
+        <div></div>
+        <div class="or-item-meta">
+          <span class="or-meta-pill">\${escHtml(formatContext(m.context_length))} ctx</span>
+          <span class="or-meta-pill in">\${escHtml(formatPrice(m.pricing.prompt))} in</span>
+          <span class="or-meta-pill out">\${escHtml(formatPrice(m.pricing.completion))} out</span>
+          \${m.modality ? '<span class="or-meta-pill">' + escHtml(m.modality) + '</span>' : ""}
+        </div>
+      \`;
+      row.addEventListener("click", () => {
+        if (m.id === orCurrentModel) return;
+        orCurrentModel = m.id;
+        vscode.postMessage({ command: "setOpenRouterModel", modelId: m.id });
+        renderOrSection();
+      });
+      frag.appendChild(row);
+    }
+    list.innerHTML = "";
+    list.appendChild(frag);
+
+    const status = document.getElementById("orStatus");
+    if (filter) {
+      status.textContent = filtered.length + " of " + orModels.length + " models";
+    } else {
+      status.textContent = orModels.length + " models";
+    }
+  }
+
+  document.getElementById("orSearch").addEventListener("input", (e) => {
+    orFilter = e.target.value;
+    renderOrSection();
+  });
+  document.getElementById("orRefresh").addEventListener("click", () => {
+    document.getElementById("orList").innerHTML = '<div class="or-empty">Refreshing from openrouter.ai…</div>';
+    vscode.postMessage({ command: "fetchOpenRouterModels", forceRefresh: true });
+  });
+
   // ── Host messages ───────────────────────────────
   window.addEventListener("message", (event) => {
     const msg = event.data || {};
     if (msg.type === "setupState") {
       currentMode = msg.mode || "cursor-sdk";
       currentKeys = msg.keys || [];
+      orCurrentModel = msg.openRouterModel || "";
       const configured = currentKeys.filter((k) => k.configured).length;
       const required = currentKeys.filter((k) => k.required === currentMode);
       const requiredDone = required.length === 0 || required.every((k) => k.configured);
@@ -752,8 +989,27 @@ export class SetupPagePanel {
       document.getElementById("footerStatus").textContent = status;
       renderModeGrid();
       renderKeys();
+      renderOrSection();
     } else if (msg.type === "toast") {
       toast(msg.message, msg.kind);
+    } else if (msg.type === "openRouterModelsLoading") {
+      const list = document.getElementById("orList");
+      if (list) list.innerHTML = '<div class="or-empty">Loading models from openrouter.ai…</div>';
+    } else if (msg.type === "openRouterModels") {
+      orModels = msg.models || [];
+      const meta = document.getElementById("orModelMeta");
+      if (meta) {
+        const ageMin = Math.round((Date.now() - (msg.fetchedAt || Date.now())) / 60000);
+        meta.textContent = msg.cached
+          ? \`Searchable · cached \${ageMin === 0 ? "just now" : ageMin + " min ago"}\`
+          : "Searchable · fresh from openrouter.ai";
+      }
+      renderOrSection();
+    } else if (msg.type === "openRouterModelsError") {
+      const list = document.getElementById("orList");
+      if (list) {
+        list.innerHTML = '<div class="or-empty" style="color:var(--danger)">Failed to load models: ' + escHtml(msg.message) + '</div>';
+      }
     }
   });
 

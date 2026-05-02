@@ -273,14 +273,22 @@ async function invokeAnthropicApi(
 ): Promise<InvocationResponse> {
   // ── Build LLM config (Anthropic or OpenRouter) ────────────────────────────
   const provider = config.get<"anthropic" | "openrouter">("apiProvider", "anthropic");
+  // v1.2.17: legion.fastModelEnabled swaps in claude-haiku-4-5 (or its
+  // OpenRouter-qualified id) for this single invocation. Trades quality for
+  // ~3-5x lower latency. Wiki-guardian and library-guardian still produce
+  // valid pages with haiku — frontmatter and structure are preserved — but
+  // the prose is terser. Toggle off when you need polished long-form pages.
+  const fastModelEnabled = config.get<boolean>("fastModelEnabled", false);
+  const defaultModel =
+    provider === "openrouter"
+      ? (config.get<string>("openRouterModel") || "anthropic/claude-sonnet-4-5")
+      : (config.get<string>("model") || "claude-sonnet-4-5");
+  const fastModel = provider === "openrouter" ? "anthropic/claude-haiku-4-5" : "claude-haiku-4-5";
   const llmConfig: LlmConfig = {
     provider,
     anthropicApiKey: await getSecret(context, "anthropicApiKey"),
     openRouterApiKey: await getSecret(context, "openRouterApiKey"),
-    model:
-      provider === "openrouter"
-        ? (config.get<string>("openRouterModel") || "anthropic/claude-sonnet-4-5")
-        : (config.get<string>("model") || "claude-sonnet-4-5"),
+    model: fastModelEnabled ? fastModel : defaultModel,
     maxTokens: 8192,
   };
 

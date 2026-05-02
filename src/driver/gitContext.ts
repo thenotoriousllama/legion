@@ -26,65 +26,43 @@ export async function getGitContext(
   const rel = path.relative(repoRoot, absFilePath).replace(/\\/g, "/");
   const opts = { cwd: repoRoot, maxBuffer: 8 * 1024 * 1024 };
 
-  // Creation commit (first commit that added the file)
+  // v1.2.17: Single `git log --follow` call covers creation, last commit,
+  // and recent commits in one subprocess spawn (was 3 separate calls
+  // pre-v1.2.17). `--follow` traces through renames so the oldest commit
+  // is genuinely "creation" rather than the most recent rename.
   let created_commit = "";
   let created_at = "";
-  try {
-    const { stdout } = await exec(
-      "git",
-      ["log", "--format=%H|%aI", "--diff-filter=A", "--", rel],
-      opts
-    );
-    const lines = stdout.trim().split("\n").filter(Boolean);
-    if (lines.length > 0) {
-      const last = lines[lines.length - 1];
-      const [sha, date] = last.split("|");
-      created_commit = sha;
-      created_at = date;
-    }
-  } catch {
-    // file may not yet be committed
-  }
-
-  // Last commit
   let last_commit = { sha: "", author: "", timestamp: "", message: "" };
-  try {
-    const { stdout } = await exec(
-      "git",
-      ["log", "-1", "--format=%H|%an|%aI|%s", "--", rel],
-      opts
-    );
-    const parts = stdout.trim().split("|");
-    if (parts.length >= 4) {
-      last_commit = {
-        sha: parts[0],
-        author: parts[1],
-        timestamp: parts[2],
-        message: parts.slice(3).join("|"),
-      };
-    }
-  } catch {
-    // ignore
-  }
-
-  // Recent commits (up to 10)
   let recent_commits: Array<{ sha: string; message: string; timestamp: string }> = [];
+
   try {
     const { stdout } = await exec(
       "git",
-      ["log", "-10", "--format=%H|%aI|%s", "--", rel],
+      ["log", "--follow", "--format=%H|%aI|%an|%s", "--", rel],
       opts
     );
-    recent_commits = stdout
-      .trim()
-      .split("\n")
-      .filter(Boolean)
-      .map((line) => {
-        const [sha, timestamp, ...msg] = line.split("|");
+    const lines = stdout.split("\n").filter(Boolean);
+    if (lines.length > 0) {
+      // First line is most recent (last_commit + start of recent_commits).
+      const [firstSha, firstTs, firstAuthor, ...firstMsgParts] = lines[0].split("|");
+      last_commit = {
+        sha: firstSha,
+        author: firstAuthor ?? "",
+        timestamp: firstTs ?? "",
+        message: firstMsgParts.join("|"),
+      };
+      recent_commits = lines.slice(0, 10).map((line) => {
+        const [sha, timestamp, , ...msg] = line.split("|");
         return { sha, timestamp, message: msg.join("|") };
       });
+      // Last line is oldest = creation commit.
+      const lastLine = lines[lines.length - 1];
+      const [createdSha, createdTs] = lastLine.split("|");
+      created_commit = createdSha;
+      created_at = createdTs ?? "";
+    }
   } catch {
-    // ignore
+    // file may not yet be committed (untracked or never staged)
   }
 
   // Blame summary — top 3 contributors by line count.

@@ -8,7 +8,7 @@ import { loadLegionIgnore } from "./legionignore";
 import { mergeSharedIgnore } from "./sharedConfig";
 import { diffFiles, loadManifest } from "./hashDiff";
 import { planChunks, loadChunkContent, topLevelModule } from "./chunkPlanner";
-import { getGitContextMany } from "./gitContext";
+import { getGitContextManyCached } from "./gitContextCache";
 import { invokeAgent } from "./agentInvoker";
 import { reconcile, type ChunkResult } from "./reconciler";
 import { autoCommitWiki } from "./gitCommit";
@@ -52,6 +52,7 @@ export async function runDocumentPass(
   const maxParallel = vsConfig.get<number>("maxParallelAgents", 6);
   const maxFilesPerChunk = vsConfig.get<number>("maxFilesPerChunk", 8);
   const includeBlame = vsConfig.get<boolean>("includeGitBlame", false);
+  const documentMode = vsConfig.get<"all" | "diff">("documentMode", "all");
   const invocationMode = vsConfig.get<string>("agentInvocationMode", "direct-anthropic-api");
 
   await vscode.window.withProgress(
@@ -83,7 +84,14 @@ export async function runDocumentPass(
       // ── 2. Filter by mode ────────────────────────────────────────────────
       progress.report({ message: "Computing file diff…", increment: 5 });
       let filesToScan: string[];
-      if (mode === "update") {
+      // v1.2.17: legion.documentMode = "diff" makes document mode skip
+      // unchanged files (same behavior as update mode). Useful when you want
+      // a "doc pass" that skips clean files but doesn't strictly need
+      // prior-state injection. When "all" (default), document still walks
+      // and processes every file in scope.
+      const treatAsDiff =
+        mode === "update" || (mode === "document" && documentMode === "diff");
+      if (treatAsDiff) {
         const diff = await diffFiles(repoRoot, allAbsFiles);
         filesToScan = [
           ...diff.added.map((r) => path.join(repoRoot, r.replace(/\//g, path.sep))),
@@ -114,17 +122,20 @@ export async function runDocumentPass(
       const manifest = await loadManifest(repoRoot);
 
       // ── 4b. Precompute git context ONCE for every file in this pass ──────
-      // v1.2.16: was previously computed inside each worker (and re-computed
-      // for the same files again during the library-guardian phase). Hoisting
-      // it to a single parallel pass shaves ~30–50% off pass time on
-      // repos with deep history because every chunk reuses the same lookups.
-      // The blame call (skipped by default) was the dominant cost.
+      // v1.2.16: hoisted out of per-chunk so wiki-guardian and library-guardian
+      // share one lookup map.
+      // v1.2.17: now goes through `getGitContextManyCached`, which persists
+      // the result to `.legion/git-context-cache.json` keyed on HEAD SHA. On
+      // subsequent passes with no new commits, the cache returns instantly
+      // (zero git subprocesses). With new commits, only the diff'd files
+      // are recomputed (one `git diff --name-only <oldHead> HEAD` to
+      // invalidate, then cold-compute just those).
       progress.report({ message: "Computing git context…", increment: 5 });
       if (token.isCancellationRequested) return;
-      const allAbsForGit = filesToScan;
-      const gitContextByRel = await getGitContextMany(
+      const gitContextByRel = await getGitContextManyCached(
+        context,
         repoRoot,
-        allAbsForGit,
+        filesToScan,
         Math.min(16, Math.max(maxParallel * 2, 8)),
         includeBlame
       );
@@ -186,7 +197,7 @@ export async function runDocumentPass(
           }
 
           const priorState: PriorPage[] =
-            mode === "update"
+            treatAsDiff
               ? await loadPriorState(repoRoot, chunk.files, manifest, wikiRoot)
               : [];
 
