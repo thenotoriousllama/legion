@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.21] — 2026-05-02
+
+### Fixed
+- **`HTTP 400 from openrouter.ai: prompt is too long: 1079931 tokens > 1000000 maximum`** and similar context-window rejections. Root cause: a chunk's serialized payload (system prompt + skill content + N file bodies) silently grew past the model's hard context limit when even one file in the chunk was a generated bundle / minified asset / base64-encoded blob. wiki-guardian and library-guardian both hit it.
+- **Two-layer fix:**
+  1. `loadChunkContent` now drops files larger than `legion.maxFileSizeBytes` (default 200 KB ≈ 50k tokens) with a warning event in the Activity tab. Both wiki-guardian and library-guardian honor the cap.
+  2. The wiki-guardian phase now estimates total payload tokens after loading and **auto-splits any chunk that exceeds `legion.maxChunkTokensEstimate`** (default 200000). Recursive: a sub-chunk that's still too big keeps splitting until each sub-chunk fits or we hit a single-file chunk that's unsplittable (in which case we surface a clear error pointing at the offending file).
+- **`HTTP 400` errors from any provider now include a context-length hint** when the response body matches known phrasings (`prompt is too long`, `context length`, `context_length_exceeded`, etc.). The hint names the exact settings to lower so users don't have to guess.
+
+### Added
+- `legion.maxFileSizeBytes` (number, default 200000, range 10000–5000000).
+- `legion.maxChunkTokensEstimate` (number, default 200000, range 50000–950000).
+
 ## [1.2.20] — 2026-05-02
 
 ### Fixed

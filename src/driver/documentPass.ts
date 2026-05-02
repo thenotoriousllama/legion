@@ -7,7 +7,7 @@ import type { HashManifest } from "./hashDiff";
 import { loadLegionIgnore } from "./legionignore";
 import { mergeSharedIgnore } from "./sharedConfig";
 import { diffFiles, loadManifest } from "./hashDiff";
-import { planChunks, loadChunkContent, topLevelModule } from "./chunkPlanner";
+import { planChunks, loadChunkContent, loadChunkContentDetailed, topLevelModule, type PlannedChunk } from "./chunkPlanner";
 import { getGitContextManyCached } from "./gitContextCache";
 import { invokeAgent } from "./agentInvoker";
 import { reconcile, type ChunkResult } from "./reconciler";
@@ -52,6 +52,8 @@ export async function runDocumentPass(
   const vsConfig = vscode.workspace.getConfiguration("legion");
   const maxParallel = vsConfig.get<number>("maxParallelAgents", 6);
   const maxFilesPerChunk = vsConfig.get<number>("maxFilesPerChunk", 8);
+  const maxFileSizeBytes = vsConfig.get<number>("maxFileSizeBytes", 200_000);
+  const maxChunkTokensEstimate = vsConfig.get<number>("maxChunkTokensEstimate", 200_000);
   const includeBlame = vsConfig.get<boolean>("includeGitBlame", false);
   const documentMode = vsConfig.get<"all" | "diff">("documentMode", "all");
   const invocationMode = vsConfig.get<string>("agentInvocationMode", "direct-anthropic-api");
@@ -175,6 +177,114 @@ export async function runDocumentPass(
           chunks.length + (mode !== "lint" ? groupByModule(repoRoot, filesToScan).size : 0);
         const incrementPerUnit = Math.max(1, Math.floor(70 / Math.max(totalUnits, 1)));
 
+        // v1.2.21: helper that handles one chunk, with auto-split when the
+        // estimated payload exceeds the model's effective context. Recursive:
+        // a chunk that's still too big after halving keeps splitting until
+        // each sub-chunk fits or we're down to a single-file chunk that's
+        // unsplittable (in which case we surface a clear error).
+        const processWikiChunk = async (chunk: PlannedChunk, parentLabel?: string): Promise<void> => {
+          if (token.isCancellationRequested) return;
+          const labelPath = parentLabel ? `${parentLabel} ▶ ${chunk.label}` : chunk.label;
+
+          const loaded = await loadChunkContentDetailed(repoRoot, chunk, maxFileSizeBytes);
+          // Surface dropped files so the user understands why they're not in the wiki.
+          for (const big of loaded.oversize) {
+            activity.emit({
+              level: "warn",
+              source: opId,
+              message: `wiki-guardian: skipped oversize file ${big.path} (${(big.sizeBytes / 1024).toFixed(0)} KB > ${(maxFileSizeBytes / 1024).toFixed(0)} KB cap)`,
+            });
+          }
+          if (loaded.files.length === 0) return;
+
+          const gitCtx: Record<string, import("../types/payload").FileGitContext> = {};
+          for (const f of loaded.files) {
+            gitCtx[f.path] = gitContextByRel[f.path] ?? {
+              created_commit: "",
+              created_at: "",
+              last_commit: { sha: "", author: "", timestamp: "", message: "" },
+              recent_commits: [],
+              blame_summary: { top_authors: [], churn_rate: "unknown" },
+            };
+          }
+
+          const priorState: PriorPage[] = treatAsDiff
+            ? await loadPriorState(repoRoot, loaded.files.map((f) => f.path), manifest, wikiRoot)
+            : [];
+
+          const payload: InvocationPayload = {
+            mode,
+            chunk: loaded.files,
+            git_context: gitCtx,
+            prior_state: priorState,
+            wiki_root: wikiRoot,
+            page_caps: PAGE_CAPS,
+            callout_vocabulary: CALLOUT_VOCABULARY,
+          };
+
+          // Estimate total payload tokens. ~4 chars per token is the
+          // conservative default for English/code; system prompt is added
+          // by agentInvoker and we reserve a fixed overhead to account for it.
+          const SYSTEM_PROMPT_TOKEN_RESERVE = 80_000; // wiki-guardian.md + skill refs
+          const payloadChars = JSON.stringify(payload).length;
+          const estimatedTokens = Math.ceil(payloadChars / 4) + SYSTEM_PROMPT_TOKEN_RESERVE;
+
+          if (estimatedTokens > maxChunkTokensEstimate && loaded.files.length > 1) {
+            // Split files in half and process each sub-chunk independently.
+            // Reconcile happily merges multiple results sharing a label root.
+            const mid = Math.ceil(loaded.files.length / 2);
+            const filesA = loaded.files.slice(0, mid).map((f) => f.path);
+            const filesB = loaded.files.slice(mid).map((f) => f.path);
+            activity.emit({
+              level: "warn",
+              source: opId,
+              message: `wiki-guardian: chunk "${labelPath}" estimated at ~${estimatedTokens.toLocaleString()} tokens (> ${maxChunkTokensEstimate.toLocaleString()}), splitting ${loaded.files.length} files into ${filesA.length}+${filesB.length}`,
+            });
+            await processWikiChunk(
+              { label: `${chunk.label} [a:${filesA.length}]`, files: filesA },
+              parentLabel
+            );
+            if (token.isCancellationRequested) return;
+            await processWikiChunk(
+              { label: `${chunk.label} [b:${filesB.length}]`, files: filesB },
+              parentLabel
+            );
+            return;
+          }
+
+          if (estimatedTokens > maxChunkTokensEstimate) {
+            // Unsplittable: single file already too big. Drop it with a clear
+            // error rather than blowing up the LLM call.
+            const onlyFile = loaded.files[0]?.path ?? "(unknown)";
+            const msg = `single file "${onlyFile}" estimated at ~${estimatedTokens.toLocaleString()} tokens — exceeds maxChunkTokensEstimate (${maxChunkTokensEstimate.toLocaleString()}). Skipped. Lower legion.maxFileSizeBytes or raise legion.maxChunkTokensEstimate.`;
+            chunkErrors.push(`Chunk "${labelPath}" oversize: ${msg}`);
+            activity.emit({
+              level: "error",
+              source: opId,
+              message: `wiki-guardian ✗ ${labelPath}`,
+              error: msg,
+            });
+            return;
+          }
+
+          if (token.isCancellationRequested) return;
+          try {
+            const response = await invokeAgent("wiki-guardian", payload, repoRoot, context);
+            if (token.isCancellationRequested) return;
+            chunkResults.push({ label: labelPath, payload, response });
+            activity.emit({ level: "info", source: opId, message: `wiki-guardian ✓ ${labelPath}` });
+          } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e);
+            chunkErrors.push(`Chunk "${labelPath}" invocation failed: ${msg}`);
+            activity.emit({
+              level: "error",
+              source: opId,
+              message: `wiki-guardian ✗ ${labelPath}`,
+              error: msg,
+            });
+          }
+        };
+
         // Phase A — wiki-guardian per chunk
         const wikiPhase = runWithConcurrency(
           chunks,
@@ -188,56 +298,7 @@ export async function runDocumentPass(
               incrementPerUnit,
               { current: idx + 1, total: chunks.length }
             );
-
-            const chunkFiles = await loadChunkContent(repoRoot, chunk);
-            if (chunkFiles.length === 0) return;
-
-            const gitCtx: Record<string, import("../types/payload").FileGitContext> = {};
-            for (const rel of chunk.files) {
-              const norm = rel.replace(/\\/g, "/");
-              gitCtx[norm] = gitContextByRel[norm] ?? {
-                created_commit: "",
-                created_at: "",
-                last_commit: { sha: "", author: "", timestamp: "", message: "" },
-                recent_commits: [],
-                blame_summary: { top_authors: [], churn_rate: "unknown" },
-              };
-            }
-
-            const priorState: PriorPage[] = treatAsDiff
-              ? await loadPriorState(repoRoot, chunk.files, manifest, wikiRoot)
-              : [];
-
-            const payload: InvocationPayload = {
-              mode,
-              chunk: chunkFiles,
-              git_context: gitCtx,
-              prior_state: priorState,
-              wiki_root: wikiRoot,
-              page_caps: PAGE_CAPS,
-              callout_vocabulary: CALLOUT_VOCABULARY,
-            };
-
-            if (token.isCancellationRequested) return;
-            try {
-              const response = await invokeAgent("wiki-guardian", payload, repoRoot, context);
-              if (token.isCancellationRequested) return;
-              chunkResults.push({ label: chunk.label, payload, response });
-              activity.emit({
-                level: "info",
-                source: opId,
-                message: `wiki-guardian ✓ ${chunk.label}`,
-              });
-            } catch (e) {
-              const msg = e instanceof Error ? e.message : String(e);
-              chunkErrors.push(`Chunk "${chunk.label}" invocation failed: ${msg}`);
-              activity.emit({
-                level: "error",
-                source: opId,
-                message: `wiki-guardian ✗ ${chunk.label}`,
-                error: msg,
-              });
-            }
+            await processWikiChunk(chunk);
           },
           token
         );
@@ -254,10 +315,23 @@ export async function runDocumentPass(
             libBudget,
             async ([moduleName, absModFiles]) => {
               if (token.isCancellationRequested) return;
+              // v1.2.21: same file-size cap as wiki-guardian. A massive
+              // generated file in a "module" would push library-guardian's
+              // single invocation over the model's context the same way it
+              // did for wiki-guardian.
               const moduleChunkFiles = await Promise.all(
                 absModFiles.map(async (abs) => {
                   const rel = path.relative(repoRoot, abs).replace(/\\/g, "/");
                   try {
+                    const st = await fs.stat(abs);
+                    if (st.size > maxFileSizeBytes) {
+                      activity.emit({
+                        level: "warn",
+                        source: opId,
+                        message: `library-guardian: skipped oversize file ${rel} (${(st.size / 1024).toFixed(0)} KB > ${(maxFileSizeBytes / 1024).toFixed(0)} KB cap)`,
+                      });
+                      return null;
+                    }
                     const content = await fs.readFile(abs, "utf8");
                     return { path: rel, content };
                   } catch {

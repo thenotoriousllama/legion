@@ -2,7 +2,7 @@
   "name": "legion",
   "displayName": "Legion",
   "description": "The top tool for AI augmented development — a full AI agent army for any codebase. Deploys wiki-guardian (entity-graph wiki with [[backlinks]], ADR detection, contradiction protocol), library-guardian (module narrative + PRD authorship), mind-guardian (cognitive layer: RAG, coach routing, memory, evaluation), auth-guardian, db-guardian, devops-guardian, payments-guardian, quality-guardian, security-guardian, react-guardian, ux-ui-guardian, design-system-guardian, seo-aeo-guardian, and asset-guardian. Runs document/update/lint passes with parallel agent invocation, reconciles a compounding wiki, surfaces entity hovers and code-lens in the editor, generates Mermaid entity graphs, posts PR wiki diffs via GitHub Actions, and federates entity stubs across repos.",
-  "version": "1.2.20",
+  "version": "1.2.21",
   "publisher": "thenotoriousllama",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
@@ -315,6 +315,20 @@
           "minimum": 4,
           "maximum": 30,
           "markdownDescription": "How many source files per wiki-guardian invocation. Bigger chunks = fewer LLM calls = faster pass, but more pages per chunk and higher per-call cost. The wiki-weapon spec recommends 4–8 (sweet spot); 12–20 trades some atomicity for speed on large repos. **v1.2.16:** introduced (was hardcoded to 6)."
+        },
+        "legion.maxFileSizeBytes": {
+          "type": "number",
+          "default": 200000,
+          "minimum": 10000,
+          "maximum": 5000000,
+          "markdownDescription": "Maximum size of an individual file (in bytes) that gets included in a wiki-guardian/library-guardian payload. Files larger than this are skipped with a warning event in the Activity tab. Default 200000 (~200 KB ≈ 50k tokens) catches generated bundles, minified assets, and base64-encoded blobs that would otherwise blow past the model's context window. **v1.2.21:** introduced after users hit `prompt is too long: 1079931 tokens > 1000000 maximum` from large generated files."
+        },
+        "legion.maxChunkTokensEstimate": {
+          "type": "number",
+          "default": 200000,
+          "minimum": 50000,
+          "maximum": 950000,
+          "markdownDescription": "Approximate token budget per agent invocation (system prompt overhead reserved separately). When a chunk's payload estimate exceeds this, the chunk is automatically split in half and each half is processed as a sub-invocation. Set this conservatively below your provider's hard limit (e.g. 200000 for safety; raise to ~800000 if you're on a 1M-context model and want bigger chunks). **v1.2.21:** introduced."
         },
         "legion.includeGitBlame": {
           "type": "boolean",

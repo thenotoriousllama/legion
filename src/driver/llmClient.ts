@@ -177,7 +177,13 @@ function httpsPost(
         res.on("end", () => {
           const text = Buffer.concat(chunks).toString("utf8");
           if ((res.statusCode ?? 0) >= 400) {
-            reject(new Error(`HTTP ${res.statusCode} from ${hostname}: ${text.slice(0, 300)}`));
+            // v1.2.21: detect context-length errors and surface a hint about
+            // the user-facing settings that control this. Pre-v1.2.21 the
+            // raw provider error was opaque ("Provider returned error 400").
+            const contextHint = isContextLengthError(text)
+              ? " — chunk exceeds the model's context window. Lower legion.maxFileSizeBytes, lower legion.maxFilesPerChunk, or set legion.maxChunkTokensEstimate to match your provider's actual limit."
+              : "";
+            reject(new Error(`HTTP ${res.statusCode} from ${hostname}: ${text.slice(0, 400)}${contextHint}`));
           } else {
             resolve(text);
           }
@@ -188,4 +194,21 @@ function httpsPost(
     req.write(body);
     req.end();
   });
+}
+
+/**
+ * Heuristic: does this error body look like a context-length-exceeded
+ * rejection from any of the major providers? Anthropic, OpenAI, OpenRouter
+ * (which proxies all of the above) all surface slightly different wording.
+ */
+function isContextLengthError(text: string): boolean {
+  const lower = text.toLowerCase();
+  return (
+    lower.includes("prompt is too long") ||
+    lower.includes("context length") ||
+    lower.includes("context_length_exceeded") ||
+    lower.includes("maximum context length") ||
+    lower.includes("input is too long") ||
+    lower.includes("token limit")
+  );
 }

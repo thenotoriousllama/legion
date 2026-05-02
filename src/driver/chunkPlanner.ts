@@ -68,32 +68,66 @@ export function planChunks(
   return chunks;
 }
 
+export interface LoadChunkResult {
+  files: ChunkFile[];
+  /** Files dropped because they exceeded `maxFileSizeBytes`. */
+  oversize: { path: string; sizeBytes: number }[];
+  /** Files we couldn't read (deleted between walk and load, perms, etc.). */
+  unreadable: { path: string; reason: string }[];
+}
+
 /**
  * Hydrate a planned chunk's file list into the ChunkFile[] shape the
  * InvocationPayload expects (repo-relative path + full UTF-8 content).
  *
  * Files that disappear between the walk and the read are silently skipped —
  * the agent receives whatever is still on disk.
+ *
+ * v1.2.21: also drops files larger than `maxFileSizeBytes` (default ~200 KB
+ * ≈ 50k tokens). The classic offender is a generated bundle, minified
+ * asset, or base64-encoded blob landing in a code chunk and pushing the
+ * whole prompt past the model's context window. Dropped files are surfaced
+ * via the returned `oversize` array so the caller can warn the user.
  */
 export async function loadChunkContent(
   repoRoot: string,
-  chunk: PlannedChunk
+  chunk: PlannedChunk,
+  maxFileSizeBytes: number = Number.POSITIVE_INFINITY
 ): Promise<ChunkFile[]> {
-  const result: ChunkFile[] = [];
+  const detailed = await loadChunkContentDetailed(repoRoot, chunk, maxFileSizeBytes);
+  return detailed.files;
+}
+
+export async function loadChunkContentDetailed(
+  repoRoot: string,
+  chunk: PlannedChunk,
+  maxFileSizeBytes: number = Number.POSITIVE_INFINITY
+): Promise<LoadChunkResult> {
+  const files: ChunkFile[] = [];
+  const oversize: { path: string; sizeBytes: number }[] = [];
+  const unreadable: { path: string; reason: string }[] = [];
+
   for (const rel of chunk.files) {
     const abs = path.join(repoRoot, rel.replace(/\//g, path.sep));
+    const normalized = rel.replace(/\\/g, "/");
     try {
+      // Stat first so we can short-circuit on huge files without buffering
+      // them. Cheaper than read + .length check on multi-MB blobs.
+      const st = await fs.stat(abs);
+      if (st.size > maxFileSizeBytes) {
+        oversize.push({ path: normalized, sizeBytes: st.size });
+        continue;
+      }
       const content = await fs.readFile(abs, "utf8");
-      result.push({ path: rel.replace(/\\/g, "/"), content });
+      files.push({ path: normalized, content });
     } catch (e) {
-      console.warn(
-        `Legion [chunkPlanner]: skipping unreadable file "${rel}" — ${
-          e instanceof Error ? e.message : String(e)
-        }`
-      );
+      unreadable.push({
+        path: normalized,
+        reason: e instanceof Error ? e.message : String(e),
+      });
     }
   }
-  return result;
+  return { files, oversize, unreadable };
 }
 
 /**
