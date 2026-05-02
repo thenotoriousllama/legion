@@ -2,7 +2,7 @@
   "name": "legion",
   "displayName": "Legion",
   "description": "The top tool for AI augmented development — a full AI agent army for any codebase. Deploys wiki-guardian (entity-graph wiki with [[backlinks]], ADR detection, contradiction protocol), library-guardian (module narrative + PRD authorship), mind-guardian (cognitive layer: RAG, coach routing, memory, evaluation), auth-guardian, db-guardian, devops-guardian, payments-guardian, quality-guardian, security-guardian, react-guardian, ux-ui-guardian, design-system-guardian, seo-aeo-guardian, and asset-guardian. Runs document/update/lint passes with parallel agent invocation, reconciles a compounding wiki, surfaces entity hovers and code-lens in the editor, generates Mermaid entity graphs, posts PR wiki diffs via GitHub Actions, and federates entity stubs across repos.",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "publisher": "thenotoriousllama",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
@@ -263,17 +263,29 @@
         "legion.agentInvocationMode": {
           "type": "string",
           "enum": [
+            "cursor-sdk",
             "cursor-cli",
             "queue-file",
             "direct-anthropic-api"
           ],
           "enumDescriptions": [
-            "Default. Shell out to `cursor agent <name> --input <path>`. Requires Cursor CLI on PATH.",
-            "Write JSON request files to `.legion/queue/`. A Cursor slash command (`/legion-drain`) processes them.",
-            "Call Claude API directly. Bypasses Cursor entirely. Requires legion.anthropicApiKey or LEGION_ANTHROPIC_API_KEY env var."
+            "Default. Invokes guardians via the official @cursor/sdk (Cursor TypeScript SDK) using a local-runtime agent. Requires legion.cursorApiKey or CURSOR_API_KEY env var (paid Cursor plan).",
+            "DEPRECATED alias for cursor-sdk. v1.0.x shelled out to `cursor agent <name> --input <path>`, but that headless CLI surface was never publicly supported by Cursor — it silently produced unparseable output. Existing configs naming cursor-cli now route through the SDK transparently.",
+            "Write JSON request files to `.legion/queue/`. A Cursor slash command (`/legion-drain`) processes them. Manual but reliable.",
+            "Call Anthropic API (or OpenRouter) directly. Bypasses Cursor entirely — works on every platform, no Cursor subscription needed. Requires legion.anthropicApiKey or LEGION_ANTHROPIC_API_KEY env var."
           ],
-          "default": "cursor-cli",
-          "description": "How the extension invokes wiki-guardian and library-guardian."
+          "default": "cursor-sdk",
+          "markdownDescription": "How the extension invokes wiki-guardian and library-guardian. **Changed in v1.1.0**: default is now `cursor-sdk` (was `cursor-cli`, which silently produced garbage). Set this to `direct-anthropic-api` if you don't have a Cursor API key."
+        },
+        "legion.cursorApiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Cursor API key for the `cursor-sdk` invocation mode. Get one at [cursor.com/dashboard/cloud-agents](https://cursor.com/dashboard/cloud-agents) (requires a paid Cursor plan). For security, prefer setting via the `CURSOR_API_KEY` environment variable (also accepts `LEGION_CURSOR_API_KEY`)."
+        },
+        "legion.cursorSdkModel": {
+          "type": "string",
+          "default": "composer-2",
+          "markdownDescription": "Model ID for the `cursor-sdk` invocation mode. Default `composer-2` is Cursor's current general-purpose recommendation. Use `auto` to let the server pick. Browse available models with `Cursor.models.list()` from the SDK."
         },
         "legion.anthropicApiKey": {
           "type": "string",
@@ -283,7 +295,7 @@
         "legion.cursorCliPath": {
           "type": "string",
           "default": "cursor",
-          "description": "Path to the Cursor CLI binary. Default `cursor` assumes it's on PATH."
+          "markdownDescription": "**Deprecated since v1.1.0.** Was the path to Cursor's CLI binary, used by the old `cursor-cli` invocation mode that shelled out to `cursor agent <name> --input <path>`. That CLI surface was never publicly supported by Cursor and the path is now unused — `cursor-cli` mode transparently routes through `@cursor/sdk` instead. This setting will be removed in v2.0."
         },
         "legion.maxParallelAgents": {
           "type": "number",
@@ -494,22 +506,26 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile:all",
-    "compile": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
-    "compile:cli": "esbuild src/cli/legionCli.ts --bundle --outfile=dist/cli.js --format=cjs --platform=node --sourcemap",
-    "compile:mcp": "esbuild src/mcp/legionMcpServer.ts --bundle --outfile=dist/mcp-server.js --format=cjs --platform=node --external:vscode --sourcemap",
+    "compile": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --external:@cursor/sdk --external:sqlite3 --format=cjs --platform=node --sourcemap",
+    "compile:cli": "esbuild src/cli/legionCli.ts --bundle --outfile=dist/cli.js --external:@cursor/sdk --external:sqlite3 --format=cjs --platform=node --sourcemap",
+    "compile:mcp": "esbuild src/mcp/legionMcpServer.ts --bundle --outfile=dist/mcp-server.js --external:vscode --external:@cursor/sdk --external:sqlite3 --format=cjs --platform=node --sourcemap",
     "compile:all": "npm run compile && npm run compile:cli && npm run compile:mcp",
     "watch": "npm run compile -- --watch",
     "type-check": "tsc --noEmit",
     "snapshot": "bash scripts/snapshot-bundled.sh",
-    "package": "npm run snapshot && npm run compile:all -- --minify && vsce package --no-dependencies --baseContentUrl https://github.com/thenotoriousllama/legion/raw/HEAD --baseImagesUrl https://github.com/thenotoriousllama/legion/raw/HEAD"
+    "package": "npm run snapshot && npm run compile:all -- --minify && vsce package --baseContentUrl https://github.com/thenotoriousllama/legion/raw/HEAD --baseImagesUrl https://github.com/thenotoriousllama/legion/raw/HEAD",
+    "package:platform": "npm run snapshot && npm run compile:all -- --minify && vsce package --target $TARGET --baseContentUrl https://github.com/thenotoriousllama/legion/raw/HEAD --baseImagesUrl https://github.com/thenotoriousllama/legion/raw/HEAD"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.85.0",
     "@vscode/vsce": "^2.24.0",
-    "esbuild": "^0.20.0",
+    "esbuild": "^0.28.0",
     "typescript": "^5.3.0",
     "zod": "^3.25.76"
+  },
+  "dependencies": {
+    "@cursor/sdk": "^1.0.12"
   }
 }

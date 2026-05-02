@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.1.0] — 2026-05-02
+
+The `cursor-cli` invocation mode has been replaced with a real implementation backed by the official `@cursor/sdk` (Cursor TypeScript SDK). v1.0.x's `cursor-cli` mode shelled out to `cursor agent <name> --input <path>` — that headless CLI surface was never publicly supported by Cursor and silently produced unparseable output (Cursor's launcher just forwarded the args to Chromium as switches). v1.0.6 fixed the spawn-level error but couldn't fix the underlying "this CLI doesn't exist" problem. v1.1.0 fixes it properly by using the documented programmatic interface — the SDK's `Agent.prompt()` against a local-runtime agent.
+
+### Added
+- **New `cursor-sdk` invocation mode (default)**, implemented via `@cursor/sdk` 1.0.12. Loads each guardian's system prompt + referenced skills from `.cursor/agents/<name>.md` and `.cursor/skills/<weapon>/`, packages them with the JSON payload into a single prompt, and calls `Agent.prompt()` with `local: { cwd: repoRoot }`. Distinguishes `CursorAgentError` (startup failure: auth, config, network) from `result.status === "error"` (run failure: agent did work and the work failed) so each surfaces a different actionable message.
+- **`legion.cursorApiKey` setting** — Cursor API key for the SDK (also accepts `LEGION_CURSOR_API_KEY` and `CURSOR_API_KEY` environment variables). Get one at [cursor.com/dashboard/cloud-agents](https://cursor.com/dashboard/cloud-agents) (paid Cursor plan required).
+- **`legion.cursorSdkModel` setting** — defaults to `composer-2`, Cursor's current general-purpose recommendation. Use `auto` to let the server pick.
+- **Per-platform VSIX builds.** The release pipeline (`.github/workflows/release.yml`) now runs a 5-job matrix (`win32-x64`, `darwin-x64`, `darwin-arm64`, `linux-x64`, `linux-arm64`) and produces one platform-tagged VSIX per supported architecture. The Marketplace and Open VSX serve each user the right VSIX automatically based on their OS + architecture.
+
+### Changed
+- **Default `legion.agentInvocationMode` is now `cursor-sdk`** (was `cursor-cli`). Anyone with `cursor-cli` set explicitly is transparently routed to the new SDK-backed implementation — no migration required for existing user configs.
+- **`@cursor/sdk` is now a runtime dependency** (in `dependencies`, not `devDependencies`). The SDK is shipped inside each VSIX as a `node_modules/` payload (`vsce package` no longer uses `--no-dependencies`). esbuild bundles `dist/extension.js` with `--external:@cursor/sdk` and `--external:sqlite3` so the SDK's pre-bundled webpack output and its native sqlite3 binary aren't re-bundled — they're loaded at runtime from the bundled `node_modules/`.
+- **`.vscodeignore` updated** to ship production `node_modules/` (excluding tests, examples, docs, source maps, and `CHANGELOG.md` files inside dependencies). VSIX size grows from ~1.6 MB (v1.0.x) to an estimated 25-40 MB compressed, comparable to other heavy extensions like Pylance.
+
+### Deprecated
+- **`cursor-cli` invocation mode value.** Still accepted as a deprecated alias for `cursor-sdk` (transparently routed through the SDK). Will be removed in v2.0.
+- **`legion.cursorCliPath` setting.** No longer used — was the path to Cursor's CLI binary for the old shell-out path. Existing values are ignored. Will be removed in v2.0.
+
+### Known limitations
+- **Windows-on-ARM (`win32-arm64`) is not supported** in `cursor-sdk` mode because Cursor hasn't published a `@cursor/sdk-win32-arm64` package on npm yet. Affected users get a clear runtime error pointing them to switch `legion.agentInvocationMode` to `direct-anthropic-api` (which works on every platform — no Cursor subscription needed, just an Anthropic or OpenRouter API key).
+- **Agents have tool access by default.** The SDK runs an *agent* (with file-read, shell, and MCP-tool access), not a pure LLM call. The prompt instructs the agent to "Output JSON only — no surrounding markdown fence, no commentary. Do not invoke tools or read additional files unless the system prompt explicitly instructs you to." If you observe guardians wandering off and using tools instead of returning the expected JSON, file an issue — we may need to add explicit MCP server gating in a follow-up.
+- **No runtime end-to-end test in this release.** The integration was developed without access to a test `CURSOR_API_KEY`. Local bundle + type-check + per-platform packaging all verified, but the first real `Agent.prompt()` call happens when a user installs v1.1.0 and runs Document Repository. Bug reports welcome.
+
 ## [1.0.6] — 2026-05-02
 
 Fixes a hard `spawn cursor ENOENT` failure on Windows that broke every parallel guardian invocation in `cursor-cli` mode (the default). Symptom in the wild looked like a stream of `Chunk "<module> [N/M]" invocation failed: spawn cursor ENOENT` lines after running `Legion: Document Repository`. Two independent root causes were collapsing into the same error.

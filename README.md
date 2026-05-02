@@ -194,8 +194,10 @@ Brings Legion's wiki operational state into Obsidian — status panel, contradic
 
 | Setting | Default | Purpose |
 |---|---|---|
-| `legion.agentInvocationMode` | `cursor-cli` | How agents are invoked: `cursor-cli`, `queue-file`, or `direct-anthropic-api` |
-| `legion.apiProvider` | `anthropic` | LLM provider for direct mode and Autoresearch — `anthropic` or `openrouter` |
+| `legion.agentInvocationMode` | `cursor-sdk` | How agents are invoked. `cursor-sdk` (default, requires `legion.cursorApiKey`), `direct-anthropic-api` (requires `legion.anthropicApiKey`), `queue-file` (manual via Cursor slash command), or `cursor-cli` (deprecated alias for `cursor-sdk`) |
+| `legion.cursorApiKey` | _(empty)_ | Cursor API key for `cursor-sdk` mode. Get one at [cursor.com/dashboard/cloud-agents](https://cursor.com/dashboard/cloud-agents). Prefer setting via `CURSOR_API_KEY` env var |
+| `legion.cursorSdkModel` | `composer-2` | Model ID for `cursor-sdk` mode. Use `auto` to let the server pick |
+| `legion.apiProvider` | `anthropic` | LLM provider for `direct-anthropic-api` mode and Autoresearch — `anthropic` or `openrouter` |
 | `legion.model` | `claude-sonnet-4-5` | Claude model when using direct Anthropic API |
 | `legion.maxParallelAgents` | `3` | Concurrency limit for parallel agent invocations |
 | `legion.installPostCommitHook` | `false` | Install a post-commit git hook that queues Update on every commit |

@@ -1,21 +1,40 @@
 import * as vscode from "vscode";
 import * as https from "https";
-import { execFile } from "child_process";
-import { promisify } from "util";
 import * as fs from "fs/promises";
 import * as path from "path";
 import type { InvocationPayload } from "../types/payload";
 import type { InvocationResponse } from "../types/response";
 import { callLlm, type LlmConfig } from "./llmClient";
 
-const exec = promisify(execFile);
-
-export type InvocationMode = "cursor-cli" | "queue-file" | "direct-anthropic-api";
+/**
+ * The set of agent invocation modes Legion supports.
+ *
+ * - `cursor-sdk` — invoke via the official `@cursor/sdk` (Cursor TypeScript
+ *   SDK). Uses `Agent.prompt` against a local-runtime agent backed by
+ *   Cursor's infrastructure. Requires `CURSOR_API_KEY` (or the
+ *   `legion.cursorApiKey` setting). This is the recommended mode for users
+ *   on a paid Cursor plan and is the new default in v1.1.0+.
+ * - `cursor-cli` — DEPRECATED alias that resolves to `cursor-sdk`. Earlier
+ *   releases shelled out to `cursor agent <name> --input <path>`, but that
+ *   CLI surface was never publicly supported by Cursor and silently failed.
+ *   Existing user configurations naming `cursor-cli` continue to work and
+ *   transparently route through the SDK path.
+ * - `queue-file` — write request files to `.legion/queue/` for manual
+ *   processing by a Cursor slash command. Useful as an escape hatch.
+ * - `direct-anthropic-api` — call Anthropic (or OpenRouter) directly. No
+ *   Cursor dependency, just an API key. Recommended for VS Code users and
+ *   anyone without a Cursor subscription.
+ */
+export type InvocationMode =
+  | "cursor-sdk"
+  | "cursor-cli"
+  | "queue-file"
+  | "direct-anthropic-api";
 
 /**
  * Invoke a Cursor agent (wiki-guardian, library-guardian, etc.) with a
- * structured payload. Mode is read from the `legion.agentInvocationMode` setting
- * — one of cursor-cli (default), queue-file, or direct-anthropic-api.
+ * structured payload. Mode is read from the `legion.agentInvocationMode`
+ * setting.
  */
 export async function invokeAgent(
   agentName: string,
@@ -24,11 +43,12 @@ export async function invokeAgent(
   _context: vscode.ExtensionContext
 ): Promise<InvocationResponse> {
   const config = vscode.workspace.getConfiguration("legion");
-  const mode = config.get<InvocationMode>("agentInvocationMode", "cursor-cli");
+  const mode = config.get<InvocationMode>("agentInvocationMode", "cursor-sdk");
 
   switch (mode) {
-    case "cursor-cli":
-      return invokeCursorCli(agentName, payload, repoRoot, config);
+    case "cursor-sdk":
+    case "cursor-cli": // deprecated alias — kept for backwards compatibility
+      return invokeCursorSdk(agentName, payload, repoRoot, config);
     case "queue-file":
       return invokeQueueFile(agentName, payload, repoRoot);
     case "direct-anthropic-api":
@@ -39,117 +59,159 @@ export async function invokeAgent(
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Mode 1: cursor-cli (default)
+// Mode 1: cursor-sdk (default in v1.1.0+; cursor-cli is a deprecated alias)
+//
+// Invokes the guardian via the official `@cursor/sdk` package. Replaces the
+// legacy CLI shell-out approach which never actually worked end-to-end —
+// `cursor agent <name> --input <path>` was never a publicly-supported Cursor
+// CLI surface, so the bare-spawn path silently produced garbage that
+// `parseResponse()` couldn't parse. The SDK is the documented programmatic
+// interface to Cursor agents.
+//
+// Architecture notes:
+//   • The SDK is shipped inside the VSIX as a runtime `node_modules/`
+//     dependency; esbuild marks it `--external:@cursor/sdk` so the 5.78 MB
+//     pre-bundled webpack output isn't re-bundled. See `package.json` and
+//     `.vscodeignore`.
+//   • The SDK eagerly loads native `sqlite3` at module top-level, which means
+//     each Marketplace VSIX must ship the platform-correct `.node` binary.
+//     The release pipeline (`.github/workflows/release.yml`) builds one VSIX
+//     per supported platform via `vsce package --target <platform>`. There
+//     is no `@cursor/sdk-win32-arm64` package on npm yet — Windows-on-ARM
+//     users should select `direct-anthropic-api` mode.
 // ──────────────────────────────────────────────────────────────────────────────
 
-async function invokeCursorCli(
+async function invokeCursorSdk(
   agentName: string,
   payload: InvocationPayload,
   repoRoot: string,
   config: vscode.WorkspaceConfiguration
 ): Promise<InvocationResponse> {
-  const cliPath = config.get<string>("cursorCliPath", "cursor");
-  const queueDir = path.join(repoRoot, ".legion", "queue");
-  await fs.mkdir(queueDir, { recursive: true });
-  const inputPath = path.join(queueDir, `cli-input-${Date.now()}.json`);
-  await fs.writeFile(inputPath, JSON.stringify(payload));
+  // Lazy-require the SDK so that an environment without the native sqlite3
+  // binary (e.g. Windows-on-ARM where no @cursor/sdk-win32-arm64 exists) only
+  // explodes for users who actually selected this mode, not on extension
+  // activation. The plain string literal is intentional — esbuild marks
+  // `@cursor/sdk` as external, so this resolves at runtime via Node's normal
+  // CommonJS resolution against the VSIX's bundled node_modules/.
+  let Agent: typeof import("@cursor/sdk").Agent;
+  let CursorAgentError: typeof import("@cursor/sdk").CursorAgentError;
   try {
-    // NOTE: Cursor's headless CLI surface for invoking a specific subagent is
-    // still evolving. The current best-known incantation is below; if your
-    // Cursor version differs, override `legion.cursorCliPath` or switch to
-    // `legion.agentInvocationMode = "queue-file"`.
-    const args = ["agent", agentName, "--input", inputPath];
-    let result: { stdout: string; stderr: string };
-    if (process.platform === "win32") {
-      // Cursor's CLI on Windows ships as `cursor.cmd` (a batch shim). Two
-      // independent things make a bare `execFile("cursor", ...)` fail:
-      //
-      //   1. CVE-2024-27980 ("BatBadBut", April 2024) — Node 20.12.2+ refuses
-      //      to spawn .bat / .cmd files via execFile/spawn unless `shell: true`
-      //      is set, even with an absolute path.
-      //   2. Cursor's extension host inherits PATH from when Cursor was
-      //      launched. If the cursor bin dir was added to PATH after Cursor
-      //      started, the host won't see it until Cursor is fully restarted.
-      //
-      // We invoke cmd.exe explicitly with hand-quoted args, using
-      // `windowsVerbatimArguments` so Node doesn't re-escape our quoting via
-      // the standard CRT rules. cmd.exe then handles .cmd extension lookup
-      // through PATH correctly.
-      const cmdLine = [cliPath, ...args].map(quoteWinShellArg).join(" ");
-      result = await exec("cmd.exe", ["/d", "/s", "/c", cmdLine], {
-        cwd: repoRoot,
-        maxBuffer: 64 * 1024 * 1024,
-        windowsVerbatimArguments: true,
-      });
-    } else {
-      result = await exec(cliPath, args, {
-        cwd: repoRoot,
-        maxBuffer: 64 * 1024 * 1024,
-      });
+    const sdk = require("@cursor/sdk") as typeof import("@cursor/sdk");
+    Agent = sdk.Agent;
+    CursorAgentError = sdk.CursorAgentError;
+  } catch (loadErr) {
+    throw new Error(
+      `Legion could not load @cursor/sdk. This typically happens on platforms ` +
+        `where Cursor doesn't ship the SDK's native binaries (e.g. Windows on ` +
+        `ARM, where @cursor/sdk-win32-arm64 doesn't exist on npm yet), or when ` +
+        `the VSIX you installed targets a different OS/architecture. Switch ` +
+        `'legion.agentInvocationMode' to 'direct-anthropic-api' (requires ` +
+        `'legion.anthropicApiKey' or the LEGION_ANTHROPIC_API_KEY env var) to ` +
+        `bypass the SDK entirely.\n\nOriginal load error: ` +
+        (loadErr instanceof Error ? loadErr.message : String(loadErr))
+    );
+  }
+
+  // ── Resolve API key + model ──────────────────────────────────────────────
+  const apiKey =
+    config.get<string>("cursorApiKey") ||
+    process.env.LEGION_CURSOR_API_KEY ||
+    process.env.CURSOR_API_KEY ||
+    "";
+  if (!apiKey) {
+    throw new Error(
+      `Legion: cursor-sdk mode requires a Cursor API key. Set ` +
+        `'legion.cursorApiKey' in Settings, or export the CURSOR_API_KEY ` +
+        `environment variable. Get a key at ` +
+        `https://cursor.com/dashboard/cloud-agents (you'll need a paid Cursor ` +
+        `plan). Alternatively, switch 'legion.agentInvocationMode' to ` +
+        `'direct-anthropic-api' (uses Anthropic / OpenRouter — set ` +
+        `'legion.anthropicApiKey' or LEGION_ANTHROPIC_API_KEY) which works on ` +
+        `every platform and doesn't require a Cursor subscription.`
+    );
+  }
+  const modelId = config.get<string>("cursorSdkModel") || "composer-2";
+
+  // ── Load agent system prompt + referenced skills ─────────────────────────
+  // Mirrors the loading logic in invokeAnthropicApi so behavior is consistent
+  // across SDK / Anthropic-direct modes.
+  const agentPath = path.join(repoRoot, ".cursor", "agents", `${agentName}.md`);
+  let systemPrompt: string;
+  try {
+    systemPrompt = await fs.readFile(agentPath, "utf8");
+  } catch {
+    throw new Error(
+      `cursor-sdk: agent file not found at ${agentPath}. ` +
+        "Run Legion: Initialize Repository first."
+    );
+  }
+
+  const skillRefs = extractSkillRefs(systemPrompt);
+  const skillContents: string[] = [];
+  for (const ref of skillRefs) {
+    const refPath = path.join(repoRoot, ".cursor", ref.replace(/^\//, ""));
+    try {
+      const content = await fs.readFile(refPath, "utf8");
+      skillContents.push(`\n\n<!-- skill: ${ref} -->\n${content}`);
+    } catch {
+      // Missing skill — skip silently (matches direct-anthropic-api behavior)
     }
-    return parseResponse(result.stdout);
+  }
+  const fullSystem = systemPrompt + skillContents.join("");
+
+  // ── Build the prompt ─────────────────────────────────────────────────────
+  // The SDK's Agent.prompt() takes a single prompt string (no separate system
+  // role like Anthropic Messages API). We concatenate the guardian's system
+  // prompt + skills with the JSON payload, and add an explicit instruction
+  // to respond with JSON only — the SDK runs an *agent* (with tool access)
+  // rather than a pure LLM call, so we need to discourage it from wandering
+  // off and using tools when all we want is the structured guardian output.
+  const fullPrompt =
+    `${fullSystem}\n\n---\n\n# INVOCATION PAYLOAD\n\n` +
+    `\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\`\n\n` +
+    `Respond with the structured JSON output specified in the system prompt ` +
+    `above. Output JSON only — no surrounding markdown fence, no commentary. ` +
+    `Do not invoke tools or read additional files unless the system prompt ` +
+    `explicitly instructs you to.`;
+
+  // ── Invoke the agent ─────────────────────────────────────────────────────
+  // Agent.prompt() is the SDK's one-shot pattern — it disposes itself, no
+  // try/finally with [Symbol.asyncDispose]() needed. Local runtime so the
+  // agent runs against the user's repo on their machine (matches Legion's
+  // existing local-execution model).
+  try {
+    const result = await Agent.prompt(fullPrompt, {
+      apiKey,
+      model: { id: modelId },
+      local: { cwd: repoRoot },
+    });
+
+    if (result.status === "error") {
+      throw new Error(
+        `cursor-sdk: agent run failed (status=error). Run ID: ${result.id}. ` +
+          `Inspect at https://cursor.com/dashboard/cloud-agents.`
+      );
+    }
+    if (typeof result.result !== "string" || result.result.trim().length === 0) {
+      throw new Error(
+        `cursor-sdk: agent returned no text result (status=${result.status}, ` +
+          `run id=${result.id}).`
+      );
+    }
+    return parseResponse(result.result);
   } catch (err) {
-    if (err instanceof Error && isCommandNotFoundError(err)) {
-      throw new Error(buildCliNotFoundMessage(cliPath, err));
+    if (err instanceof CursorAgentError) {
+      throw new Error(
+        `cursor-sdk: agent failed to start — ${err.message}` +
+          (err.isRetryable ? " (retryable)" : " (not retryable)") +
+          `\n\nIf this is an auth error, verify 'legion.cursorApiKey' is set ` +
+          `correctly (get one at https://cursor.com/dashboard/cloud-agents). ` +
+          `If you don't have a Cursor subscription, switch ` +
+          `'legion.agentInvocationMode' to 'direct-anthropic-api'.`
+      );
     }
     throw err;
-  } finally {
-    fs.unlink(inputPath).catch(() => undefined);
   }
-}
-
-/**
- * Quote an argument for cmd.exe consumption. Wraps the value in double quotes
- * if it contains whitespace or quote characters, and doubles internal quotes
- * per cmd.exe's parsing rules. Tuned for our argument shape (no `%`, no `^`,
- * no `&|<>` metacharacters in real-world payloads — guardian names are
- * validated identifiers and inputPath is a timestamped JSON file under
- * `.legion/queue/` inside the repo root).
- */
-function quoteWinShellArg(arg: string): string {
-  if (!arg) return '""';
-  if (!/[\s"]/.test(arg)) return arg;
-  return `"${arg.replace(/"/g, '""')}"`;
-}
-
-/**
- * Recognize Node's spawn "binary not found" error across platforms and shells.
- * On POSIX it's ENOENT; via cmd.exe it's "is not recognized as an internal or
- * external command"; via PowerShell it's "cannot find the path specified".
- */
-function isCommandNotFoundError(err: Error): boolean {
-  return (
-    /ENOENT/.test(err.message) ||
-    /is not recognized as an internal or external command/i.test(err.message) ||
-    /cannot find/i.test(err.message)
-  );
-}
-
-/**
- * Produce a clear, actionable error message when the Cursor CLI can't be
- * located or executed. Replaces the raw `spawn cursor ENOENT` that Node
- * surfaces by default.
- */
-function buildCliNotFoundMessage(cliPath: string, originalErr: Error): string {
-  const winHint =
-    `On Windows, open Cursor's Command Palette and run ` +
-    `"Shell Command: Install 'cursor' command in PATH", then RESTART CURSOR ` +
-    `(the extension host caches PATH on launch — settings changes alone are ` +
-    `not enough). Alternatively, set 'legion.cursorCliPath' in Settings to ` +
-    `the absolute path of cursor.cmd ` +
-    `(typically C:\\Program Files\\cursor\\resources\\app\\bin\\cursor.cmd).`;
-  const unixHint =
-    `Make sure 'cursor' is on PATH, or set 'legion.cursorCliPath' in Settings ` +
-    `to the absolute path of the binary.`;
-  return (
-    `Legion could not invoke the Cursor CLI ('${cliPath}'). ` +
-    (process.platform === "win32" ? winHint : unixHint) +
-    ` As a last resort, switch 'legion.agentInvocationMode' to ` +
-    `'direct-anthropic-api' (requires 'legion.anthropicApiKey' or the ` +
-    `LEGION_ANTHROPIC_API_KEY env var) — this bypasses the CLI entirely and ` +
-    `is the recommended path for Windows + VS Code users per the README.\n\n` +
-    `Original error: ${originalErr.message}`
-  );
 }
 
 // ──────────────────────────────────────────────────────────────────────────────

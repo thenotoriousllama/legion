@@ -14,16 +14,44 @@ permissions:
   contents: write
 
 jobs:
-  release:
-    name: Build VSIX & GitHub Release
-    runs-on: ubuntu-latest
+  # ──────────────────────────────────────────────────────────────────────────
+  # Build job — matrix across the five platforms Cursor's SDK supports.
+  #
+  # Each job runs on the actual target platform so `npm ci` pulls the
+  # platform-correct sqlite3 native binary and the matching @cursor/sdk-<plat>
+  # optional dependency. We then `vsce package --target <plat>` to produce a
+  # platform-tagged VSIX (filename: legion-<version>-<target>.vsix). The
+  # Marketplace and Open VSX both serve each user the right one based on the
+  # target metadata.
+  #
+  # NOTE: There is no @cursor/sdk-win32-arm64 on npm yet, so Windows-on-ARM
+  # is intentionally absent from the matrix. Those users get a clear error
+  # at runtime telling them to switch to direct-anthropic-api mode.
+  # ──────────────────────────────────────────────────────────────────────────
+  build:
+    name: Build VSIX (${{ matrix.target }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: win32-x64
+            os: windows-latest
+          - target: darwin-x64
+            os: macos-13
+          - target: darwin-arm64
+            os: macos-latest
+          - target: linux-x64
+            os: ubuntu-latest
+          - target: linux-arm64
+            os: ubuntu-24.04-arm
+    runs-on: ${{ matrix.os }}
     outputs:
-      vsix: ${{ steps.vsix.outputs.path }}
       tag: ${{ steps.tag.outputs.value }}
 
     steps:
       - name: Resolve tag
         id: tag
+        shell: bash
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "value=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
@@ -47,6 +75,7 @@ jobs:
         run: npm run type-check
 
       - name: Verify package.json version matches tag
+        shell: bash
         run: |
           PKG_VERSION=$(node -p "require('./package.json').version")
           TAG_VERSION="${{ steps.tag.outputs.value }}"
@@ -63,43 +92,85 @@ jobs:
           ref: main
           path: legion-project-src
 
-      - name: Build VSIX
+      - name: Snapshot bundled guardians
+        shell: bash
         env:
           LEGION_SOURCE: ${{ github.workspace }}/legion-project-src/legion/.cursor
-        run: npm run package
+        run: npm run snapshot
 
-      - name: Locate VSIX
+      - name: Compile
+        run: npm run compile:all -- --minify
+
+      - name: Package VSIX
+        shell: bash
+        run: |
+          npx --yes @vscode/vsce package \
+            --target ${{ matrix.target }} \
+            --baseContentUrl https://github.com/thenotoriousllama/legion/raw/HEAD \
+            --baseImagesUrl https://github.com/thenotoriousllama/legion/raw/HEAD
+
+      - name: Locate + size VSIX
         id: vsix
+        shell: bash
         run: |
           VSIX_PATH=$(ls -1 *.vsix | head -n 1)
+          SIZE_KB=$(($(wc -c < "$VSIX_PATH") / 1024))
           echo "path=$VSIX_PATH" >> "$GITHUB_OUTPUT"
-          echo "Built: $VSIX_PATH"
+          echo "Built: $VSIX_PATH (${SIZE_KB} KB)"
 
-      - name: Upload VSIX as workflow artifact
+      - name: Upload VSIX artifact
         uses: actions/upload-artifact@v4
         with:
-          name: legion-vsix
+          name: legion-vsix-${{ matrix.target }}
           path: "*.vsix"
           if-no-files-found: error
           retention-days: 30
 
+  # ──────────────────────────────────────────────────────────────────────────
+  # Release job — single, depends on build matrix. Downloads all 5 VSIXes
+  # and creates one GitHub Release with all of them attached.
+  # ──────────────────────────────────────────────────────────────────────────
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: vsixes
+          merge-multiple: true
+
+      - name: Inventory artifacts
+        shell: bash
+        run: |
+          echo "Downloaded VSIXes:"
+          ls -la vsixes/
+          echo ""
+          echo "Total: $(ls -1 vsixes/*.vsix | wc -l) VSIX(es)"
+
       - name: Create or update GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
-          TAG="${{ steps.tag.outputs.value }}"
+          TAG="${{ needs.build.outputs.tag }}"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "Release $TAG exists — uploading VSIX (clobber)"
-            gh release upload "$TAG" "${{ steps.vsix.outputs.path }}" --clobber
+            echo "Release $TAG exists — uploading VSIXes (clobber)"
+            gh release upload "$TAG" vsixes/*.vsix --clobber
           else
-            gh release create "$TAG" "${{ steps.vsix.outputs.path }}" \
+            gh release create "$TAG" vsixes/*.vsix \
               --title "Legion $TAG" \
               --generate-notes
           fi
 
+  # ──────────────────────────────────────────────────────────────────────────
+  # Marketplace publish — uploads each platform VSIX. Marketplace serves the
+  # right one to each user based on the platform target metadata in the VSIX.
+  # ──────────────────────────────────────────────────────────────────────────
   vscode-marketplace:
     name: Publish to VS Code Marketplace
-    needs: release
+    needs: [build, release]
     runs-on: ubuntu-latest
     if: ${{ !cancelled() && needs.release.result == 'success' }}
 
@@ -108,6 +179,7 @@ jobs:
         id: gate
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        shell: bash
         run: |
           if [ -z "${VSCE_PAT}" ]; then
             echo "VSCE_PAT secret is not set — skipping VS Code Marketplace publish."
@@ -119,25 +191,43 @@ jobs:
       - uses: actions/download-artifact@v4
         if: steps.gate.outputs.enabled == 'true'
         with:
-          name: legion-vsix
+          path: vsixes
+          merge-multiple: true
 
       - uses: actions/setup-node@v4
         if: steps.gate.outputs.enabled == 'true'
         with:
           node-version: "20"
 
-      - name: Publish to VS Code Marketplace
+      - name: Publish all platform VSIXes to VS Code Marketplace
         if: steps.gate.outputs.enabled == 'true'
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        shell: bash
         run: |
-          VSIX_PATH=$(ls -1 *.vsix | head -n 1)
-          echo "Publishing $VSIX_PATH to VS Code Marketplace"
-          npx --yes @vscode/vsce publish --packagePath "$VSIX_PATH" --pat "$VSCE_PAT" --no-dependencies
+          PUBLISHED=0
+          FAILED=0
+          for VSIX in vsixes/*.vsix; do
+            echo ""
+            echo "─── Publishing $(basename "$VSIX") ───"
+            if npx --yes @vscode/vsce publish --packagePath "$VSIX" --pat "$VSCE_PAT" --no-dependencies; then
+              PUBLISHED=$((PUBLISHED + 1))
+            else
+              FAILED=$((FAILED + 1))
+              echo "::warning::Failed to publish $(basename "$VSIX")"
+            fi
+          done
+          echo ""
+          echo "Marketplace publish summary: $PUBLISHED succeeded, $FAILED failed"
+          [ "$FAILED" -eq 0 ]
 
+  # ──────────────────────────────────────────────────────────────────────────
+  # Open VSX publish — same pattern as Marketplace plus the namespace
+  # self-heal step from v1.0.5.
+  # ──────────────────────────────────────────────────────────────────────────
   open-vsx:
     name: Publish to Open VSX (optional)
-    needs: release
+    needs: [build, release]
     runs-on: ubuntu-latest
     if: ${{ !cancelled() && needs.release.result == 'success' }}
 
@@ -146,6 +236,7 @@ jobs:
         id: gate
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        shell: bash
         run: |
           if [ -z "${OVSX_PAT}" ]; then
             echo "OVSX_PAT secret is not set — skipping Open VSX publish."
@@ -157,29 +248,24 @@ jobs:
       - uses: actions/checkout@v4
         if: steps.gate.outputs.enabled == 'true'
         with:
-          ref: ${{ needs.release.outputs.tag }}
+          ref: ${{ needs.build.outputs.tag }}
 
       - uses: actions/download-artifact@v4
         if: steps.gate.outputs.enabled == 'true'
         with:
-          name: legion-vsix
+          path: vsixes
+          merge-multiple: true
 
       - uses: actions/setup-node@v4
         if: steps.gate.outputs.enabled == 'true'
         with:
           node-version: "20"
 
-      # Self-heal: Open VSX requires the publisher namespace to exist before any
-      # extension can be published under it (unlike VS Code Marketplace, which
-      # auto-creates namespaces from the publisher account on first use). We
-      # query the public namespace endpoint (no auth required) to check
-      # existence, and only call `create-namespace` when it's actually missing.
-      # This is idempotent — every release after the first one is a quick 200
-      # check + skip. First release after a publisher change auto-creates.
       - name: Ensure Open VSX namespace exists
         if: steps.gate.outputs.enabled == 'true'
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        shell: bash
         run: |
           PUBLISHER=$(node -p "require('./package.json').publisher")
           if [ -z "$PUBLISHER" ] || [ "$PUBLISHER" = "undefined" ]; then
@@ -204,11 +290,24 @@ jobs:
               ;;
           esac
 
-      - name: Publish to Open VSX
+      - name: Publish all platform VSIXes to Open VSX
         if: steps.gate.outputs.enabled == 'true'
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        shell: bash
         run: |
-          VSIX_PATH=$(ls -1 *.vsix | head -n 1)
-          echo "Publishing $VSIX_PATH to Open VSX"
-          npx --yes ovsx publish "$VSIX_PATH" -p "$OVSX_PAT"
+          PUBLISHED=0
+          FAILED=0
+          for VSIX in vsixes/*.vsix; do
+            echo ""
+            echo "─── Publishing $(basename "$VSIX") ───"
+            if npx --yes ovsx publish "$VSIX" -p "$OVSX_PAT"; then
+              PUBLISHED=$((PUBLISHED + 1))
+            else
+              FAILED=$((FAILED + 1))
+              echo "::warning::Failed to publish $(basename "$VSIX") to Open VSX"
+            fi
+          done
+          echo ""
+          echo "Open VSX publish summary: $PUBLISHED succeeded, $FAILED failed"
+          [ "$FAILED" -eq 0 ]

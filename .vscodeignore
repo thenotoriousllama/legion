@@ -1,14 +1,16 @@
 .vscode/**
 .vscode-test/**
+.cursor/**
+.legion/**
+.legionignore
 src/**
 .gitignore
+.gitattributes
 .yarnrc
 vsc-extension-quickstart.md
 **/tsconfig.json
 **/.eslintrc.json
-**/*.map
 **/*.ts
-node_modules/**
 out/**
 scripts/**
 esbuild.config.mjs
@@ -20,3 +22,29 @@ media/bmc.png
 .github/**
 legion-project-src/**
 *.vsix
+
+# Source maps inside our bundle are large; keep .map for sources but skip
+# source maps inside dependency bundles. The leading **/*.map glob would also
+# strip @cursor/sdk's webpack chunk maps which are referenced at runtime by
+# `__webpack_require__.u(e)`, so we narrow the rule to our own dist/.
+dist/**/*.map
+
+# Exclude dev-only node_modules — keep production deps (@cursor/sdk and
+# its transitive chain) which ship with the VSIX. vsce uses
+# `npm list --production` to figure out which node_modules paths are
+# production deps; without an explicit ignore line, those get bundled.
+# We CANNOT ignore `node_modules/**` wholesale or the SDK won't load at
+# runtime in installed extensions.
+node_modules/**/test/**
+node_modules/**/tests/**
+node_modules/**/__tests__/**
+node_modules/**/*.test.js
+node_modules/**/*.spec.js
+node_modules/**/CHANGELOG.md
+node_modules/**/HISTORY.md
+node_modules/**/.github/**
+node_modules/**/example/**
+node_modules/**/examples/**
+node_modules/**/docs/**
+node_modules/**/doc/**
+node_modules/**/*.d.ts.map
