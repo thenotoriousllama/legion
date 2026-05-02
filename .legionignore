@@ -1,6 +1,12 @@
 # .legionignore — patterns to skip during entity extraction
 # Same syntax as .gitignore (https://git-scm.com/docs/gitignore)
 # Independent of .gitignore — Legion does not auto-respect .gitignore.
+#
+# NOTE: Legion ALSO has a hardcoded list of always-on ignores (see
+# IMPLICIT_IGNORE_PATTERNS in src/driver/legionignore.ts). The most
+# critical paths (.cursor/, .claude/, .claude-plugin/, .legion/, library/,
+# .env, *.key, secrets/, etc.) are protected even if you delete them
+# from this file. The patterns below are best-practice opt-ins.
 
 # Build outputs
 node_modules/
@@ -42,8 +48,14 @@ Thumbs.db
 
 # AI / agent tool folders (we own these — extracting them creates noise + recursion)
 .cursor/
+.cursor/agents/
+.cursor/skills/
+.cursor/rules/
+.cursor/plugins/
 .claude/
 .claude-plugin/
+.claude-plugin/agents/
+.claude-plugin/skills/
 .aider/
 .continue/
 .windsurf/
@@ -82,5 +94,6 @@ go.sum
 
 # Legion's own state (don't recurse into the wiki itself)
 .legion/
+.legion-shared/
 library/
 bundled/

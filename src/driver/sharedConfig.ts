@@ -145,7 +145,9 @@ function compilePattern(repoRoot: string, raw: string): (absPath: string) => boo
   if (r.startsWith("/")) {
     r = "^" + r.slice(1);
   } else {
-    r = "(^|.*/)$" + r;
+    // v1.2.19: was `(^|.*/)$` — the trailing `$` was a typo that anchored
+    // mid-pattern, making every shared-ignore pattern a dead match.
+    r = "(^|.*/)" + r;
   }
   if (isDir) {
     r += "(/.*)?$";

@@ -173,11 +173,27 @@ export async function runInitializer(
         await fs.mkdir(path.join(repoRoot, dir), { recursive: true });
       }
 
-      // 3. .legionignore (preserve existing)
+      // 3. .legionignore — additive merge instead of skip-if-exists.
+      // v1.2.19: Pre-v1.2.19 the initializer was strictly skip-if-exists,
+      // which meant any user who initialized before a template update never
+      // got new must-have patterns (.cursor/, .claude-plugin/, secrets, etc.).
+      // Now we always read the template, diff against what's on disk, and
+      // append only the patterns the user is missing (preserving comments
+      // and custom additions). The IMPLICIT_IGNORE_PATTERNS safety belt in
+      // legionignore.ts is the second layer — patterns there are enforced
+      // even if the user deletes them from .legionignore.
       progress.report({ message: "Writing .legionignore…", increment: 10 });
       const ignorePath = path.join(repoRoot, ".legionignore");
       if (await exists(ignorePath)) {
-        skippedCount++;
+        const appended = await augmentLegionIgnore(context, ignorePath);
+        if (appended > 0) {
+          createdCount++;
+          warnings.push(
+            `.legionignore augmented with ${appended} new pattern(s) from the v1.2.19 template (your custom rules preserved).`
+          );
+        } else {
+          skippedCount++;
+        }
       } else {
         await copyTemplate(context, "legionignore.template", ignorePath);
         createdCount++;
@@ -417,6 +433,53 @@ async function copyTemplate(context: vscode.ExtensionContext, tplName: string, d
   const src = path.join(context.extensionPath, "templates", tplName);
   await fs.mkdir(path.dirname(dst), { recursive: true });
   await fs.copyFile(src, dst);
+}
+
+/**
+ * Append patterns from the bundled `legionignore.template` to an existing
+ * `.legionignore` if (and only if) they're missing. Preserves the user's
+ * own additions, comments, and pattern ordering. Returns the count of
+ * appended pattern lines (excluding blanks/comments).
+ *
+ * Whitespace and `#` comments in the user's file are stripped for the
+ * comparison; only the canonical pattern set drives the diff.
+ */
+async function augmentLegionIgnore(
+  context: vscode.ExtensionContext,
+  ignorePath: string
+): Promise<number> {
+  const tplSrc = path.join(context.extensionPath, "templates", "legionignore.template");
+  let templateText: string;
+  let userText: string;
+  try {
+    [templateText, userText] = await Promise.all([
+      fs.readFile(tplSrc, "utf8"),
+      fs.readFile(ignorePath, "utf8"),
+    ]);
+  } catch {
+    return 0;
+  }
+  const isPattern = (l: string) => {
+    const t = l.trim();
+    return t.length > 0 && !t.startsWith("#");
+  };
+  const userPatterns = new Set(
+    userText.split(/\r?\n/).map((l) => l.trim()).filter(isPattern)
+  );
+  const missing: string[] = [];
+  for (const line of templateText.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!isPattern(trimmed)) continue;
+    if (!userPatterns.has(trimmed)) missing.push(trimmed);
+  }
+  if (missing.length === 0) return 0;
+  const append =
+    (userText.endsWith("\n") ? "" : "\n") +
+    "\n# Added by Legion v1.2.19 augment — see templates/legionignore.template\n" +
+    missing.join("\n") +
+    "\n";
+  await fs.appendFile(ignorePath, append);
+  return missing.length;
 }
 
 async function copyDir(src: string, dst: string): Promise<void> {

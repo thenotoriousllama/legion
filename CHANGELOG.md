@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.19] — 2026-05-02
+
+### Fixed
+- **`.cursor/`, `.cursor/agents/`, `.cursor/skills/`, `.claude-plugin/`, and other AI-tool folders were being indexed even with patterns in `.legionignore`.** Three real causes:
+  1. The bundled `templates/legionignore.template` was the pre-v1.2.14 version. When users ran Initialize Repository they got the stale template, NOT the comprehensive list I'd added to the dev `.legionignore`.
+  2. The initializer was strictly skip-if-exists. Anyone who'd initialized before a template update kept their old patterns forever; new patterns I added never reached them.
+  3. There was no safety belt — if the on-disk `.legionignore` was missing or incomplete, nothing protected against scanning Legion's own internals.
+- **Plus a real regex typo in `src/driver/sharedConfig.ts` line 148** (`(^|.*/)$` instead of `(^|.*/)`). The trailing `$` anchored mid-pattern, making every `.legion-shared/legionignore` pattern a dead match.
+
+### Added
+- **`IMPLICIT_IGNORE_PATTERNS` in `src/driver/legionignore.ts`** — an always-on hardcoded list merged in BEFORE the user's `.legionignore`. Includes `.cursor/` (plus subfolders `agents/`, `skills/`, `rules/`, `plugins/`), `.claude/`, `.claude-plugin/` (plus subfolders), `.legion/`, `.legion-shared/`, `library/`, `bundled/`, `.git/`, `.vscode/`, `.idea/`, build outputs (`node_modules/`, `dist/`, `.next/`, `.venv/`, etc.), and **secrets** (`.env`, `.env.*`, `.envrc`, `*.pem`, `*.key`, `secrets/`, `.secrets/`). User negations (`!pattern`) still override these for the rare case you actually want one indexed.
+- **Initializer is now additive instead of skip-if-exists.** When `.legionignore` already exists, Initialize diffs the bundled template against the on-disk file and appends only the patterns the user is missing. Comments and custom additions preserved verbatim. Surfaces a warning so the user knows the file changed.
+
+### Changed
+- `templates/legionignore.template` and the dev `.legionignore` now match: explicit subfolder entries (`.cursor/agents/`, `.cursor/skills/`, etc.) on top of the parent dir patterns as belt-and-suspenders. Header note now points to `IMPLICIT_IGNORE_PATTERNS` so users know the safety belt exists.
+
 ## [1.2.18] — 2026-05-02
 
 ### Added
