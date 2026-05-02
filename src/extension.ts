@@ -170,6 +170,15 @@ export function activate(context: vscode.ExtensionContext): void {
         await sidebarProvider.refreshSetupState(context).catch(() => undefined);
       });
     }),
+    // v1.2.18: alias — `legion.openDashboard` is the v1.2.18+ canonical name
+    // for the same panel (now a tabbed Dashboard, not just an API-keys page).
+    // We keep `openSetupPage` registered for backward compat with the sidebar
+    // button and any user keybindings.
+    vscode.commands.registerCommand("legion.openDashboard", () => {
+      SetupPagePanel.open(context, async () => {
+        await sidebarProvider.refreshSetupState(context).catch(() => undefined);
+      });
+    }),
     // v1.2.0: onDidChangeConfiguration — move any API key set via Settings UI
     // into SecretStorage immediately, clearing the plaintext setting.
     vscode.workspace.onDidChangeConfiguration(async (e) => {

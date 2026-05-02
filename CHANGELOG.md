@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.18] — 2026-05-02
+
+### Added
+The Setup Page is now the **Legion Dashboard** — a four-tab full-page workspace, not just an API-keys form.
+
+- **Tab 1 — Dashboard.** Repo state cards (Initialized? · Wiki pages · Last scan · Active mode), six quick-action cards (Document, Update, Lint Wiki, Find Entity, Initialize, Refresh), and a mini activity feed showing the last 10 events.
+- **Tab 2 — API Keys & Mode.** Everything that was on the old Setup Page: mode picker, required key, OpenRouter model picker, optional providers.
+- **Tab 3 — Settings.** Every `legion.*` setting surfaced inline, grouped into Performance / Wiki / Federation / Research. Toggles, sliders, selects, text inputs, and an array editor for `federation.peers`. Each control writes Global configuration immediately and the panel re-syncs when `settings.json` is edited externally.
+- **Tab 4 — Activity.** Terminal-style scrolling log fed by the new ActivityStream singleton — timestamps, level pills (info/progress/warn/error/done/cancelled), per-line guardian results. Animated progress bar at the top showing current chunk N/M. Cancel button that triggers the same `CancellationTokenSource` the toast X uses (unified via `toastToken.onCancellationRequested → opSource.cancel()`). Clear-log button. Mini version on the Dashboard tab too.
+- **`legion.openDashboard` command.** Canonical name for the panel from v1.2.18+. The old `legion.openSetupPage` is still registered for backward compat with the sidebar button.
+
+### Changed
+- **`documentPass` now emits structured activity events** to `ActivityStream.instance` for every phase boundary, every wiki-guardian completion, every library-guardian completion, every error, and every progress beat. The toast still works exactly as before; the Dashboard's Activity tab subscribes in parallel.
+- **Cancellation is now unified.** `documentPass` creates one `CancellationTokenSource`, registers it with `ActivityStream.setActive`, and forwards the toast's cancellation token into it. Either the toast X or the Dashboard's Cancel button stops the same job. Active operation auto-clears in `finally`.
+
 ## [1.2.17] — 2026-05-02
 
 ### Added

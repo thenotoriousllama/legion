@@ -13,6 +13,7 @@ import { invokeAgent } from "./agentInvoker";
 import { reconcile, type ChunkResult } from "./reconciler";
 import { autoCommitWiki } from "./gitCommit";
 import { resolveWikiRoot, resolveScanRoots } from "../util/repoRoot";
+import { ActivityStream } from "../util/activityStream";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -55,208 +56,146 @@ export async function runDocumentPass(
   const documentMode = vsConfig.get<"all" | "diff">("documentMode", "all");
   const invocationMode = vsConfig.get<string>("agentInvocationMode", "direct-anthropic-api");
 
-  await vscode.window.withProgress(
-    {
-      location: vscode.ProgressLocation.Notification,
-      title: `Legion: ${modeLabel(mode)}`,
-      // v1.2.15: Adds the X button on the toast. Token is checked at every
-      // await boundary in the chunk pipeline so the user can stop runaway
-      // jobs without waiting for them to finish or restarting the IDE.
-      cancellable: true,
-    },
-    async (progress, token) => {
-      // ── 1. Walk the repo (monorepo-aware) ────────────────────────────────
-      progress.report({ message: "Walking repository…", increment: 5 });
-      const baseIgnore = await loadLegionIgnore(repoRoot);
-      const ignore = await mergeSharedIgnore(repoRoot, baseIgnore);
-      const allAbsFiles: string[] = [];
+  // v1.2.18: unify cancellation. The toast X (from withProgress) and the
+  // Dashboard Activity-tab Cancel button both feed into one
+  // CancellationTokenSource that documentPass actually checks. Either firing
+  // stops the worker pool cleanly.
+  const activity = ActivityStream.instance;
+  const opSource = new vscode.CancellationTokenSource();
+  const opId = `${mode}-${Date.now()}`;
+  activity.setActive({
+    id: opId,
+    label: modeLabel(mode),
+    startedAt: Date.now(),
+    tokenSource: opSource,
+  });
+  activity.emit({
+    level: "info",
+    source: opId,
+    message: `${modeLabel(mode)} started`,
+  });
 
-      if (scopeDir) {
-        await walkDir(scopeDir, ignore, allAbsFiles);
-      } else {
-        // Feature 005: walk each scan root; fall back to repoRoot in single-root mode
-        const scanRoots = resolveScanRoots(repoRoot);
-        for (const sr of scanRoots) {
-          await walkDir(sr, ignore, allAbsFiles);
-        }
-      }
+  try {
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: `Legion: ${modeLabel(mode)}`,
+        cancellable: true,
+      },
+      async (progress, toastToken) => {
+        // Forward toast cancel into our unified source so the chunk pipeline
+        // and the Dashboard Cancel button see the same token.
+        toastToken.onCancellationRequested(() => opSource.cancel());
+        const token = opSource.token;
 
-      // ── 2. Filter by mode ────────────────────────────────────────────────
-      progress.report({ message: "Computing file diff…", increment: 5 });
-      let filesToScan: string[];
-      // v1.2.17: legion.documentMode = "diff" makes document mode skip
-      // unchanged files (same behavior as update mode). Useful when you want
-      // a "doc pass" that skips clean files but doesn't strictly need
-      // prior-state injection. When "all" (default), document still walks
-      // and processes every file in scope.
-      const treatAsDiff =
-        mode === "update" || (mode === "document" && documentMode === "diff");
-      if (treatAsDiff) {
-        const diff = await diffFiles(repoRoot, allAbsFiles);
-        filesToScan = [
-          ...diff.added.map((r) => path.join(repoRoot, r.replace(/\//g, path.sep))),
-          ...diff.modified.map((r) => path.join(repoRoot, r.replace(/\//g, path.sep))),
-        ];
-      } else {
-        filesToScan = allAbsFiles;
-      }
-
-      if (filesToScan.length === 0) {
-        vscode.window.showInformationMessage(
-          mode === "update"
-            ? "Legion: Nothing to update — no files changed since last scan."
-            : "Legion: No files found to document."
-        );
-        return;
-      }
-
-      // ── 3. Plan chunks ───────────────────────────────────────────────────
-      progress.report({
-        message: `Planning chunks for ${filesToScan.length} file(s)…`,
-        increment: 5,
-      });
-      const chunks = planChunks(repoRoot, filesToScan, mode, maxFilesPerChunk);
-      const wikiRoot = resolveWikiRoot(repoRoot);
-
-      // ── 4. Load manifest (prior_state in update mode) ────────────────────
-      const manifest = await loadManifest(repoRoot);
-
-      // ── 4b. Precompute git context ONCE for every file in this pass ──────
-      // v1.2.16: hoisted out of per-chunk so wiki-guardian and library-guardian
-      // share one lookup map.
-      // v1.2.17: now goes through `getGitContextManyCached`, which persists
-      // the result to `.legion/git-context-cache.json` keyed on HEAD SHA. On
-      // subsequent passes with no new commits, the cache returns instantly
-      // (zero git subprocesses). With new commits, only the diff'd files
-      // are recomputed (one `git diff --name-only <oldHead> HEAD` to
-      // invalidate, then cold-compute just those).
-      progress.report({ message: "Computing git context…", increment: 5 });
-      if (token.isCancellationRequested) return;
-      const gitContextByRel = await getGitContextManyCached(
-        context,
-        repoRoot,
-        filesToScan,
-        Math.min(16, Math.max(maxParallel * 2, 8)),
-        includeBlame
-      );
-
-      // Queue-file mode hint — tell the user what to expect.
-      if (invocationMode === "queue-file" && chunks.length > 0) {
-        vscode.window.showInformationMessage(
-          `Legion [queue-file]: ${chunks.length} request file(s) will be written to ` +
-            `.legion/queue/. Drop a matching *-response.json for each request to unblock.`
-        );
-      }
-
-      // ── 5. Process chunks (wiki-guardian + library-guardian in parallel) ─
-      // v1.2.16: was sequential (wiki finished, then library started). Now
-      // both phases run concurrently and share the maxParallelAgents budget
-      // 70/30 — wiki gets the lion's share since it produces the per-chunk
-      // pages the reconcile step depends on, library gets the rest. Chunks
-      // are dispatched onto two independent worker pools. Net effect on
-      // pass time: roughly 1.4–1.7x speedup depending on module count.
-      const chunkResults: ChunkResult[] = [];
-      const chunkErrors: string[] = [];
-
-      const wikiBudget = Math.max(1, Math.ceil(maxParallel * 0.7));
-      const libBudget = Math.max(1, maxParallel - wikiBudget);
-
-      const totalUnits =
-        chunks.length + (mode !== "lint" ? groupByModule(repoRoot, filesToScan).size : 0);
-      const incrementPerUnit = Math.max(1, Math.floor(70 / Math.max(totalUnits, 1)));
-
-      // Phase A — wiki-guardian per chunk
-      const wikiPhase = runWithConcurrency(
-        chunks,
-        wikiBudget,
-        async (chunk, idx) => {
-          if (token.isCancellationRequested) return;
-          progress.report({
-            message: `${invocationMode === "queue-file" ? "Waiting for" : "Processing"} chunk ${
-              idx + 1
-            }/${chunks.length}: ${chunk.label}…`,
-            increment: incrementPerUnit,
+        const report = (message: string, increment?: number, prog?: { current: number; total: number }) => {
+          progress.report(increment !== undefined ? { message, increment } : { message });
+          activity.emit({
+            level: prog ? "progress" : "info",
+            source: opId,
+            message,
+            progress: prog,
           });
+        };
 
-          const chunkFiles = await loadChunkContent(repoRoot, chunk);
-          if (chunkFiles.length === 0) return;
+        // ── 1. Walk the repo (monorepo-aware) ────────────────────────────────
+        report("Walking repository…", 5);
+        const baseIgnore = await loadLegionIgnore(repoRoot);
+        const ignore = await mergeSharedIgnore(repoRoot, baseIgnore);
+        const allAbsFiles: string[] = [];
 
-          // v1.2.16: lookup from precomputed map instead of re-shelling git
-          // for every chunk. Falls back to empty context if a file slipped
-          // in after the git pass (rare — workspace edit during the run).
-          const gitCtx: Record<string, import("../types/payload").FileGitContext> = {};
-          for (const rel of chunk.files) {
-            const norm = rel.replace(/\\/g, "/");
-            gitCtx[norm] = gitContextByRel[norm] ?? {
-              created_commit: "",
-              created_at: "",
-              last_commit: { sha: "", author: "", timestamp: "", message: "" },
-              recent_commits: [],
-              blame_summary: { top_authors: [], churn_rate: "unknown" },
-            };
+        if (scopeDir) {
+          await walkDir(scopeDir, ignore, allAbsFiles);
+        } else {
+          const scanRoots = resolveScanRoots(repoRoot);
+          for (const sr of scanRoots) {
+            await walkDir(sr, ignore, allAbsFiles);
           }
+        }
 
-          const priorState: PriorPage[] =
-            treatAsDiff
-              ? await loadPriorState(repoRoot, chunk.files, manifest, wikiRoot)
-              : [];
+        // ── 2. Filter by mode ────────────────────────────────────────────────
+        report("Computing file diff…", 5);
+        let filesToScan: string[];
+        const treatAsDiff =
+          mode === "update" || (mode === "document" && documentMode === "diff");
+        if (treatAsDiff) {
+          const diff = await diffFiles(repoRoot, allAbsFiles);
+          filesToScan = [
+            ...diff.added.map((r) => path.join(repoRoot, r.replace(/\//g, path.sep))),
+            ...diff.modified.map((r) => path.join(repoRoot, r.replace(/\//g, path.sep))),
+          ];
+        } else {
+          filesToScan = allAbsFiles;
+        }
 
-          const payload: InvocationPayload = {
-            mode,
-            chunk: chunkFiles,
-            git_context: gitCtx,
-            prior_state: priorState,
-            wiki_root: wikiRoot,
-            page_caps: PAGE_CAPS,
-            callout_vocabulary: CALLOUT_VOCABULARY,
-          };
+        if (filesToScan.length === 0) {
+          const msg =
+            mode === "update"
+              ? "Nothing to update — no files changed since last scan."
+              : "No files found to document.";
+          vscode.window.showInformationMessage(`Legion: ${msg}`);
+          activity.emit({ level: "done", source: opId, message: msg });
+          return;
+        }
 
-          if (token.isCancellationRequested) return;
-          try {
-            const response = await invokeAgent("wiki-guardian", payload, repoRoot, context);
+        // ── 3. Plan chunks ───────────────────────────────────────────────────
+        report(`Planning chunks for ${filesToScan.length} file(s)…`, 5);
+        const chunks = planChunks(repoRoot, filesToScan, mode, maxFilesPerChunk);
+        const wikiRoot = resolveWikiRoot(repoRoot);
+
+        // ── 4. Load manifest (prior_state in update mode) ────────────────────
+        const manifest = await loadManifest(repoRoot);
+
+        // ── 4b. Precompute git context ONCE for every file in this pass ──────
+        report("Computing git context…", 5);
+        if (token.isCancellationRequested) return;
+        const gitContextByRel = await getGitContextManyCached(
+          context,
+          repoRoot,
+          filesToScan,
+          Math.min(16, Math.max(maxParallel * 2, 8)),
+          includeBlame
+        );
+
+        if (invocationMode === "queue-file" && chunks.length > 0) {
+          vscode.window.showInformationMessage(
+            `Legion [queue-file]: ${chunks.length} request file(s) will be written to ` +
+              `.legion/queue/. Drop a matching *-response.json for each request to unblock.`
+          );
+        }
+
+        // ── 5. Process chunks (wiki-guardian + library-guardian in parallel) ─
+        const chunkResults: ChunkResult[] = [];
+        const chunkErrors: string[] = [];
+
+        const wikiBudget = Math.max(1, Math.ceil(maxParallel * 0.7));
+        const libBudget = Math.max(1, maxParallel - wikiBudget);
+
+        const totalUnits =
+          chunks.length + (mode !== "lint" ? groupByModule(repoRoot, filesToScan).size : 0);
+        const incrementPerUnit = Math.max(1, Math.floor(70 / Math.max(totalUnits, 1)));
+
+        // Phase A — wiki-guardian per chunk
+        const wikiPhase = runWithConcurrency(
+          chunks,
+          wikiBudget,
+          async (chunk, idx) => {
             if (token.isCancellationRequested) return;
-            chunkResults.push({ label: chunk.label, payload, response });
-          } catch (e) {
-            chunkErrors.push(
-              `Chunk "${chunk.label}" invocation failed: ${
-                e instanceof Error ? e.message : String(e)
-              }`
+            report(
+              `${invocationMode === "queue-file" ? "Waiting for" : "Processing"} chunk ${
+                idx + 1
+              }/${chunks.length}: ${chunk.label}…`,
+              incrementPerUnit,
+              { current: idx + 1, total: chunks.length }
             );
-          }
-        },
-        token
-      );
 
-      // Phase B — library-guardian per top-level module (concurrent with Phase A)
-      const libraryPhase = (async () => {
-        if (mode === "lint") return;
-        const libGuardianAvailable = await agentExists(repoRoot, "library-guardian");
-        if (!libGuardianAvailable) return;
+            const chunkFiles = await loadChunkContent(repoRoot, chunk);
+            if (chunkFiles.length === 0) return;
 
-        const moduleGroups = groupByModule(repoRoot, filesToScan);
-        await runWithConcurrency(
-          [...moduleGroups.entries()],
-          libBudget,
-          async ([moduleName, absModFiles]) => {
-            if (token.isCancellationRequested) return;
-            const moduleChunkFiles = await Promise.all(
-              absModFiles.map(async (abs) => {
-                const rel = path.relative(repoRoot, abs).replace(/\\/g, "/");
-                try {
-                  const content = await fs.readFile(abs, "utf8");
-                  return { path: rel, content };
-                } catch {
-                  return null;
-                }
-              })
-            ).then((r) => r.filter((f): f is { path: string; content: string } => f !== null));
-
-            if (moduleChunkFiles.length === 0) return;
-
-            // Reuse precomputed git context.
             const gitCtx: Record<string, import("../types/payload").FileGitContext> = {};
-            for (const f of moduleChunkFiles) {
-              gitCtx[f.path] = gitContextByRel[f.path] ?? {
+            for (const rel of chunk.files) {
+              const norm = rel.replace(/\\/g, "/");
+              gitCtx[norm] = gitContextByRel[norm] ?? {
                 created_commit: "",
                 created_at: "",
                 last_commit: { sha: "", author: "", timestamp: "", message: "" },
@@ -265,86 +204,178 @@ export async function runDocumentPass(
               };
             }
 
-            const libPayload: InvocationPayload = {
+            const priorState: PriorPage[] = treatAsDiff
+              ? await loadPriorState(repoRoot, chunk.files, manifest, wikiRoot)
+              : [];
+
+            const payload: InvocationPayload = {
               mode,
-              chunk: moduleChunkFiles,
+              chunk: chunkFiles,
               git_context: gitCtx,
-              prior_state: [],
+              prior_state: priorState,
               wiki_root: wikiRoot,
               page_caps: PAGE_CAPS,
               callout_vocabulary: CALLOUT_VOCABULARY,
             };
+
             if (token.isCancellationRequested) return;
             try {
-              progress.report({
-                message: `library-guardian: ${moduleName}…`,
-                increment: incrementPerUnit,
+              const response = await invokeAgent("wiki-guardian", payload, repoRoot, context);
+              if (token.isCancellationRequested) return;
+              chunkResults.push({ label: chunk.label, payload, response });
+              activity.emit({
+                level: "info",
+                source: opId,
+                message: `wiki-guardian ✓ ${chunk.label}`,
               });
-              await invokeAgent("library-guardian", libPayload, repoRoot, context);
             } catch (e) {
-              chunkErrors.push(
-                `library-guardian for "${moduleName}" failed: ${e instanceof Error ? e.message : String(e)}`
-              );
+              const msg = e instanceof Error ? e.message : String(e);
+              chunkErrors.push(`Chunk "${chunk.label}" invocation failed: ${msg}`);
+              activity.emit({
+                level: "error",
+                source: opId,
+                message: `wiki-guardian ✗ ${chunk.label}`,
+                error: msg,
+              });
             }
           },
           token
         );
-      })();
 
-      await Promise.all([wikiPhase, libraryPhase]);
+        // Phase B — library-guardian per top-level module (concurrent with Phase A)
+        const libraryPhase = (async () => {
+          if (mode === "lint") return;
+          const libGuardianAvailable = await agentExists(repoRoot, "library-guardian");
+          if (!libGuardianAvailable) return;
 
-      // Cancel-fast: skip reconcile + auto-commit if the user clicked X.
-      if (token.isCancellationRequested) {
-        vscode.window.showWarningMessage(
-          `Legion: ${modeLabel(mode)} cancelled — ${chunkResults.length} of ${chunks.length} chunk(s) completed before cancel. ` +
-            `Pages already written remain on disk; reconcile + auto-commit skipped.`
-        );
-        return;
-      }
+          const moduleGroups = groupByModule(repoRoot, filesToScan);
+          await runWithConcurrency(
+            [...moduleGroups.entries()],
+            libBudget,
+            async ([moduleName, absModFiles]) => {
+              if (token.isCancellationRequested) return;
+              const moduleChunkFiles = await Promise.all(
+                absModFiles.map(async (abs) => {
+                  const rel = path.relative(repoRoot, abs).replace(/\\/g, "/");
+                  try {
+                    const content = await fs.readFile(abs, "utf8");
+                    return { path: rel, content };
+                  } catch {
+                    return null;
+                  }
+                })
+              ).then((r) => r.filter((f): f is { path: string; content: string } => f !== null));
 
-      // ── 6b. Reconcile global wiki state ──────────────────────────────────
-      progress.report({ message: "Reconciling wiki state…", increment: 5 });
-      const summary = await reconcile(repoRoot, chunkResults);
-      summary.errors.push(...chunkErrors);
+              if (moduleChunkFiles.length === 0) return;
 
-      // ── 6c. Auto git-commit if enabled ───────────────────────────────────
-      if (summary.pagesAffected > 0 && vsConfig.get<boolean>("autoGitCommit", false)) {
-        try {
-          await autoCommitWiki(repoRoot);
-        } catch (e) {
-          summary.errors.push(`auto git-commit failed: ${e instanceof Error ? e.message : String(e)}`);
+              const gitCtx: Record<string, import("../types/payload").FileGitContext> = {};
+              for (const f of moduleChunkFiles) {
+                gitCtx[f.path] = gitContextByRel[f.path] ?? {
+                  created_commit: "",
+                  created_at: "",
+                  last_commit: { sha: "", author: "", timestamp: "", message: "" },
+                  recent_commits: [],
+                  blame_summary: { top_authors: [], churn_rate: "unknown" },
+                };
+              }
+
+              const libPayload: InvocationPayload = {
+                mode,
+                chunk: moduleChunkFiles,
+                git_context: gitCtx,
+                prior_state: [],
+                wiki_root: wikiRoot,
+                page_caps: PAGE_CAPS,
+                callout_vocabulary: CALLOUT_VOCABULARY,
+              };
+              if (token.isCancellationRequested) return;
+              try {
+                report(`library-guardian: ${moduleName}…`, incrementPerUnit);
+                await invokeAgent("library-guardian", libPayload, repoRoot, context);
+                activity.emit({
+                  level: "info",
+                  source: opId,
+                  message: `library-guardian ✓ ${moduleName}`,
+                });
+              } catch (e) {
+                const msg = e instanceof Error ? e.message : String(e);
+                chunkErrors.push(`library-guardian for "${moduleName}" failed: ${msg}`);
+                activity.emit({
+                  level: "error",
+                  source: opId,
+                  message: `library-guardian ✗ ${moduleName}`,
+                  error: msg,
+                });
+              }
+            },
+            token
+          );
+        })();
+
+        await Promise.all([wikiPhase, libraryPhase]);
+
+        if (token.isCancellationRequested) {
+          const cancelMsg = `${modeLabel(mode)} cancelled — ${chunkResults.length} of ${chunks.length} chunk(s) completed before cancel. Pages already written remain on disk; reconcile + auto-commit skipped.`;
+          vscode.window.showWarningMessage(`Legion: ${cancelMsg}`);
+          activity.emit({ level: "cancelled", source: opId, message: cancelMsg });
+          return;
+        }
+
+        // ── 6b. Reconcile global wiki state ──────────────────────────────────
+        report("Reconciling wiki state…", 5);
+        const summary = await reconcile(repoRoot, chunkResults);
+        summary.errors.push(...chunkErrors);
+
+        // ── 6c. Auto git-commit if enabled ───────────────────────────────────
+        if (summary.pagesAffected > 0 && vsConfig.get<boolean>("autoGitCommit", false)) {
+          try {
+            await autoCommitWiki(repoRoot);
+            activity.emit({ level: "info", source: opId, message: "Auto-committed wiki changes" });
+          } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e);
+            summary.errors.push(`auto git-commit failed: ${msg}`);
+            activity.emit({ level: "warn", source: opId, message: `auto git-commit failed: ${msg}` });
+          }
+        }
+
+        // ── 7. Surface results ───────────────────────────────────────────────
+        const parts: string[] = [
+          `${summary.pagesAffected} page(s) affected`,
+          ...(summary.contradictions > 0
+            ? [`${summary.contradictions} contradiction(s)`]
+            : []),
+          ...(summary.decisionsAllocated > 0
+            ? [`${summary.decisionsAllocated} ADR(s) filed`]
+            : []),
+          ...(summary.errors.length > 0 ? [`${summary.errors.length} error(s)`] : []),
+        ];
+
+        const message = `Legion: ${modeLabel(mode)} complete — ${parts.join(", ")}.`;
+        activity.emit({ level: "done", source: opId, message });
+
+        if (summary.errors.length > 0) {
+          vscode.window
+            .showWarningMessage(message, "Show errors")
+            .then((choice) => {
+              if (choice === "Show errors") {
+                const ch = vscode.window.createOutputChannel("Legion");
+                summary.errors.forEach((e) => ch.appendLine(e));
+                ch.show();
+              }
+            });
+        } else {
+          vscode.window.showInformationMessage(message);
         }
       }
-
-      // ── 7. Surface results ───────────────────────────────────────────────
-      const parts: string[] = [
-        `${summary.pagesAffected} page(s) affected`,
-        ...(summary.contradictions > 0
-          ? [`${summary.contradictions} contradiction(s)`]
-          : []),
-        ...(summary.decisionsAllocated > 0
-          ? [`${summary.decisionsAllocated} ADR(s) filed`]
-          : []),
-        ...(summary.errors.length > 0 ? [`${summary.errors.length} error(s)`] : []),
-      ];
-
-      const message = `Legion: ${modeLabel(mode)} complete — ${parts.join(", ")}.`;
-
-      if (summary.errors.length > 0) {
-        vscode.window
-          .showWarningMessage(message, "Show errors")
-          .then((choice) => {
-            if (choice === "Show errors") {
-              const ch = vscode.window.createOutputChannel("Legion");
-              summary.errors.forEach((e) => ch.appendLine(e));
-              ch.show();
-            }
-          });
-      } else {
-        vscode.window.showInformationMessage(message);
-      }
-    }
-  );
+    );
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    activity.emit({ level: "error", source: opId, message: `${modeLabel(mode)} failed`, error: msg });
+    throw err;
+  } finally {
+    activity.clearActive();
+    opSource.dispose();
+  }
 }
 
 // ── Repo walker ───────────────────────────────────────────────────────────────
