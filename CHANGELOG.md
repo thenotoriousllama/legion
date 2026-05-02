@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.6] — 2026-05-02
+
+The Setup Wizard is now a real settings page in the editor area instead of a chain of one-question-at-a-time QuickPick prompts. User feedback was unambiguous: the dropdown chain felt cumbersome and several users reported the sidebar-button entry point silently failing on stuck installs.
+
+### Added
+- **`Legion: Setup` command** opens a full `WebviewPanel` in the editor area showing all invocation modes and all 7 API key fields on a single page. Mode picker is three large clickable cards (cursor-sdk / direct-anthropic-api / queue-file). Each key gets its own card with: status badge (Configured / Required / Optional), masked preview of the current value if set, password input for the new value, Paste-from-clipboard button, Save button, Clear button (when configured), and a "Get a key →" link to the provider's signup page. Footer shows live status ("3 keys configured · ready") and a "Save & Document Repository" CTA.
+- **`legion.setupWizardClassic` command** retains the original QuickPick-chain flow under the Command Palette title "Legion: Setup (Quick Pick chain — legacy)" for users who prefer it or for scripting.
+
+### Changed
+- **`Legion: Setup` (formerly "Legion: Setup Wizard…") now opens the page** instead of the QuickPick chain. The sidebar's "Run Setup Wizard" button and Reconfigure both fire `legion.setupWizard` which fires the page.
+- **Stale-webview workaround:** the page lives in a separate `WebviewPanel` (editor area) rather than the sidebar webview, so it's immune to whatever was breaking custom click handlers on stuck sidebar installs in v1.2.0–v1.2.5.
+
 ## [1.2.5] — 2026-05-02
 
 Two structural fixes for sidebar issues that reproduced even after multiple version updates.

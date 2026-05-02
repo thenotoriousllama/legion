@@ -37,6 +37,7 @@ import { installGuardian } from "./commands/installGuardian";
 import { updateGuardians } from "./commands/updateGuardians";
 import { migrateSettingsKeysToSecretStorage, getSetupState, setSecret, SECRET_KEYS, type SecretKey } from "./util/secretStore";
 import { setupWizard } from "./commands/setupWizard";
+import { SetupPagePanel } from "./commands/setupPage";
 import * as fs from "fs/promises";
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -142,8 +143,14 @@ export function activate(context: vscode.ExtensionContext): void {
       }
       void count;
     }),
-    // v1.2.0: Setup Wizard
-    vscode.commands.registerCommand("legion.setupWizard", () => setupWizard(context, sidebarProvider)),
+    // v1.2.0: Setup Wizard (legacy QuickPick chain, kept available)
+    vscode.commands.registerCommand("legion.setupWizardClassic", () => setupWizard(context, sidebarProvider)),
+    // v1.2.6: Setup Page — full webview in editor area (default for "Setup Wizard")
+    vscode.commands.registerCommand("legion.setupWizard", () => {
+      SetupPagePanel.open(context, async () => {
+        await sidebarProvider.refreshSetupState(context).catch(() => undefined);
+      });
+    }),
     // v1.2.0: onDidChangeConfiguration — move any API key set via Settings UI
     // into SecretStorage immediately, clearing the plaintext setting.
     vscode.workspace.onDidChangeConfiguration(async (e) => {
