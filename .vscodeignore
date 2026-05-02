@@ -18,4 +18,5 @@ library/**
 media/mario-portrait.png
 media/bmc.png
 .github/**
+legion-project-src/**
 *.vsix

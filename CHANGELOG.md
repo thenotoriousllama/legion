@@ -6,6 +6,7 @@ First public 1.x release. Establishes the production publishing pipeline.
 
 ### Changed
 - **CI / Release pipeline** — `.github/workflows/release.yml` now publishes the VSIX to the **VS Code Marketplace** automatically when a `v*` tag is pushed. The new `vscode-marketplace` job runs in parallel with the existing `open-vsx` job after the GitHub Release is created. Both jobs are gated on their respective publisher tokens (`VSCE_PAT`, `OVSX_PAT`) and skip cleanly if the secret is unset.
+- **Snapshot source-of-truth** — the release workflow now clones [`thenotoriousllama/legion-project`](https://github.com/thenotoriousllama/legion-project) (public, MIT) into `legion-project-src/` before building, and `scripts/snapshot-bundled.sh` resolves the source via `LEGION_SOURCE` env override → `../legion-project/legion/.cursor/` → `../God/legion/.cursor/` (legacy local fallback). This decouples CI from any specific local folder layout.
 - **Branding & licensing** (carried forward from the unreleased v1.0.0 prep in commit `f1533c0`) — relicensed to the Legion Source-Available License v1.0; refreshed README, LICENSE, and package metadata (description, author, repository URLs); refreshed Obsidian companion plugin manifest and README; added attribution media (`media/bmc.png`, `media/mario-portrait.png`).
 
 ### Notes

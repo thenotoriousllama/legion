@@ -56,7 +56,16 @@ jobs:
             exit 1
           fi
 
+      - name: Checkout legion-project source-of-truth
+        uses: actions/checkout@v4
+        with:
+          repository: thenotoriousllama/legion-project
+          ref: main
+          path: legion-project-src
+
       - name: Build VSIX
+        env:
+          LEGION_SOURCE: ${{ github.workspace }}/legion-project-src/legion/.cursor
         run: npm run package
 
       - name: Locate VSIX
