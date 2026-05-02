@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.11] — 2026-05-02
+
+### Fixed
+- **`god` skill was bundled in the VSIX but never copied during Initialize Repository.** The initializer's per-guardian loop (`for (const g of guardians) { copy g.weaponName }`) only handles guardian-paired weapons (`wiki-guardian` → `wiki-weapon`, etc.). `god` is the meta-orchestration skill — not paired with any guardian — so it fell outside the loop and was silently skipped. End users could select every guardian and still not get the God protocol installed in `.cursor/skills/god/`. Added an unconditional copy step before the guardian loop so `god` always installs as long as the user runs Initialize.
+
 ## [1.2.10] — 2026-05-02
 
 The actual fix for the broken sidebar Setup button. Every release from v1.2.0 through v1.2.9 attempted to fix this with progressively more defensive code, but none of those edits to `webview.js` ever loaded at runtime — they were going to a duplicate file that the webview never reads.

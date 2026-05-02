@@ -247,6 +247,25 @@ export async function runInitializer(
       }
 
       const bundledRoot = path.join(context.extensionPath, "bundled");
+
+      // v1.2.11: Always install the `god` skill — it's the meta-orchestration
+      // protocol that routes user requests to the correct guardian. Not paired
+      // with any single guardian, so it falls outside the per-guardian loop
+      // below. Without this, `god` was silently never copied to .cursor/skills/
+      // even when the user selected guardians that depend on it for routing.
+      const godSrc = path.join(bundledRoot, "skills", "god");
+      const godDst = path.join(repoRoot, ".cursor", "skills", "god");
+      if (await exists(godDst)) {
+        skippedCount++;
+      } else if (!(await exists(godSrc))) {
+        warnings.push(
+          `Bundled skill missing: god/ (run \`npm run snapshot\` in the extension repo before packaging)`
+        );
+      } else {
+        await copyDir(godSrc, godDst);
+        createdCount++;
+      }
+
       for (const g of guardians) {
         // Agent file
         const agentSrc = path.join(bundledRoot, "agents", `${g.agentName}.md`);
