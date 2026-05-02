@@ -3,6 +3,7 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import { callLlm, type LlmConfig } from "../driver/llmClient";
 import { parseFrontmatter, extractFirstBody } from "../util/frontmatter";
+import { getSecret } from "../util/secretStore";
 
 const WIKI_REL = path.join("library", "knowledge-base", "wiki");
 const PARTICIPANT_ID = "legion.wiki";
@@ -25,7 +26,7 @@ export function registerChatParticipant(
   try {
     participant = vscode.chat.createChatParticipant(
       PARTICIPANT_ID,
-      makeHandler(repoRoot)
+      makeHandler(repoRoot, context)
     );
   } catch {
     // vscode.chat may not be available in older Cursor builds — fail silently.
@@ -53,7 +54,8 @@ export function registerChatParticipant(
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 function makeHandler(
-  repoRoot: string
+  repoRoot: string,
+  extContext: vscode.ExtensionContext
 ): vscode.ChatRequestHandler {
   return async (
     request: vscode.ChatRequest,
@@ -67,17 +69,16 @@ function makeHandler(
     }
 
     const cfg = vscode.workspace.getConfiguration("legion");
-    const llmConfig = buildLlmConfig(cfg);
+    const llmConfig = await buildLlmConfig(cfg, extContext);
 
     // Check API key availability
     if (cfg.get<string>("apiProvider", "anthropic") === "anthropic" && !llmConfig.anthropicApiKey) {
       stream.markdown(
-        "**Legion:** No API key configured. Set `legion.anthropicApiKey` or switch to OpenRouter via `legion.apiProvider`."
+        "**Legion:** No API key configured. Run **Legion: Setup Wizard** to enter your Anthropic or Cursor API key."
       );
       stream.button({
-        command: "workbench.action.openSettings",
-        arguments: ["legion.anthropicApiKey"],
-        title: "Open Settings",
+        command: "legion.setupWizard",
+        title: "Run Setup Wizard",
       });
       return;
     }
@@ -289,14 +290,15 @@ function resolveWikiPage(wikiRoot: string, name: string): string | null {
   return null;
 }
 
-function buildLlmConfig(cfg: vscode.WorkspaceConfiguration): LlmConfig {
+async function buildLlmConfig(
+  cfg: vscode.WorkspaceConfiguration,
+  context: vscode.ExtensionContext
+): Promise<LlmConfig> {
   const provider = cfg.get<"anthropic" | "openrouter">("apiProvider", "anthropic");
   return {
     provider,
-    anthropicApiKey:
-      cfg.get<string>("anthropicApiKey") || process.env.LEGION_ANTHROPIC_API_KEY || "",
-    openRouterApiKey:
-      cfg.get<string>("openRouterApiKey") || process.env.LEGION_OPENROUTER_API_KEY || "",
+    anthropicApiKey: await getSecret(context, "anthropicApiKey"),
+    openRouterApiKey: await getSecret(context, "openRouterApiKey"),
     model:
       provider === "openrouter"
         ? (cfg.get<string>("openRouterModel") || "anthropic/claude-sonnet-4-5")

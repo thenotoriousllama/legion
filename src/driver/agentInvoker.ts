@@ -5,6 +5,7 @@ import * as path from "path";
 import type { InvocationPayload } from "../types/payload";
 import type { InvocationResponse } from "../types/response";
 import { callLlm, type LlmConfig } from "./llmClient";
+import { getSecret } from "../util/secretStore";
 
 /**
  * The set of agent invocation modes Legion supports.
@@ -40,7 +41,7 @@ export async function invokeAgent(
   agentName: string,
   payload: InvocationPayload,
   repoRoot: string,
-  _context: vscode.ExtensionContext
+  context: vscode.ExtensionContext
 ): Promise<InvocationResponse> {
   const config = vscode.workspace.getConfiguration("legion");
   const mode = config.get<InvocationMode>("agentInvocationMode", "cursor-sdk");
@@ -48,11 +49,11 @@ export async function invokeAgent(
   switch (mode) {
     case "cursor-sdk":
     case "cursor-cli": // deprecated alias — kept for backwards compatibility
-      return invokeCursorSdk(agentName, payload, repoRoot, config);
+      return invokeCursorSdk(agentName, payload, repoRoot, config, context);
     case "queue-file":
       return invokeQueueFile(agentName, payload, repoRoot);
     case "direct-anthropic-api":
-      return invokeAnthropicApi(agentName, payload, config);
+      return invokeAnthropicApi(agentName, payload, config, context);
     default:
       throw new Error(`Unknown agentInvocationMode: ${mode}`);
   }
@@ -85,7 +86,8 @@ async function invokeCursorSdk(
   agentName: string,
   payload: InvocationPayload,
   repoRoot: string,
-  config: vscode.WorkspaceConfiguration
+  config: vscode.WorkspaceConfiguration,
+  context: vscode.ExtensionContext
 ): Promise<InvocationResponse> {
   // Lazy-require the SDK so that an environment without the native sqlite3
   // binary (e.g. Windows-on-ARM where no @cursor/sdk-win32-arm64 exists) only
@@ -113,11 +115,7 @@ async function invokeCursorSdk(
   }
 
   // ── Resolve API key + model ──────────────────────────────────────────────
-  const apiKey =
-    config.get<string>("cursorApiKey") ||
-    process.env.LEGION_CURSOR_API_KEY ||
-    process.env.CURSOR_API_KEY ||
-    "";
+  const apiKey = await getSecret(context, "cursorApiKey");
   if (!apiKey) {
     throw new Error(
       `Legion: cursor-sdk mode requires a Cursor API key. Set ` +
@@ -266,16 +264,15 @@ async function invokeQueueFile(
 async function invokeAnthropicApi(
   agentName: string,
   payload: InvocationPayload,
-  config: vscode.WorkspaceConfiguration
+  config: vscode.WorkspaceConfiguration,
+  context: vscode.ExtensionContext
 ): Promise<InvocationResponse> {
   // ── Build LLM config (Anthropic or OpenRouter) ────────────────────────────
   const provider = config.get<"anthropic" | "openrouter">("apiProvider", "anthropic");
   const llmConfig: LlmConfig = {
     provider,
-    anthropicApiKey:
-      config.get<string>("anthropicApiKey") || process.env.LEGION_ANTHROPIC_API_KEY || "",
-    openRouterApiKey:
-      config.get<string>("openRouterApiKey") || process.env.LEGION_OPENROUTER_API_KEY || "",
+    anthropicApiKey: await getSecret(context, "anthropicApiKey"),
+    openRouterApiKey: await getSecret(context, "openRouterApiKey"),
     model:
       provider === "openrouter"
         ? (config.get<string>("openRouterModel") || "anthropic/claude-sonnet-4-5")

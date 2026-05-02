@@ -3,6 +3,7 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import { loadSharedConfig } from "./sharedConfig";
 import { CommunityGuardianManager } from "../guardians/communityGuardianManager";
+import { WIZARD_COMPLETED_FLAG } from "../commands/setupWizard";
 
 const STRUCTURE = [
   ".legion",
@@ -273,7 +274,22 @@ export async function runInitializer(
     }
   );
 
-  // 8. Report
+  // 8. Auto-fire Setup Wizard on first init if no key is configured for
+  //    the current mode. Non-blocking — fires after the progress notification.
+  const wizardDone = context.globalState.get<boolean>(WIZARD_COMPLETED_FLAG);
+  if (!wizardDone) {
+    const cfg = vscode.workspace.getConfiguration("legion");
+    const mode = cfg.get<string>("agentInvocationMode", "cursor-sdk");
+    const needsKey = mode === "cursor-sdk" || mode === "direct-anthropic-api";
+    if (needsKey) {
+      // Defer so the "Initialized" toast appears first
+      setTimeout(() => {
+        vscode.commands.executeCommand("legion.setupWizard");
+      }, 1500);
+    }
+  }
+
+  // 9. Report
   const mcpNote = buildMcpSetupNote(repoRoot);
   const summaryText = `Legion: Initialized. ${createdCount} created, ${skippedCount} skipped (already existed).`;
   const fullSummary = mcpNote ? `${summaryText}\n\n${mcpNote}` : summaryText;

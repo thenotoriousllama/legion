@@ -3,10 +3,11 @@ import { runResearchPass } from "../driver/researchPass";
 import { scoreBoundary } from "../driver/boundaryScorer";
 import type { SearchProviderConfig, SearchProvider } from "../driver/searchProviders";
 import type { LlmConfig } from "../driver/llmClient";
+import { getSecret } from "../util/secretStore";
 
 export async function autoresearch(
   repoRoot: string,
-  _context: vscode.ExtensionContext
+  context: vscode.ExtensionContext
 ): Promise<void> {
   if (!repoRoot) {
     vscode.window.showErrorMessage("Legion: Open a folder first.");
@@ -16,11 +17,13 @@ export async function autoresearch(
   const cfg = vscode.workspace.getConfiguration("legion");
   const provider = cfg.get<"anthropic" | "openrouter">("apiProvider", "anthropic");
 
-  // Build LLM config
+  // Build LLM config using SecretStorage-backed key resolution
+  const anthropicApiKey = await getSecret(context, "anthropicApiKey");
+  const openRouterApiKey = await getSecret(context, "openRouterApiKey");
   const llmConfig: LlmConfig = {
     provider,
-    anthropicApiKey: cfg.get<string>("anthropicApiKey") || process.env.LEGION_ANTHROPIC_API_KEY || "",
-    openRouterApiKey: cfg.get<string>("openRouterApiKey") || process.env.LEGION_OPENROUTER_API_KEY || "",
+    anthropicApiKey,
+    openRouterApiKey,
     model:
       provider === "openrouter"
         ? (cfg.get<string>("openRouterModel") || "anthropic/claude-sonnet-4-5")
@@ -32,53 +35,68 @@ export async function autoresearch(
   if (provider === "anthropic" && !llmConfig.anthropicApiKey) {
     const choice = await vscode.window.showWarningMessage(
       "Legion: Set legion.anthropicApiKey (or LEGION_ANTHROPIC_API_KEY env var) to use Autoresearch.",
-      "Open Settings"
+      "Open Settings",
+      "Enter API Key"
     );
     if (choice === "Open Settings") {
-      await vscode.commands.executeCommand("workbench.action.openSettings", "legion.anthropicApiKey");
+      await vscode.commands.executeCommand("workbench.action.openSettings", "@id:legion.anthropicApiKey");
+    } else if (choice === "Enter API Key") {
+      await vscode.commands.executeCommand("legion.setupWizard");
     }
     return;
   }
   if (provider === "openrouter" && !llmConfig.openRouterApiKey) {
     const choice = await vscode.window.showWarningMessage(
       "Legion: Set legion.openRouterApiKey (or LEGION_OPENROUTER_API_KEY env var) to use Autoresearch with OpenRouter.",
-      "Open Settings"
+      "Open Settings",
+      "Enter API Key"
     );
     if (choice === "Open Settings") {
-      await vscode.commands.executeCommand("workbench.action.openSettings", "legion.openRouterApiKey");
+      await vscode.commands.executeCommand("workbench.action.openSettings", "@id:legion.openRouterApiKey");
+    } else if (choice === "Enter API Key") {
+      await vscode.commands.executeCommand("legion.setupWizard");
     }
     return;
   }
 
   const maxRounds = cfg.get<number>("researchRounds", 3);
 
-  // Build search provider config
+  // Build search provider config using SecretStorage-backed key resolution
+  const exaApiKey = await getSecret(context, "exaApiKey");
+  const firecrawlApiKey = await getSecret(context, "firecrawlApiKey");
+  const context7ApiKey = await getSecret(context, "context7ApiKey");
   const searchConfig: SearchProviderConfig = {
     provider: cfg.get<SearchProvider>("researchProvider", "model-only"),
-    exaApiKey: cfg.get<string>("exaApiKey") || process.env.LEGION_EXA_API_KEY || "",
-    firecrawlApiKey: cfg.get<string>("firecrawlApiKey") || process.env.LEGION_FIRECRAWL_API_KEY || "",
-    context7ApiKey: cfg.get<string>("context7ApiKey") || process.env.LEGION_CONTEXT7_API_KEY || "",
+    exaApiKey,
+    firecrawlApiKey,
+    context7ApiKey,
     maxResults: cfg.get<number>("researchMaxResults", 5),
   };
 
   // Warn if provider needs a key that's missing
   if (searchConfig.provider === "exa" && !searchConfig.exaApiKey) {
     const fix = await vscode.window.showWarningMessage(
-      "Legion: Exa provider selected but legion.exaApiKey is not set.",
-      "Open Settings"
+      "Legion: Exa provider selected but no API key is configured.",
+      "Open Settings",
+      "Enter API Key"
     );
     if (fix === "Open Settings") {
-      await vscode.commands.executeCommand("workbench.action.openSettings", "legion.exaApiKey");
+      await vscode.commands.executeCommand("workbench.action.openSettings", "@id:legion.exaApiKey");
+    } else if (fix === "Enter API Key") {
+      await vscode.commands.executeCommand("legion.setupWizard");
     }
     return;
   }
   if (searchConfig.provider === "firecrawl" && !searchConfig.firecrawlApiKey) {
     const fix = await vscode.window.showWarningMessage(
-      "Legion: Firecrawl provider selected but legion.firecrawlApiKey is not set.",
-      "Open Settings"
+      "Legion: Firecrawl provider selected but no API key is configured.",
+      "Open Settings",
+      "Enter API Key"
     );
     if (fix === "Open Settings") {
-      await vscode.commands.executeCommand("workbench.action.openSettings", "legion.firecrawlApiKey");
+      await vscode.commands.executeCommand("workbench.action.openSettings", "@id:legion.firecrawlApiKey");
+    } else if (fix === "Enter API Key") {
+      await vscode.commands.executeCommand("legion.setupWizard");
     }
     return;
   }

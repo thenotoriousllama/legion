@@ -4,6 +4,7 @@ import * as path from "path";
 import { scrapeUrl } from "../driver/searchProviders";
 import { runResearchPass } from "../driver/researchPass";
 import { type LlmConfig } from "../driver/llmClient";
+import { getSecret } from "../util/secretStore";
 
 const WIKI_REL = path.join("library", "knowledge-base", "wiki");
 
@@ -18,7 +19,7 @@ const WIKI_REL = path.join("library", "knowledge-base", "wiki");
  */
 export async function ingestUrl(
   repoRoot: string,
-  _context: vscode.ExtensionContext
+  context: vscode.ExtensionContext
 ): Promise<void> {
   if (!repoRoot) {
     vscode.window.showErrorMessage("Legion: Open a folder first.");
@@ -26,17 +27,17 @@ export async function ingestUrl(
   }
 
   const cfg = vscode.workspace.getConfiguration("legion");
-  const firecrawlKey = cfg.get<string>("firecrawlApiKey") || process.env.LEGION_FIRECRAWL_API_KEY || "";
+  const firecrawlKey = await getSecret(context, "firecrawlApiKey");
 
   if (!firecrawlKey) {
     const choice = await vscode.window.showWarningMessage(
-      "Legion: Ingest URL requires Firecrawl. Set legion.firecrawlApiKey to get started.",
-      "Open Settings",
-      "Get API Key"
+      "Legion: Ingest URL requires Firecrawl. Configure your API key to get started.",
+      "Enter API Key",
+      "Get Firecrawl Key"
     );
-    if (choice === "Open Settings") {
-      await vscode.commands.executeCommand("workbench.action.openSettings", "legion.firecrawlApiKey");
-    } else if (choice === "Get API Key") {
+    if (choice === "Enter API Key") {
+      await vscode.commands.executeCommand("legion.setupWizard");
+    } else if (choice === "Get Firecrawl Key") {
       await vscode.env.openExternal(vscode.Uri.parse("https://firecrawl.dev"));
     }
     return;
@@ -51,14 +52,17 @@ export async function ingestUrl(
   });
   if (!url) return;
 
-  const llmConfig = buildLlmConfig(cfg);
+  const llmConfig = await buildLlmConfig(cfg, context);
   if (cfg.get<string>("apiProvider", "anthropic") === "anthropic" && !llmConfig.anthropicApiKey) {
     const choice = await vscode.window.showWarningMessage(
-      "Legion: Set legion.anthropicApiKey to synthesize the ingested content.",
+      "Legion: No Anthropic API key configured. Set one to synthesize the ingested content.",
+      "Enter API Key",
       "Open Settings"
     );
-    if (choice === "Open Settings") {
-      await vscode.commands.executeCommand("workbench.action.openSettings", "legion.anthropicApiKey");
+    if (choice === "Enter API Key") {
+      await vscode.commands.executeCommand("legion.setupWizard");
+    } else if (choice === "Open Settings") {
+      await vscode.commands.executeCommand("workbench.action.openSettings", "@id:legion.anthropicApiKey");
     }
     return;
   }
@@ -145,12 +149,15 @@ async function patchSourceUrl(
   } catch {}
 }
 
-function buildLlmConfig(cfg: vscode.WorkspaceConfiguration): LlmConfig {
+async function buildLlmConfig(
+  cfg: vscode.WorkspaceConfiguration,
+  context: vscode.ExtensionContext
+): Promise<LlmConfig> {
   const provider = cfg.get<"anthropic" | "openrouter">("apiProvider", "anthropic");
   return {
     provider,
-    anthropicApiKey: cfg.get<string>("anthropicApiKey") || process.env.LEGION_ANTHROPIC_API_KEY || "",
-    openRouterApiKey: cfg.get<string>("openRouterApiKey") || process.env.LEGION_OPENROUTER_API_KEY || "",
+    anthropicApiKey: await getSecret(context, "anthropicApiKey"),
+    openRouterApiKey: await getSecret(context, "openRouterApiKey"),
     model: provider === "openrouter"
       ? (cfg.get<string>("openRouterModel") || "anthropic/claude-sonnet-4-5")
       : (cfg.get<string>("model") || "claude-sonnet-4-5"),

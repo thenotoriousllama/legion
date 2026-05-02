@@ -6,6 +6,7 @@ import { runResearchPass } from "../driver/researchPass";
 import { type LlmConfig } from "../driver/llmClient";
 import type { SearchProviderConfig, SearchProvider } from "../driver/searchProviders";
 import { resolveRepoRoot } from "../util/repoRoot";
+import { getSecret } from "../util/secretStore";
 
 /**
  * Process all unchecked items in `wiki/research-agenda.md` using Autoresearch.
@@ -20,16 +21,19 @@ export async function drainAgenda(
 
   const cfg = vscode.workspace.getConfiguration("legion");
   const apiProvider = cfg.get<string>("apiProvider", "anthropic");
-  const anthropicKey = cfg.get<string>("anthropicApiKey") || process.env.LEGION_ANTHROPIC_API_KEY || "";
-  const openRouterKey = cfg.get<string>("openRouterApiKey") || process.env.LEGION_OPENROUTER_API_KEY || "";
+  const anthropicKey = await getSecret(context, "anthropicApiKey");
+  const openRouterKey = await getSecret(context, "openRouterApiKey");
 
   if (apiProvider === "anthropic" && !anthropicKey) {
     const choice = await vscode.window.showWarningMessage(
-      "Legion: Set legion.anthropicApiKey (or use OpenRouter) to run Research Agenda.",
+      "Legion: No Anthropic API key configured. Set one to run Research Agenda.",
+      "Enter API Key",
       "Open Settings"
     );
-    if (choice === "Open Settings") {
-      await vscode.commands.executeCommand("workbench.action.openSettings", "legion.anthropicApiKey");
+    if (choice === "Enter API Key") {
+      await vscode.commands.executeCommand("legion.setupWizard");
+    } else if (choice === "Open Settings") {
+      await vscode.commands.executeCommand("workbench.action.openSettings", "@id:legion.anthropicApiKey");
     }
     return;
   }

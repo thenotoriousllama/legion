@@ -268,6 +268,24 @@ function resolveApiKey(): string {
   }
 }
 
+/**
+ * Like resolveApiKey() but also checks SecretStorage (v1.2.0+). Call this
+ * from extension-context paths (document.ts, update.ts). The non-async
+ * resolveApiKey() is kept for the MCP server and other no-context paths.
+ */
+export async function resolveApiKeyWithContext(
+  context: import("vscode").ExtensionContext
+): Promise<string> {
+  // env var first (same as resolveApiKey)
+  if (process.env.LEGION_COHERE_API_KEY) return process.env.LEGION_COHERE_API_KEY;
+  try {
+    const { getSecret } = await import("../util/secretStore");
+    const stored = await getSecret(context, "cohereApiKey");
+    if (stored) return stored;
+  } catch {}
+  return resolveApiKey(); // settings.json fallback
+}
+
 async function collectWikiPages(wikiDir: string): Promise<Map<string, string>> {
   const pages = new Map<string, string>();
   await walkWikiDir(wikiDir, wikiDir, pages);

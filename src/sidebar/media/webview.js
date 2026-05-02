@@ -41,6 +41,21 @@
     });
   }
 
+  // ── Setup section wiring ──────────────────────────
+  const setupWizardBtn = document.getElementById("setupWizardBtn");
+  if (setupWizardBtn) {
+    setupWizardBtn.addEventListener("click", () => vscode.postMessage({ command: "runWizard" }));
+  }
+  const setupReconfig = document.getElementById("setupReconfig");
+  if (setupReconfig) {
+    setupReconfig.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const details = document.getElementById("setupDetails");
+      if (details) details.setAttribute("open", "");
+      vscode.postMessage({ command: "runWizard" });
+    });
+  }
+
   // ── Request initial state from host ──────────────
   vscode.postMessage({ command: "requestState" });
 
@@ -137,6 +152,11 @@
       }
     }
 
+    // ── Setup state (API key inventory) ──────────────
+    if (msg.type === "setupState") {
+      renderSetupSection(msg.keys || [], msg.mode || "cursor-sdk");
+    }
+
     if (msg.type === "contradictionCount") {
       const btn = document.getElementById("openContradictionInbox");
       const badge = document.getElementById("contradictionBadge");
@@ -150,6 +170,169 @@
       }
     }
   });
+
+  // ── Setup section renderer ────────────────────────
+
+  /** SVG icons for the setup rows (monoline, 14×14, currentColor). */
+  const ICONS = {
+    key: `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="setup-row-icon" aria-hidden="true">
+      <circle cx="5" cy="8" r="3.5" stroke="currentColor" stroke-width="1.2"/>
+      <path d="M8 8h4M10 6.5V8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>`,
+    check: `<svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
+      <circle cx="5.5" cy="5.5" r="5" stroke="currentColor" stroke-width="1"/>
+      <path d="M3 5.5l1.8 1.8 3.2-3.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+    warn: `<svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
+      <path d="M5.5 1L10 9.5H1L5.5 1Z" stroke="currentColor" stroke-width="1"/>
+      <path d="M5.5 4.5v2.2M5.5 8h.01" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>`,
+    paste: `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+      <rect x="1" y="3" width="8" height="9" rx="1" stroke="currentColor" stroke-width="1"/>
+      <path d="M3 3V2a1 1 0 011-1h5a1 1 0 011 1v7a1 1 0 01-1 1H9" stroke="currentColor" stroke-width="1"/>
+    </svg>`,
+  };
+
+  let _prevConfiguredCount = -1;
+
+  /**
+   * Render (or re-render) the entire Setup section from a SetupKeyState array.
+   * @param {Array<{key:string,label:string,configured:boolean,masked:string,required:string|null}>} keys
+   * @param {string} mode
+   */
+  function renderSetupSection(keys, mode) {
+    const card = document.getElementById("setupCard");
+    const details = document.getElementById("setupDetails");
+    const body = document.getElementById("setupBody");
+    const ringFill = document.getElementById("setupRingFill");
+    const ringText = document.getElementById("setupRingText");
+    const ring = document.getElementById("setupRing");
+    const completeLine = document.getElementById("setupCompleteLine");
+    const incompleteTitle = document.getElementById("setupIncompleteTitle");
+    const toggleIcon = document.getElementById("setupToggleIcon");
+    if (!card || !body || !ringFill || !ringText) return;
+
+    // Count keys relevant to current mode
+    const requiredKeys = keys.filter((k) => k.required === mode);
+    const optionalKeys = keys.filter((k) => !k.required);
+    const requiredConfigured = requiredKeys.filter((k) => k.configured).length;
+    const totalConfigured = keys.filter((k) => k.configured).length;
+    const requiredTotal = requiredKeys.length;
+    const allRequiredDone = requiredTotal === 0 || requiredConfigured === requiredKeys.length;
+
+    // Show card — it was hidden until first setupState arrived
+    card.style.display = "";
+
+    // Progress ring math — circumference = 2π × 12 ≈ 75.4
+    const CIRCUMFERENCE = 75.4;
+    const displayTotal = requiredTotal > 0 ? requiredTotal : keys.length;
+    const displayConfigured = requiredTotal > 0 ? requiredConfigured : totalConfigured;
+    const fraction = displayTotal > 0 ? displayConfigured / displayTotal : 0;
+    const offset = CIRCUMFERENCE * (1 - fraction);
+    ringFill.style.strokeDashoffset = String(offset);
+    ringText.textContent = `${displayConfigured}/${displayTotal}`;
+
+    // Pulse ring when a key is newly configured
+    if (_prevConfiguredCount >= 0 && displayConfigured > _prevConfiguredCount) {
+      ring.classList.remove("pulse");
+      void ring.offsetWidth; // force reflow
+      ring.classList.add("pulse");
+      ring.addEventListener("animationend", () => ring.classList.remove("pulse"), { once: true });
+    }
+    _prevConfiguredCount = displayConfigured;
+
+    // Complete vs. incomplete summary
+    const wasComplete = completeLine.style.display !== "none";
+    if (allRequiredDone && totalConfigured > 0) {
+      completeLine.style.display = "";
+      if (incompleteTitle) incompleteTitle.style.display = "none";
+      if (toggleIcon) toggleIcon.style.display = "none";
+      if (details && !wasComplete) {
+        // Just became complete — glow + collapse
+        card.classList.remove("setup-done-glow");
+        void card.offsetWidth;
+        card.classList.add("setup-done-glow");
+        details.removeAttribute("open");
+      }
+    } else {
+      completeLine.style.display = "none";
+      if (incompleteTitle) incompleteTitle.style.display = "";
+      if (toggleIcon) toggleIcon.style.display = "";
+      if (details) details.setAttribute("open", "");
+    }
+
+    // Render rows
+    const wizardRow = body.querySelector(".setup-wizard-row");
+    // Remove old rows (keep wizard row)
+    Array.from(body.children).forEach((ch) => {
+      if (!ch.classList.contains("setup-wizard-row")) ch.remove();
+    });
+
+    // Insert required keys first, then optional
+    const orderedKeys = [...requiredKeys, ...optionalKeys];
+    orderedKeys.forEach((k) => {
+      const isRequired = k.required === mode;
+      const stateClass = k.configured
+        ? "setup-configured"
+        : isRequired
+        ? "setup-required-missing"
+        : "setup-optional-missing";
+
+      const badgeText = k.configured
+        ? "Configured"
+        : isRequired
+        ? "Required"
+        : "Optional";
+
+      const valueText = k.configured
+        ? k.masked || "•••••••••"
+        : "Not configured";
+
+      const row = document.createElement("div");
+      row.className = `setup-row ${stateClass}`;
+      row.setAttribute("data-key", k.key);
+      row.setAttribute("title", k.configured ? "Click to reconfigure" : "Click to enter key");
+      row.innerHTML = `
+        ${ICONS.key}
+        <div class="setup-row-info">
+          <span class="setup-row-label">${escHtml(k.label)}</span>
+          <span class="setup-row-value">${escHtml(valueText)}</span>
+        </div>
+        <span class="setup-badge">
+          ${k.configured ? ICONS.check : k.required === mode ? ICONS.warn : ""}
+          ${escHtml(badgeText)}
+        </span>
+        <button class="setup-paste-btn" data-key="${escHtml(k.key)}" title="Paste from clipboard" type="button">
+          ${ICONS.paste}
+        </button>`;
+
+      // Row click → enterKey
+      row.addEventListener("click", (e) => {
+        if (e.target.closest(".setup-paste-btn")) return;
+        vscode.postMessage({ command: "enterKey", key: k.key });
+      });
+
+      // Paste button
+      row.querySelector(".setup-paste-btn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        vscode.postMessage({ command: "pasteKey", key: k.key });
+      });
+
+      if (wizardRow) {
+        body.insertBefore(row, wizardRow);
+      } else {
+        body.appendChild(row);
+      }
+    });
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
 
   // ── Helpers ───────────────────────────────────────
 

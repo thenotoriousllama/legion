@@ -431,6 +431,352 @@ footer {
   text-decoration: none;
 }
 
+/* ══════════════════════════════════════════════════
+   SETUP SECTION (v1.2.0)
+   Glass-card onboarding panel. Auto-collapses when
+   all required keys for the current mode are set.
+   ══════════════════════════════════════════════════ */
+
+/* ── Card wrapper ────────────────────────────────── */
+
+.setup-card {
+  margin: 8px 10px 4px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+
+  /* Glass surface — falls back to flat if backdrop-filter unavailable */
+  background: var(--vscode-sideBar-background, rgba(30, 30, 30, 0.7));
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur(8px) saturate(1.2);
+  }
+
+  /* Gradient border via pseudo-element */
+  isolation: isolate;
+}
+
+.setup-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    var(--vscode-button-background, #0e639c),
+    var(--vscode-focusBorder, #007fd4)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.7;
+}
+
+/* Slide-in animation on first render */
+@keyframes setupCardIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.setup-card {
+  animation: setupCardIn 200ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .setup-card { animation: none; }
+}
+
+/* ── <details> toggle ────────────────────────────── */
+
+.setup-card details {
+  background: transparent;
+}
+
+.setup-card summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 7px;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  background: transparent;
+  position: relative;
+  z-index: 2;
+}
+
+.setup-card summary::-webkit-details-marker { display: none; }
+
+.setup-header-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--vscode-foreground, #ccc);
+  flex: 1;
+}
+
+.setup-toggle-icon {
+  font-size: 10px;
+  opacity: 0.5;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.setup-card details[open] .setup-toggle-icon {
+  transform: rotate(90deg);
+}
+
+/* ── Progress ring ───────────────────────────────── */
+
+.setup-progress-ring {
+  flex-shrink: 0;
+  position: relative;
+  width: 32px;
+  height: 32px;
+}
+
+.setup-progress-ring svg {
+  width: 32px;
+  height: 32px;
+  transform: rotate(-90deg);
+}
+
+.setup-ring-track {
+  fill: none;
+  stroke: var(--vscode-panel-border, rgba(128,128,128,0.3));
+  stroke-width: 3;
+}
+
+.setup-ring-fill {
+  fill: none;
+  stroke: var(--vscode-button-background, #0e639c);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.setup-ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 700;
+  font-family: var(--vscode-editor-font-family, monospace);
+  color: var(--vscode-foreground, #ccc);
+  pointer-events: none;
+}
+
+/* Pulse when a new key is configured */
+@keyframes ringPulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.setup-progress-ring.pulse {
+  animation: ringPulse 350ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .setup-progress-ring.pulse { animation: none; }
+}
+
+/* ── Body ────────────────────────────────────────── */
+
+.setup-body {
+  padding: 0 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Per-key rows ────────────────────────────────── */
+
+.setup-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
+  background: transparent;
+}
+
+.setup-row:hover {
+  background: var(--vscode-list-hoverBackground, rgba(128,128,128,0.12));
+}
+
+.setup-row-icon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  opacity: 0.65;
+  color: var(--vscode-foreground, #ccc);
+}
+
+.setup-row-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.setup-row-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--vscode-foreground, #ccc);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.setup-row-value {
+  font-size: 9.5px;
+  font-family: var(--vscode-editor-font-family, monospace);
+  color: var(--vscode-descriptionForeground, #888);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Status badge */
+.setup-badge {
+  flex-shrink: 0;
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+/* Paste button */
+.setup-paste-btn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--vscode-foreground, #ccc);
+  opacity: 0.4;
+  transition: opacity 0.12s, background 0.12s;
+  padding: 0;
+}
+
+.setup-paste-btn:hover {
+  opacity: 0.85;
+  background: var(--vscode-toolbar-hoverBackground, rgba(128,128,128,0.2));
+}
+
+/* Row states */
+.setup-row.setup-configured {
+  border-left-color: var(--vscode-testing-iconPassed, #73c991);
+}
+
+.setup-row.setup-configured .setup-badge {
+  background: color-mix(in srgb, var(--vscode-testing-iconPassed, #73c991) 15%, transparent);
+  color: var(--vscode-testing-iconPassed, #73c991);
+}
+
+.setup-row.setup-required-missing {
+  border-left-color: var(--vscode-inputValidation-warningBorder, #b89500);
+}
+
+/* Subtle pulse on left border for required-missing rows */
+@keyframes rowPulse {
+  0%, 100% { border-left-color: var(--vscode-inputValidation-warningBorder, #b89500); }
+  50%       { border-left-color: var(--vscode-inputValidation-warningForeground, #cca700); }
+}
+.setup-row.setup-required-missing {
+  animation: rowPulse 2.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .setup-row.setup-required-missing { animation: none; }
+}
+
+.setup-row.setup-required-missing .setup-badge {
+  background: color-mix(in srgb, var(--vscode-inputValidation-warningBorder, #b89500) 15%, transparent);
+  color: var(--vscode-inputValidation-warningForeground, #cca700);
+}
+
+.setup-row.setup-optional-missing .setup-badge {
+  background: var(--vscode-badge-background, rgba(128,128,128,0.2));
+  color: var(--vscode-descriptionForeground, #888);
+}
+
+/* ── Wizard CTA row ─────────────────────────────── */
+
+.setup-wizard-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px 2px;
+}
+
+.setup-wizard-btn {
+  font-size: 10.5px;
+  color: var(--vscode-textLink-foreground, #3794ff);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+  font-family: inherit;
+}
+.setup-wizard-btn:hover { text-decoration: underline; }
+
+/* ── Complete state (collapsed summary) ─────────── */
+
+.setup-complete-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  color: var(--vscode-testing-iconPassed, #73c991);
+}
+
+.setup-complete-reconfig {
+  margin-left: auto;
+  font-size: 10.5px;
+  color: var(--vscode-textLink-foreground, #3794ff);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  opacity: 0.75;
+}
+.setup-complete-reconfig:hover { opacity: 1; text-decoration: underline; }
+
+/* Success confetti glow when collapsing to done state */
+@keyframes doneGlow {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--vscode-testing-iconPassed, #73c991) 50%, transparent); }
+  60%  { box-shadow: 0 0 12px 4px color-mix(in srgb, var(--vscode-testing-iconPassed, #73c991) 25%, transparent); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.setup-card.setup-done-glow {
+  animation: doneGlow 700ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .setup-card.setup-done-glow { animation: none; }
+}
+
 /* ── Coverage bar ────────────────────────────────── */
 
 .coverage-bar {

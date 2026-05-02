@@ -4,6 +4,7 @@ import { readContradictionInbox } from "../driver/reconciler";
 import { detectRepoState, type RepoState } from "../driver/repoState";
 import type { WikiCoverage } from "../driver/coverageTracker";
 import { buildCoverageSummary, buildModuleBreakdown, loadCoverage } from "../driver/coverageTracker";
+import { getSetupState, type SetupKeyState } from "../util/secretStore";
 
 export class LegionSidebarProvider implements vscode.WebviewViewProvider {
   private _view?: vscode.WebviewView;
@@ -33,6 +34,25 @@ export class LegionSidebarProvider implements vscode.WebviewViewProvider {
     const repoRoot = folders[0].uri.fsPath;
     const fresh = await detectRepoState(repoRoot);
     this.pushRepoState(fresh);
+  }
+
+  /**
+   * Re-read SecretStorage key inventory and push a `setupState` message to the
+   * webview. Called on activation and any time a key changes (wizard, inline
+   * prompt, or onDidChangeConfiguration). Drives the Setup section UI.
+   */
+  async refreshSetupState(context: vscode.ExtensionContext): Promise<void> {
+    if (!this._view) return;
+    const cfg = vscode.workspace.getConfiguration("legion");
+    const mode = cfg.get<string>("agentInvocationMode", "cursor-sdk");
+    const keys = await getSetupState(context, mode);
+    void this._view.webview.postMessage({ type: "setupState", keys, mode });
+  }
+
+  /** Allow the webview to request a fresh setup-state snapshot on reconnect. */
+  private _extContext?: vscode.ExtensionContext;
+  setExtensionContext(context: vscode.ExtensionContext): void {
+    this._extContext = context;
   }
 
   /** Push a coverage update to the webview (called from reconciler Step 14). */
@@ -129,6 +149,10 @@ export class LegionSidebarProvider implements vscode.WebviewViewProvider {
             const fresh = await detectRepoState(repoRoot);
             this._pendingState = fresh;
             await webviewView.webview.postMessage({ type: "repoState", state: fresh });
+            // Also refresh setup state on requestState
+            if (this._extContext) {
+              await this.refreshSetupState(this._extContext);
+            }
 
             const inbox = await readContradictionInbox(repoRoot);
             await webviewView.webview.postMessage({
@@ -198,6 +222,34 @@ export class LegionSidebarProvider implements vscode.WebviewViewProvider {
         case "openDashboard":
           await vscode.commands.executeCommand("legion.openDashboard");
           break;
+        case "runWizard":
+          await vscode.commands.executeCommand("legion.setupWizard");
+          break;
+        case "enterKey":
+          if (msg.key && this._extContext) {
+            const { promptForKey } = await import("../commands/setupWizard");
+            await promptForKey(this._extContext, msg.key, async () => {
+              await this.refreshSetupState(this._extContext!);
+            });
+          }
+          break;
+        case "pasteKey":
+          if (msg.key && this._extContext) {
+            try {
+              const text = await vscode.env.clipboard.readText();
+              if (text?.trim()) {
+                const { setSecret } = await import("../util/secretStore");
+                await setSecret(this._extContext, msg.key, text.trim());
+                await this.refreshSetupState(this._extContext);
+                vscode.window.showInformationMessage("$(check) API key pasted and saved.");
+              } else {
+                vscode.window.showWarningMessage("Clipboard appears empty. Copy your API key first.");
+              }
+            } catch {
+              vscode.window.showErrorMessage("Could not read clipboard.");
+            }
+          }
+          break;
       }
     });
   }
@@ -236,6 +288,37 @@ export class LegionSidebarProvider implements vscode.WebviewViewProvider {
         <span id="invocationMode" class="mode-badge">…</span>
       </div>
     </header>
+
+    <!-- ── Setup section (v1.2.0) ──────────── -->
+    <div class="setup-card" id="setupCard" style="display:none">
+      <details id="setupDetails" open>
+        <summary>
+          <div class="setup-complete-line" id="setupCompleteLine" style="display:none">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <circle cx="6" cy="6" r="5.5" stroke="var(--vscode-testing-iconPassed,#73c991)" stroke-width="1"/>
+              <path d="M3 6l2 2 4-4" stroke="var(--vscode-testing-iconPassed,#73c991)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Setup complete</span>
+            <button class="setup-complete-reconfig" id="setupReconfig" type="button">Reconfigure</button>
+          </div>
+          <div class="setup-header-title" id="setupIncompleteTitle">Setup</div>
+          <div class="setup-progress-ring" id="setupRing">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <circle class="setup-ring-track" cx="16" cy="16" r="12"/>
+              <circle class="setup-ring-fill" id="setupRingFill" cx="16" cy="16" r="12"
+                stroke-dasharray="75.4" stroke-dashoffset="75.4"/>
+            </svg>
+            <div class="setup-ring-text" id="setupRingText">0/0</div>
+          </div>
+          <span class="setup-toggle-icon" id="setupToggleIcon">›</span>
+        </summary>
+        <div class="setup-body" id="setupBody">
+          <div class="setup-wizard-row">
+            <button class="setup-wizard-btn" id="setupWizardBtn" type="button">Run Setup Wizard →</button>
+          </div>
+        </div>
+      </details>
+    </div>
 
     <!-- ── Status bar ───────────────────────── -->
     <div class="status-bar">

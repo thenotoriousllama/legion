@@ -1,5 +1,37 @@
 # Changelog
 
+## [1.2.0] — 2026-05-02
+
+Onboarding and security release. API keys move out of `settings.json` into OS-encrypted secret storage. A guided Setup Wizard replaces the "go set this in Settings" pattern. The sidebar gains a live setup-status panel with a progress ring, per-key rows, and inline paste support.
+
+### Added
+
+- **`Legion: Setup Wizard…` command** (`legion.setupWizard`). A 5-step guided flow: (1) welcome, (2) invocation mode picker (with rich descriptions), (3) required API key for the chosen mode (password input, saved to SecretStorage), (4) optional provider keys (Cohere, Exa, Firecrawl, Context7 — multi-select, each with a sub-prompt), (5) done screen with a "Document Repository" shortcut. Auto-fires on first `Initialize Repository` when no key is configured for the current mode. A `globalState` flag prevents repeat firings. Also available any time via Command Palette.
+
+- **Sidebar Setup section**. A glassy card between the header and the status bar that shows the current API-key inventory. Features: animated SVG progress ring ("1/3 keys configured"), per-key rows with provider icon + label + masked value preview + status badge (Configured / Required / Optional) + paste-from-clipboard button. Auto-collapses with a green glow animation when all required keys for the current mode are configured. Tapping a row opens an inline InputBox for that key. Driven by a new `setupState` host→webview message updated whenever keys change.
+
+- **Inline "Enter API Key" buttons** on all key-missing error paths (autoresearch, drainAgenda, ingestUrl, chatParticipant). Previously these surfaced `"Open Settings"` — now they offer `"Enter API Key"` (opens the InputBox inline, saves to SecretStorage immediately) alongside `"Setup Wizard"` and `"Open Settings"`.
+
+- **`src/util/secretStore.ts`** — the SecretStorage abstraction. `getSecret(context, key)` resolution chain: env vars (highest priority, for CI/headless) → `context.secrets` SecretStorage → `config.get()` settings.json fallback. `setSecret`, `deleteSecret`, `hasSecret`, `maskSecret` (returns `cursor_••••8a3f` style preview). `migrateSettingsKeysToSecretStorage` (one-time migration guarded by `globalState` flag). `getSetupState` (returns full key inventory for the sidebar). `SECRET_KEYS` catalog (7 keys: cursorApiKey, anthropicApiKey, openRouterApiKey, cohereApiKey, exaApiKey, firecrawlApiKey, context7ApiKey) with metadata: label, env vars, required mode, helpUrl, placeholder.
+
+- **`src/util/keyPrompt.ts`** — reusable `showKeyMissingError` (3-button modal) and `promptAndSaveKey` (direct InputBox) helpers for inline key prompts. Both store to SecretStorage and support an `onSaved` callback for sidebar refresh.
+
+- **`onDidChangeConfiguration` handler** in `extension.ts`. When a user enters a key in the Settings UI (old behavior), the handler immediately copies it to SecretStorage and clears the `settings.json` entry — so the plaintext window is as short as possible regardless of how the user configures their keys.
+
+### Changed
+
+- **All API key reads use `getSecret()`** instead of `config.get<string>("xxxApiKey")`. Affected files: `agentInvoker.ts`, `autoresearch.ts`, `drainAgenda.ts`, `ingestUrl.ts`, `chatParticipant.ts`. `semanticSearch.ts` adds a `resolveApiKeyWithContext()` export for the extension-context path; the standalone `resolveApiKey()` (used by the MCP server, which has no ExtensionContext) is unchanged.
+
+- **`legion.agentInvocationMode` default is now `cursor-sdk`** (unchanged from v1.1.0 but confirmed as the shipped default here too, carried forward).
+
+- **Settings `markdownDescription`** for `legion.cursorApiKey` and `legion.anthropicApiKey` updated to note the SecretStorage migration behavior: entering a value copies it to the encrypted store and clears the setting.
+
+### Security
+
+- **API keys no longer stored in `settings.json` after v1.2.0**. On first activation after upgrading, `migrateSettingsKeysToSecretStorage` runs: any non-empty `settings.json` values are copied to `context.secrets` (OS-encrypted: DPAPI on Windows, Keychain on macOS, libsecret on Linux), then the settings are cleared. A one-time notification confirms the migration. The migration is idempotent (guarded by `globalState.legion.secretsMigrated.v1.2.0`) and does not overwrite existing SecretStorage values — if the wizard was already used before migration runs, the SecretStorage copy wins.
+
+- **Keys are never echoed in notifications or log output**. Error messages use `meta.label` ("Cursor API key") not the key value. `maskSecret()` is the only function that derives a display string from the value, and it always hides all but the last 4 characters.
+
 ## [1.1.0] — 2026-05-02
 
 The `cursor-cli` invocation mode has been replaced with a real implementation backed by the official `@cursor/sdk` (Cursor TypeScript SDK). v1.0.x's `cursor-cli` mode shelled out to `cursor agent <name> --input <path>` — that headless CLI surface was never publicly supported by Cursor and silently produced unparseable output (Cursor's launcher just forwarded the args to Chromium as switches). v1.0.6 fixed the spawn-level error but couldn't fix the underlying "this CLI doesn't exist" problem. v1.1.0 fixes it properly by using the documented programmatic interface — the SDK's `Agent.prompt()` against a local-runtime agent.

@@ -35,6 +35,8 @@ import { parseCron, isOverdue } from "./driver/cronParser";
 import { DashboardPanel } from "./dashboard/dashboardPanel";
 import { installGuardian } from "./commands/installGuardian";
 import { updateGuardians } from "./commands/updateGuardians";
+import { migrateSettingsKeysToSecretStorage, getSetupState, setSecret, type SecretKey } from "./util/secretStore";
+import { setupWizard } from "./commands/setupWizard";
 import * as fs from "fs/promises";
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -44,6 +46,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // ── Sidebar ───────────────────────────────────────────────────────────────────
   const sidebarProvider = new LegionSidebarProvider(context.extensionUri);
+  sidebarProvider.setExtensionContext(context);
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider("legion.sidebar", sidebarProvider)
   );
@@ -138,6 +141,27 @@ export function activate(context: vscode.ExtensionContext): void {
         void inbox;
       }
       void count;
+    }),
+    // v1.2.0: Setup Wizard
+    vscode.commands.registerCommand("legion.setupWizard", () => setupWizard(context, sidebarProvider)),
+    // v1.2.0: onDidChangeConfiguration — move any API key set via Settings UI
+    // into SecretStorage immediately, clearing the plaintext setting.
+    vscode.workspace.onDidChangeConfiguration(async (e) => {
+      const apiKeySettings: SecretKey[] = [
+        "cursorApiKey", "anthropicApiKey", "openRouterApiKey",
+        "cohereApiKey", "exaApiKey", "firecrawlApiKey", "context7ApiKey",
+      ];
+      const cfg = vscode.workspace.getConfiguration("legion");
+      for (const key of apiKeySettings) {
+        if (!e.affectsConfiguration(`legion.${key}`)) continue;
+        const value = cfg.get<string>(key, "").trim();
+        if (!value) continue;
+        await setSecret(context, key, value);
+        await cfg.update(key, undefined, vscode.ConfigurationTarget.Global);
+        await cfg.update(key, undefined, vscode.ConfigurationTarget.Workspace);
+        // Refresh sidebar so the Setup section updates immediately
+        await sidebarProvider.refreshSetupState(context);
+      }
     })
   );
 
@@ -229,6 +253,9 @@ export function activate(context: vscode.ExtensionContext): void {
   // Startup: detect repo state, scaffold, push to sidebar
   if (repoRoot) {
     (async () => {
+      // v1.2.0: migrate any plaintext API keys from settings.json to SecretStorage
+      await migrateSettingsKeysToSecretStorage(context).catch(() => undefined);
+
       const state = await detectRepoState(repoRoot);
 
       if (state.initialized && !state.hasLocalState) {
@@ -239,6 +266,9 @@ export function activate(context: vscode.ExtensionContext): void {
       }
 
       sidebarProvider.pushRepoState(state);
+
+      // v1.2.0: push initial setup state (key inventory) to sidebar
+      await sidebarProvider.refreshSetupState(context).catch(() => undefined);
 
       if (state.initialized) {
         const wikiRoot = path.join(repoRoot, "library", "knowledge-base", "wiki");
