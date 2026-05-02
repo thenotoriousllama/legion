@@ -58,15 +58,98 @@ async function invokeCursorCli(
     // still evolving. The current best-known incantation is below; if your
     // Cursor version differs, override `legion.cursorCliPath` or switch to
     // `legion.agentInvocationMode = "queue-file"`.
-    const { stdout } = await exec(
-      cliPath,
-      ["agent", agentName, "--input", inputPath],
-      { cwd: repoRoot, maxBuffer: 64 * 1024 * 1024 }
-    );
-    return parseResponse(stdout);
+    const args = ["agent", agentName, "--input", inputPath];
+    let result: { stdout: string; stderr: string };
+    if (process.platform === "win32") {
+      // Cursor's CLI on Windows ships as `cursor.cmd` (a batch shim). Two
+      // independent things make a bare `execFile("cursor", ...)` fail:
+      //
+      //   1. CVE-2024-27980 ("BatBadBut", April 2024) — Node 20.12.2+ refuses
+      //      to spawn .bat / .cmd files via execFile/spawn unless `shell: true`
+      //      is set, even with an absolute path.
+      //   2. Cursor's extension host inherits PATH from when Cursor was
+      //      launched. If the cursor bin dir was added to PATH after Cursor
+      //      started, the host won't see it until Cursor is fully restarted.
+      //
+      // We invoke cmd.exe explicitly with hand-quoted args, using
+      // `windowsVerbatimArguments` so Node doesn't re-escape our quoting via
+      // the standard CRT rules. cmd.exe then handles .cmd extension lookup
+      // through PATH correctly.
+      const cmdLine = [cliPath, ...args].map(quoteWinShellArg).join(" ");
+      result = await exec("cmd.exe", ["/d", "/s", "/c", cmdLine], {
+        cwd: repoRoot,
+        maxBuffer: 64 * 1024 * 1024,
+        windowsVerbatimArguments: true,
+      });
+    } else {
+      result = await exec(cliPath, args, {
+        cwd: repoRoot,
+        maxBuffer: 64 * 1024 * 1024,
+      });
+    }
+    return parseResponse(result.stdout);
+  } catch (err) {
+    if (err instanceof Error && isCommandNotFoundError(err)) {
+      throw new Error(buildCliNotFoundMessage(cliPath, err));
+    }
+    throw err;
   } finally {
     fs.unlink(inputPath).catch(() => undefined);
   }
+}
+
+/**
+ * Quote an argument for cmd.exe consumption. Wraps the value in double quotes
+ * if it contains whitespace or quote characters, and doubles internal quotes
+ * per cmd.exe's parsing rules. Tuned for our argument shape (no `%`, no `^`,
+ * no `&|<>` metacharacters in real-world payloads — guardian names are
+ * validated identifiers and inputPath is a timestamped JSON file under
+ * `.legion/queue/` inside the repo root).
+ */
+function quoteWinShellArg(arg: string): string {
+  if (!arg) return '""';
+  if (!/[\s"]/.test(arg)) return arg;
+  return `"${arg.replace(/"/g, '""')}"`;
+}
+
+/**
+ * Recognize Node's spawn "binary not found" error across platforms and shells.
+ * On POSIX it's ENOENT; via cmd.exe it's "is not recognized as an internal or
+ * external command"; via PowerShell it's "cannot find the path specified".
+ */
+function isCommandNotFoundError(err: Error): boolean {
+  return (
+    /ENOENT/.test(err.message) ||
+    /is not recognized as an internal or external command/i.test(err.message) ||
+    /cannot find/i.test(err.message)
+  );
+}
+
+/**
+ * Produce a clear, actionable error message when the Cursor CLI can't be
+ * located or executed. Replaces the raw `spawn cursor ENOENT` that Node
+ * surfaces by default.
+ */
+function buildCliNotFoundMessage(cliPath: string, originalErr: Error): string {
+  const winHint =
+    `On Windows, open Cursor's Command Palette and run ` +
+    `"Shell Command: Install 'cursor' command in PATH", then RESTART CURSOR ` +
+    `(the extension host caches PATH on launch — settings changes alone are ` +
+    `not enough). Alternatively, set 'legion.cursorCliPath' in Settings to ` +
+    `the absolute path of cursor.cmd ` +
+    `(typically C:\\Program Files\\cursor\\resources\\app\\bin\\cursor.cmd).`;
+  const unixHint =
+    `Make sure 'cursor' is on PATH, or set 'legion.cursorCliPath' in Settings ` +
+    `to the absolute path of the binary.`;
+  return (
+    `Legion could not invoke the Cursor CLI ('${cliPath}'). ` +
+    (process.platform === "win32" ? winHint : unixHint) +
+    ` As a last resort, switch 'legion.agentInvocationMode' to ` +
+    `'direct-anthropic-api' (requires 'legion.anthropicApiKey' or the ` +
+    `LEGION_ANTHROPIC_API_KEY env var) — this bypasses the CLI entirely and ` +
+    `is the recommended path for Windows + VS Code users per the README.\n\n` +
+    `Original error: ${originalErr.message}`
+  );
 }
 
 // ──────────────────────────────────────────────────────────────────────────────

@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.6] — 2026-05-02
+
+Fixes a hard `spawn cursor ENOENT` failure on Windows that broke every parallel guardian invocation in `cursor-cli` mode (the default). Symptom in the wild looked like a stream of `Chunk "<module> [N/M]" invocation failed: spawn cursor ENOENT` lines after running `Legion: Document Repository`. Two independent root causes were collapsing into the same error.
+
+### Fixed
+- **`src/driver/agentInvoker.ts` — Windows `cursor.cmd` invocation.** The CLI on Windows ships as a `.cmd` batch shim (`cursor.cmd`), and Node's `child_process.execFile` refuses to launch `.bat` / `.cmd` files since the [CVE-2024-27980 ("BatBadBut") fix in Node 20.12.2 / 21.7.3 / 22.0.0](https://nodejs.org/en/blog/vulnerability/april-2024-security-releases-2) without an explicit `shell: true`. Compounding this, Cursor's extension host inherits `PATH` from the moment Cursor was launched — if the cursor bin directory was added to `PATH` after Cursor started, the host doesn't see it until a full restart. The cursor-cli code path now invokes `cmd.exe` explicitly with hand-quoted args (using `windowsVerbatimArguments` to bypass Node's CRT re-escaping), so `.cmd` extension lookup works regardless of Node version. macOS / Linux behavior is unchanged — the existing direct `execFile` path is preserved when `process.platform !== "win32"`.
+
+### Changed
+- **Actionable error message when the Cursor CLI can't be reached.** Instead of leaking the raw `spawn cursor ENOENT` (which is meaningless to most users), Legion now throws a single error that names the platform-specific fix paths: on Windows, run `"Shell Command: Install 'cursor' command in PATH"` from Cursor's Command Palette and **restart Cursor** (the extension host caches PATH on launch — a settings reload is not enough); on POSIX, ensure `cursor` is on PATH or set `legion.cursorCliPath` to the absolute binary path. Both messages include the canonical fallback: switch `legion.agentInvocationMode` to `direct-anthropic-api` (which bypasses the CLI entirely and is what the README already recommends for Windows + VS Code users). The original underlying error is appended at the end so the symptom is still searchable.
+
 ## [1.0.5] — 2026-05-02
 
 Release-pipeline self-heal. v1.0.4 published cleanly to the VS Code Marketplace but the parallel `open-vsx` job failed at the publish step with `❌ Unknown publisher: thenotoriousllama` — Open VSX (unlike Microsoft's Marketplace) requires the publisher namespace to be explicitly registered before any extension can be uploaded under it. v1.0.5 ships the workflow patch that auto-creates the namespace on demand, so this never blocks a release again.
