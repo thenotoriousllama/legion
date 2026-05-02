@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.3] — 2026-05-02
+
+### Fixed
+- **Setup Wizard welcome step removed** — the wizard's first step was a `{ modal: false }` notification toast that appeared in the bottom-right corner of the IDE. If the user clicked elsewhere (or didn't notice it), the toast dismissed silently, the wizard set the completed flag, and returned — making "Run Setup Wizard" and "Reconfigure" appear to do nothing. The welcome step is removed; the wizard now opens directly with the invocation mode QuickPick, which appears prominently at the top of the screen in the command palette area and cannot be accidentally dismissed.
+
 ## [1.2.2] — 2026-05-02
 
 Fixes extension discoverability in the Cursor and VS Code Extensions panel search. Since v1.1.0 the release pipeline only produced platform-specific VSIXes (`--target win32-x64`, etc.). The Extensions panel search hides platform-specific-only extensions from general search results — the extension was present on the Marketplace and installable via direct URL or ID, but not surfacing in the Extensions panel's search box.

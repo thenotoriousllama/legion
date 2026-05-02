@@ -1,0 +1,13 @@
+{
+  "name": "legion",
+  "displayName": "Legion Wiki Guardian",
+  "description": "Run Legion documentation operations directly from Claude Code. Requires the Legion VS Code extension and a compiled CLI (dist/cli.js).",
+  "version": "1.0.0",
+  "author": "Legion Project",
+  "homepage": "https://github.com/thenotoriousllama/legion",
+  "skills": [
+    "commands/legion-document.md",
+    "commands/legion-research.md",
+    "commands/legion-find.md"
+  ]
+}

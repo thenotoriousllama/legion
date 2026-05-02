@@ -104,19 +104,7 @@ export async function setupWizard(
     return;
   }
 
-  // ── Step 1: Welcome ────────────────────────────────────────────────────────
-  const welcome = await vscode.window.showInformationMessage(
-    "Legion Setup Wizard — configure your API keys for guardian invocation. Takes about 30 seconds.",
-    { modal: false },
-    "Get Started",
-    "Skip"
-  );
-  if (!welcome || welcome === "Skip") {
-    await context.globalState.update(WIZARD_COMPLETED_FLAG, true);
-    return;
-  }
-
-  // ── Step 2: Pick invocation mode ───────────────────────────────────────────
+  // ── Step 1: Pick invocation mode (QuickPick — appears at top of screen, unmissable) ─
   const cfg = vscode.workspace.getConfiguration("legion");
   const currentMode = cfg.get<string>("agentInvocationMode", "cursor-sdk");
 
@@ -126,7 +114,7 @@ export async function setupWizard(
       picked: item.label.includes(currentMode),
     })),
     {
-      title: "Legion Setup (1/3) — Invocation mode",
+      title: "Legion Setup (1/2) — Invocation mode",
       placeHolder: "How should Legion invoke guardians?",
       matchOnDescription: true,
       matchOnDetail: true,
@@ -170,7 +158,7 @@ export async function setupWizard(
 
   if (optionalItems.length > 0) {
     const picks = await vscode.window.showQuickPick(optionalItems, {
-      title: "Legion Setup (2/3) — Optional providers",
+      title: "Legion Setup (2/2) — Optional providers",
       placeHolder:
         "Select additional providers to configure (Space to toggle, Enter to confirm). ESC to skip.",
       canPickMany: true,
@@ -193,7 +181,7 @@ export async function setupWizard(
   const totalCount = setupState.length;
 
   const doneChoice = await vscode.window.showInformationMessage(
-    `Legion Setup (3/3) — Done! ${configuredCount}/${totalCount} keys configured. ` +
+    `Legion: Setup complete — ${configuredCount}/${totalCount} keys configured. ` +
       (selectedMode === "queue-file"
         ? "Queue-file mode needs no API key — you're ready."
         : "Run Document Repository to build your wiki."),
