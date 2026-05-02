@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.1] — 2026-05-01
+
+First public 1.x release. Establishes the production publishing pipeline.
+
+### Changed
+- **CI / Release pipeline** — `.github/workflows/release.yml` now publishes the VSIX to the **VS Code Marketplace** automatically when a `v*` tag is pushed. The new `vscode-marketplace` job runs in parallel with the existing `open-vsx` job after the GitHub Release is created. Both jobs are gated on their respective publisher tokens (`VSCE_PAT`, `OVSX_PAT`) and skip cleanly if the secret is unset.
+- **Branding & licensing** (carried forward from the unreleased v1.0.0 prep in commit `f1533c0`) — relicensed to the Legion Source-Available License v1.0; refreshed README, LICENSE, and package metadata (description, author, repository URLs); refreshed Obsidian companion plugin manifest and README; added attribution media (`media/bmc.png`, `media/mario-portrait.png`).
+
+### Notes
+- v1.0.0 was prepared in-tree but never tagged or published; this 1.0.1 release supersedes it and is the first version available on the VS Code Marketplace and Open VSX.
+
 ## [0.7.0] — 2026-04-30
 
 ### Added (Features 001–010 + Obsidian Companion Plugin)

@@ -88,6 +88,44 @@ jobs:
               --generate-notes
           fi
 
+  vscode-marketplace:
+    name: Publish to VS Code Marketplace
+    needs: release
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() && needs.release.result == 'success' }}
+
+    steps:
+      - name: Check VSCE_PAT secret
+        id: gate
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          if [ -z "${VSCE_PAT}" ]; then
+            echo "VSCE_PAT secret is not set — skipping VS Code Marketplace publish."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/download-artifact@v4
+        if: steps.gate.outputs.enabled == 'true'
+        with:
+          name: legion-vsix
+
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.enabled == 'true'
+        with:
+          node-version: "20"
+
+      - name: Publish to VS Code Marketplace
+        if: steps.gate.outputs.enabled == 'true'
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          VSIX_PATH=$(ls -1 *.vsix | head -n 1)
+          echo "Publishing $VSIX_PATH to VS Code Marketplace"
+          npx --yes @vscode/vsce publish --packagePath "$VSIX_PATH" --pat "$VSCE_PAT" --no-dependencies
+
   open-vsx:
     name: Publish to Open VSX (optional)
     needs: release
