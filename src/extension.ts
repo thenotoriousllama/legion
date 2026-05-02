@@ -35,7 +35,7 @@ import { parseCron, isOverdue } from "./driver/cronParser";
 import { DashboardPanel } from "./dashboard/dashboardPanel";
 import { installGuardian } from "./commands/installGuardian";
 import { updateGuardians } from "./commands/updateGuardians";
-import { migrateSettingsKeysToSecretStorage, getSetupState, setSecret, type SecretKey } from "./util/secretStore";
+import { migrateSettingsKeysToSecretStorage, getSetupState, setSecret, SECRET_KEYS, type SecretKey } from "./util/secretStore";
 import { setupWizard } from "./commands/setupWizard";
 import * as fs from "fs/promises";
 
@@ -156,11 +156,18 @@ export function activate(context: vscode.ExtensionContext): void {
         if (!e.affectsConfiguration(`legion.${key}`)) continue;
         const value = cfg.get<string>(key, "").trim();
         if (!value) continue;
-        await setSecret(context, key, value);
-        await cfg.update(key, undefined, vscode.ConfigurationTarget.Global);
-        await cfg.update(key, undefined, vscode.ConfigurationTarget.Workspace);
-        // Refresh sidebar so the Setup section updates immediately
-        await sidebarProvider.refreshSetupState(context);
+        try {
+          await setSecret(context, key, value);
+          await cfg.update(key, undefined, vscode.ConfigurationTarget.Global);
+          await cfg.update(key, undefined, vscode.ConfigurationTarget.Workspace);
+          // Refresh sidebar so the Setup section updates immediately
+          await sidebarProvider.refreshSetupState(context);
+        } catch {
+          vscode.window.showWarningMessage(
+            `Legion: Could not move ${SECRET_KEYS[key].label} to encrypted storage — ` +
+              `key retained in settings.json. Try reloading the window.`
+          );
+        }
       }
     })
   );

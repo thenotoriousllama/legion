@@ -15,7 +15,7 @@
  * Also available via Command Palette: "Legion: Setup Wizard…"
  */
 import * as vscode from "vscode";
-import { setSecret, getSecret, getSetupState, SECRET_KEYS, type SecretKey } from "../util/secretStore";
+import { setSecret, getSecret, getSetupState, maskSecret, SECRET_KEYS, type SecretKey } from "../util/secretStore";
 
 export const WIZARD_COMPLETED_FLAG = "legion.setupWizardCompleted";
 
@@ -224,7 +224,7 @@ export async function promptForKey(
     title: `Legion — ${meta.label}`,
     prompt: `Enter your ${meta.label}. Stored in encrypted OS secret storage (not settings.json).`,
     placeHolder: existing
-      ? `Current: ${existing.slice(0, 8)}••• (leave blank to keep)`
+      ? `Current: ${maskSecret(existing)} — leave blank to keep`
       : (meta.placeholder || `Your ${meta.label}`),
     password: true,
     ignoreFocusOut: true,

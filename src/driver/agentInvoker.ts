@@ -6,6 +6,7 @@ import type { InvocationPayload } from "../types/payload";
 import type { InvocationResponse } from "../types/response";
 import { callLlm, type LlmConfig } from "./llmClient";
 import { getSecret } from "../util/secretStore";
+import { showKeyMissingError } from "../util/keyPrompt";
 
 /**
  * The set of agent invocation modes Legion supports.
@@ -117,15 +118,18 @@ async function invokeCursorSdk(
   // ── Resolve API key + model ──────────────────────────────────────────────
   const apiKey = await getSecret(context, "cursorApiKey");
   if (!apiKey) {
+    // Show inline 3-button modal (Enter API Key | Setup Wizard | Open Settings)
+    // before erroring so the user can fix without re-running the command
+    await showKeyMissingError(
+      context,
+      "cursorApiKey",
+      "Legion: No Cursor API key configured. cursor-sdk mode requires one.",
+      "direct-anthropic-api"
+    );
     throw new Error(
-      `Legion: cursor-sdk mode requires a Cursor API key. Set ` +
-        `'legion.cursorApiKey' in Settings, or export the CURSOR_API_KEY ` +
-        `environment variable. Get a key at ` +
-        `https://cursor.com/dashboard/cloud-agents (you'll need a paid Cursor ` +
-        `plan). Alternatively, switch 'legion.agentInvocationMode' to ` +
-        `'direct-anthropic-api' (uses Anthropic / OpenRouter — set ` +
-        `'legion.anthropicApiKey' or LEGION_ANTHROPIC_API_KEY) which works on ` +
-        `every platform and doesn't require a Cursor subscription.`
+      "Legion: cursor-sdk mode requires a Cursor API key. " +
+        "Get one at https://cursor.com/dashboard/cloud-agents, " +
+        "or switch legion.agentInvocationMode to 'direct-anthropic-api'."
     );
   }
   const modelId = config.get<string>("cursorSdkModel") || "composer-2";

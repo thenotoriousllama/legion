@@ -4,6 +4,7 @@ import * as path from "path";
 import { loadSharedConfig } from "./sharedConfig";
 import { CommunityGuardianManager } from "../guardians/communityGuardianManager";
 import { WIZARD_COMPLETED_FLAG } from "../commands/setupWizard";
+import { getSecret, type SecretKey } from "../util/secretStore";
 
 const STRUCTURE = [
   ".legion",
@@ -274,18 +275,30 @@ export async function runInitializer(
     }
   );
 
-  // 8. Auto-fire Setup Wizard on first init if no key is configured for
+  // 9. Auto-fire Setup Wizard on first init if no key is configured for
   //    the current mode. Non-blocking — fires after the progress notification.
+  //    We actually check SecretStorage (+ env fallback) so users who already
+  //    have CURSOR_API_KEY or LEGION_ANTHROPIC_API_KEY set are not interrupted.
   const wizardDone = context.globalState.get<boolean>(WIZARD_COMPLETED_FLAG);
   if (!wizardDone) {
     const cfg = vscode.workspace.getConfiguration("legion");
     const mode = cfg.get<string>("agentInvocationMode", "cursor-sdk");
-    const needsKey = mode === "cursor-sdk" || mode === "direct-anthropic-api";
-    if (needsKey) {
-      // Defer so the "Initialized" toast appears first
-      setTimeout(() => {
-        vscode.commands.executeCommand("legion.setupWizard");
-      }, 1500);
+    const keyMap: Record<string, SecretKey> = {
+      "cursor-sdk": "cursorApiKey",
+      "direct-anthropic-api": "anthropicApiKey",
+    };
+    const requiredKey = keyMap[mode];
+    if (requiredKey) {
+      getSecret(context, requiredKey).then((val) => {
+        if (!val) {
+          setTimeout(() => {
+            vscode.commands.executeCommand("legion.setupWizard");
+          }, 1500);
+        } else {
+          // Key is present — mark wizard done so we don't check again
+          context.globalState.update(WIZARD_COMPLETED_FLAG, true);
+        }
+      }).catch(() => undefined);
     }
   }
 

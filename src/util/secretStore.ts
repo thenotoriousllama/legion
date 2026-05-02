@@ -147,6 +147,12 @@ export function maskSecret(value: string): string {
   const parts = value.split("_");
   const prefix = parts.length > 1 ? (parts[0] + "_") : "";
   const hiddenLen = Math.max(0, value.length - prefix.length - 4);
+  if (hiddenLen === 0) {
+    // Value is too short for the prefix+hidden+last-4 pattern without overlap.
+    // Fall back: show only the last 2 chars (or nothing for very short strings).
+    const tail = value.length > 2 ? value.slice(-2) : "";
+    return "•".repeat(value.length - tail.length) + tail;
+  }
   return prefix + "•".repeat(Math.min(hiddenLen, 8)) + visible;
 }
 
@@ -180,7 +186,8 @@ export async function migrateSettingsKeysToSecretStorage(
       await context.secrets.store(NS + key, plaintext);
     }
 
-    // Clear from settings.json regardless of whether we wrote (it's plaintext either way)
+    // Clear from settings.json whether we just wrote or the value was already in SecretStorage.
+    // If store() threw above, control never reaches here — settings.json is preserved (no data loss).
     await cfg.update(key, undefined, vscode.ConfigurationTarget.Global);
     await cfg.update(key, undefined, vscode.ConfigurationTarget.Workspace);
     migratedLabels.push(meta.label);

@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.2.1] — 2026-05-02
+
+Patch addressing all issues found by the post-ship QA pass on v1.2.0.
+
+### Fixed
+
+- **`drainAgenda.ts` bypassed SecretStorage for 3 optional search keys** (`exaApiKey`, `firecrawlApiKey`, `context7ApiKey`). After the v1.2.0 migration clears settings.json, those keys would have silently returned empty in the Drain Agenda command even though they were safely stored. Now correctly calls `getSecret(context, ...)` for all three.
+
+- **`keyPrompt.ts` helpers were dead code in v1.2.0** — the `showKeyMissingError` and `promptAndSaveKey` helpers were defined but never imported at any callsite, so the plan's required 3-button modal (Enter API Key | Setup Wizard | Open Settings) and "Switch Mode" button never appeared. All five callsites now import and call `showKeyMissingError`: `autoresearch.ts`, `drainAgenda.ts`, `ingestUrl.ts`, `chatParticipant.ts`, `agentInvoker.ts`.
+
+- **`agentInvoker.ts` cursor-sdk key-missing path threw a raw error** with no UI prompt. Now calls `showKeyMissingError(context, "cursorApiKey", ..., "direct-anthropic-api")` before throwing, giving the user an inline "Enter API Key" option with a "Switch Mode" fallback to `direct-anthropic-api`.
+
+- **`semanticSearch.ts` `buildIndex()` still used legacy `resolveApiKey()`** which reads from settings.json. After the v1.2.0 migration clears `settings.json`'s `cohereApiKey`, users who had Cohere configured would have lost semantic search functionality (falling back to TF-IDF) even though their key was safely in SecretStorage. `buildIndex()` now accepts an optional `context?: ExtensionContext` and calls `resolveApiKeyWithContext(context)` when provided. Both callers (`document.ts`, `update.ts`) now pass `context`.
+
+- **Auto-fire wizard fired even when keys were already configured** via env vars or SecretStorage. Now checks actual key presence with `getSecret(context, requiredKey)` before queueing the wizard; if the key exists, marks `WIZARD_COMPLETED_FLAG` to suppress future checks.
+
+- **`markdownDescription` missing SecretStorage note for 5 of 7 key settings** (`openRouterApiKey`, `exaApiKey`, `firecrawlApiKey`, `context7ApiKey`, `cohereApiKey`). All 7 settings now document that entering a value copies it to encrypted OS storage and clears the field.
+
 ## [1.2.0] — 2026-05-02
 
 Onboarding and security release. API keys move out of `settings.json` into OS-encrypted secret storage. A guided Setup Wizard replaces the "go set this in Settings" pattern. The sidebar gains a live setup-status panel with a progress ring, per-key rows, and inline paste support.

@@ -10,6 +10,6 @@ export async function updateDocumentation(context: vscode.ExtensionContext): Pro
   // Feature 001: incrementally refresh semantic index after update pass (background)
   const cfg = vscode.workspace.getConfiguration("legion");
   if (cfg.get<boolean>("semanticSearchEnabled", true)) {
-    buildIndex(repoRoot).catch(() => undefined);
+    buildIndex(repoRoot, undefined, context).catch(() => undefined);
   }
 }

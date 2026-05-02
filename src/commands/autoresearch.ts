@@ -4,6 +4,7 @@ import { scoreBoundary } from "../driver/boundaryScorer";
 import type { SearchProviderConfig, SearchProvider } from "../driver/searchProviders";
 import type { LlmConfig } from "../driver/llmClient";
 import { getSecret } from "../util/secretStore";
+import { showKeyMissingError } from "../util/keyPrompt";
 
 export async function autoresearch(
   repoRoot: string,
@@ -33,29 +34,21 @@ export async function autoresearch(
 
   // Validate API key availability
   if (provider === "anthropic" && !llmConfig.anthropicApiKey) {
-    const choice = await vscode.window.showWarningMessage(
-      "Legion: Set legion.anthropicApiKey (or LEGION_ANTHROPIC_API_KEY env var) to use Autoresearch.",
-      "Open Settings",
-      "Enter API Key"
+    await showKeyMissingError(
+      context,
+      "anthropicApiKey",
+      "Legion: No Anthropic API key configured. Autoresearch requires one.",
+      "openrouter"
     );
-    if (choice === "Open Settings") {
-      await vscode.commands.executeCommand("workbench.action.openSettings", "@id:legion.anthropicApiKey");
-    } else if (choice === "Enter API Key") {
-      await vscode.commands.executeCommand("legion.setupWizard");
-    }
     return;
   }
   if (provider === "openrouter" && !llmConfig.openRouterApiKey) {
-    const choice = await vscode.window.showWarningMessage(
-      "Legion: Set legion.openRouterApiKey (or LEGION_OPENROUTER_API_KEY env var) to use Autoresearch with OpenRouter.",
-      "Open Settings",
-      "Enter API Key"
+    await showKeyMissingError(
+      context,
+      "openRouterApiKey",
+      "Legion: No OpenRouter API key configured. Autoresearch requires one.",
+      "anthropic"
     );
-    if (choice === "Open Settings") {
-      await vscode.commands.executeCommand("workbench.action.openSettings", "@id:legion.openRouterApiKey");
-    } else if (choice === "Enter API Key") {
-      await vscode.commands.executeCommand("legion.setupWizard");
-    }
     return;
   }
 
@@ -75,29 +68,19 @@ export async function autoresearch(
 
   // Warn if provider needs a key that's missing
   if (searchConfig.provider === "exa" && !searchConfig.exaApiKey) {
-    const fix = await vscode.window.showWarningMessage(
-      "Legion: Exa provider selected but no API key is configured.",
-      "Open Settings",
-      "Enter API Key"
+    await showKeyMissingError(
+      context,
+      "exaApiKey",
+      "Legion: Exa provider selected but no API key is configured."
     );
-    if (fix === "Open Settings") {
-      await vscode.commands.executeCommand("workbench.action.openSettings", "@id:legion.exaApiKey");
-    } else if (fix === "Enter API Key") {
-      await vscode.commands.executeCommand("legion.setupWizard");
-    }
     return;
   }
   if (searchConfig.provider === "firecrawl" && !searchConfig.firecrawlApiKey) {
-    const fix = await vscode.window.showWarningMessage(
-      "Legion: Firecrawl provider selected but no API key is configured.",
-      "Open Settings",
-      "Enter API Key"
+    await showKeyMissingError(
+      context,
+      "firecrawlApiKey",
+      "Legion: Firecrawl provider selected but no API key is configured."
     );
-    if (fix === "Open Settings") {
-      await vscode.commands.executeCommand("workbench.action.openSettings", "@id:legion.firecrawlApiKey");
-    } else if (fix === "Enter API Key") {
-      await vscode.commands.executeCommand("legion.setupWizard");
-    }
     return;
   }
 

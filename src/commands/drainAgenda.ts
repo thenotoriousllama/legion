@@ -7,6 +7,7 @@ import { type LlmConfig } from "../driver/llmClient";
 import type { SearchProviderConfig, SearchProvider } from "../driver/searchProviders";
 import { resolveRepoRoot } from "../util/repoRoot";
 import { getSecret } from "../util/secretStore";
+import { showKeyMissingError } from "../util/keyPrompt";
 
 /**
  * Process all unchecked items in `wiki/research-agenda.md` using Autoresearch.
@@ -25,16 +26,12 @@ export async function drainAgenda(
   const openRouterKey = await getSecret(context, "openRouterApiKey");
 
   if (apiProvider === "anthropic" && !anthropicKey) {
-    const choice = await vscode.window.showWarningMessage(
+    await showKeyMissingError(
+      context,
+      "anthropicApiKey",
       "Legion: No Anthropic API key configured. Set one to run Research Agenda.",
-      "Enter API Key",
-      "Open Settings"
+      "openrouter"
     );
-    if (choice === "Enter API Key") {
-      await vscode.commands.executeCommand("legion.setupWizard");
-    } else if (choice === "Open Settings") {
-      await vscode.commands.executeCommand("workbench.action.openSettings", "@id:legion.anthropicApiKey");
-    }
     return;
   }
 
@@ -68,9 +65,9 @@ export async function drainAgenda(
 
   const searchConfig: SearchProviderConfig = {
     provider: cfg.get<SearchProvider>("researchProvider", "model-only"),
-    exaApiKey: cfg.get<string>("exaApiKey") || process.env.LEGION_EXA_API_KEY || "",
-    firecrawlApiKey: cfg.get<string>("firecrawlApiKey") || process.env.LEGION_FIRECRAWL_API_KEY || "",
-    context7ApiKey: cfg.get<string>("context7ApiKey") || process.env.LEGION_CONTEXT7_API_KEY || "",
+    exaApiKey: await getSecret(context, "exaApiKey"),
+    firecrawlApiKey: await getSecret(context, "firecrawlApiKey"),
+    context7ApiKey: await getSecret(context, "context7ApiKey"),
     maxResults: cfg.get<number>("researchMaxResults", 5),
   };
 

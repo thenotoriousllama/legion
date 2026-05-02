@@ -10,6 +10,6 @@ export async function documentRepository(context: vscode.ExtensionContext): Prom
   // Feature 001: rebuild semantic index after document pass (background, non-blocking)
   const cfg = vscode.workspace.getConfiguration("legion");
   if (cfg.get<boolean>("semanticSearchEnabled", true)) {
-    buildIndex(repoRoot).catch(() => undefined);
+    buildIndex(repoRoot, undefined, context).catch(() => undefined);
   }
 }

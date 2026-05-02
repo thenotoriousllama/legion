@@ -5,6 +5,7 @@ import { scrapeUrl } from "../driver/searchProviders";
 import { runResearchPass } from "../driver/researchPass";
 import { type LlmConfig } from "../driver/llmClient";
 import { getSecret } from "../util/secretStore";
+import { showKeyMissingError } from "../util/keyPrompt";
 
 const WIKI_REL = path.join("library", "knowledge-base", "wiki");
 
@@ -30,16 +31,11 @@ export async function ingestUrl(
   const firecrawlKey = await getSecret(context, "firecrawlApiKey");
 
   if (!firecrawlKey) {
-    const choice = await vscode.window.showWarningMessage(
-      "Legion: Ingest URL requires Firecrawl. Configure your API key to get started.",
-      "Enter API Key",
-      "Get Firecrawl Key"
+    await showKeyMissingError(
+      context,
+      "firecrawlApiKey",
+      "Legion: Ingest URL requires a Firecrawl API key."
     );
-    if (choice === "Enter API Key") {
-      await vscode.commands.executeCommand("legion.setupWizard");
-    } else if (choice === "Get Firecrawl Key") {
-      await vscode.env.openExternal(vscode.Uri.parse("https://firecrawl.dev"));
-    }
     return;
   }
 
@@ -54,16 +50,12 @@ export async function ingestUrl(
 
   const llmConfig = await buildLlmConfig(cfg, context);
   if (cfg.get<string>("apiProvider", "anthropic") === "anthropic" && !llmConfig.anthropicApiKey) {
-    const choice = await vscode.window.showWarningMessage(
+    await showKeyMissingError(
+      context,
+      "anthropicApiKey",
       "Legion: No Anthropic API key configured. Set one to synthesize the ingested content.",
-      "Enter API Key",
-      "Open Settings"
+      "openrouter"
     );
-    if (choice === "Enter API Key") {
-      await vscode.commands.executeCommand("legion.setupWizard");
-    } else if (choice === "Open Settings") {
-      await vscode.commands.executeCommand("workbench.action.openSettings", "@id:legion.anthropicApiKey");
-    }
     return;
   }
 

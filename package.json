@@ -2,7 +2,7 @@
   "name": "legion",
   "displayName": "Legion",
   "description": "The top tool for AI augmented development — a full AI agent army for any codebase. Deploys wiki-guardian (entity-graph wiki with [[backlinks]], ADR detection, contradiction protocol), library-guardian (module narrative + PRD authorship), mind-guardian (cognitive layer: RAG, coach routing, memory, evaluation), auth-guardian, db-guardian, devops-guardian, payments-guardian, quality-guardian, security-guardian, react-guardian, ux-ui-guardian, design-system-guardian, seo-aeo-guardian, and asset-guardian. Runs document/update/lint passes with parallel agent invocation, reconciles a compounding wiki, surfaces entity hovers and code-lens in the editor, generates Mermaid entity graphs, posts PR wiki diffs via GitHub Actions, and federates entity stubs across repos.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "publisher": "thenotoriousllama",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
@@ -358,7 +358,7 @@
         "legion.openRouterApiKey": {
           "type": "string",
           "default": "",
-          "markdownDescription": "OpenRouter API key. Get yours at [openrouter.ai/keys](https://openrouter.ai/keys). Can also be set via `LEGION_OPENROUTER_API_KEY` environment variable. Required when `legion.apiProvider` is `openrouter`."
+          "markdownDescription": "OpenRouter API key. Get yours at [openrouter.ai/keys](https://openrouter.ai/keys). Also accepts `LEGION_OPENROUTER_API_KEY` environment variable. Required when `legion.apiProvider` is `openrouter`. **v1.2.0+:** entering a value here copies it to encrypted OS secret storage (DPAPI / Keychain / libsecret) and clears this field — use **Legion: Setup Wizard** for a guided experience."
         },
         "legion.openRouterModel": {
           "type": "string",
@@ -409,17 +409,17 @@
         "legion.exaApiKey": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Exa API key for Autoresearch web search. Get yours at [exa.ai](https://exa.ai). Can also be set via `LEGION_EXA_API_KEY` environment variable."
+          "markdownDescription": "Exa API key for Autoresearch web search. Get yours at [exa.ai](https://exa.ai). Also accepts `LEGION_EXA_API_KEY` environment variable. **v1.2.0+:** entering a value here copies it to encrypted OS secret storage and clears this field."
         },
         "legion.firecrawlApiKey": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Firecrawl API key for Autoresearch web scraping. Get yours at [firecrawl.dev](https://firecrawl.dev). Can also be set via `LEGION_FIRECRAWL_API_KEY` environment variable."
+          "markdownDescription": "Firecrawl API key for Autoresearch web scraping and Ingest URL. Get yours at [firecrawl.dev](https://firecrawl.dev). Also accepts `LEGION_FIRECRAWL_API_KEY` environment variable. **v1.2.0+:** entering a value here copies it to encrypted OS secret storage and clears this field."
         },
         "legion.context7ApiKey": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Context7 API key for higher-rate library documentation access. Optional — Context7 works without a key for basic usage. Can also be set via `LEGION_CONTEXT7_API_KEY` environment variable."
+          "markdownDescription": "Context7 API key for higher-rate library documentation access. Optional — Context7 works without a key for basic usage. Also accepts `LEGION_CONTEXT7_API_KEY` environment variable. **v1.2.0+:** entering a value here copies it to encrypted OS secret storage and clears this field."
         },
         "legion.researchMaxResults": {
           "type": "number",
@@ -446,7 +446,7 @@
         "legion.cohereApiKey": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Cohere API key for semantic search embeddings. Prefer setting via `LEGION_COHERE_API_KEY` environment variable. When empty, TF-IDF fallback is used (no API key required)."
+          "markdownDescription": "Cohere API key for semantic search embeddings (Find Entity). Also accepts `LEGION_COHERE_API_KEY` environment variable. When empty, TF-IDF fallback is used (no API key required). **v1.2.0+:** entering a value here copies it to encrypted OS secret storage and clears this field."
         },
         "legion.researchSchedule": {
           "type": "string",

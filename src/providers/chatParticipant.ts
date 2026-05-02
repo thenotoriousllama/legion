@@ -4,6 +4,7 @@ import * as path from "path";
 import { callLlm, type LlmConfig } from "../driver/llmClient";
 import { parseFrontmatter, extractFirstBody } from "../util/frontmatter";
 import { getSecret } from "../util/secretStore";
+import { showKeyMissingError } from "../util/keyPrompt";
 
 const WIKI_REL = path.join("library", "knowledge-base", "wiki");
 const PARTICIPANT_ID = "legion.wiki";
@@ -74,12 +75,16 @@ function makeHandler(
     // Check API key availability
     if (cfg.get<string>("apiProvider", "anthropic") === "anthropic" && !llmConfig.anthropicApiKey) {
       stream.markdown(
-        "**Legion:** No API key configured. Run **Legion: Setup Wizard** to enter your Anthropic or Cursor API key."
+        "**Legion:** No Anthropic API key configured. Use the button below or run **Legion: Setup Wizard** from the Command Palette."
       );
-      stream.button({
-        command: "legion.setupWizard",
-        title: "Run Setup Wizard",
-      });
+      stream.button({ command: "legion.setupWizard", title: "Run Setup Wizard" });
+      // Also show the inline 3-button modal so the user can act without leaving chat
+      showKeyMissingError(
+        extContext,
+        "anthropicApiKey",
+        "Legion @chat: No Anthropic API key configured.",
+        "cursor-sdk"
+      ).catch(() => undefined);
       return;
     }
 

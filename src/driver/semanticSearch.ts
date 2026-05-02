@@ -67,12 +67,15 @@ export async function embedText(
  * When `changedPaths` is provided, only those pages are re-embedded.
  * When omitted, all wiki pages are compared against the cache by SHA-256 hash.
  * If `cohereApiKey` is not available, exits early (TF-IDF needs no index file).
+ *
+ * Pass `context` (v1.2.0+) so the key is read from SecretStorage first.
  */
 export async function buildIndex(
   repoRoot: string,
-  changedPaths?: string[]
+  changedPaths?: string[],
+  context?: import("vscode").ExtensionContext
 ): Promise<void> {
-  const apiKey = resolveApiKey();
+  const apiKey = context ? await resolveApiKeyWithContext(context) : resolveApiKey();
   if (!apiKey) return;
 
   const cachePath = path.join(repoRoot, ".legion", "embeddings.json");
