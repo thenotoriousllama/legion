@@ -242,8 +242,19 @@
     _prevConfiguredCount = displayConfigured;
 
     // Complete vs. incomplete summary
+    // Defensive: only show "Setup complete" if we actually have keys AND
+    // they're all configured. Belt-and-suspenders against rendering with
+    // an empty keys array or weird state where allRequiredDone evaluates
+    // true on a zero-key list.
     const wasComplete = completeLine.style.display !== "none";
-    if (allRequiredDone && totalConfigured > 0) {
+    const trulyComplete =
+      keys.length > 0 &&
+      totalConfigured > 0 &&
+      allRequiredDone &&
+      // Belt #2: at least one key relevant to the current mode must be configured
+      (requiredTotal === 0 ? totalConfigured > 0 : requiredConfigured === requiredTotal);
+
+    if (trulyComplete) {
       completeLine.style.display = "";
       if (incompleteTitle) incompleteTitle.style.display = "none";
       if (toggleIcon) toggleIcon.style.display = "none";

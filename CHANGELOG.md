@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.4] — 2026-05-02
+
+Two defensive fixes plus a diagnostic breadcrumb to debug stuck installs.
+
+### Fixed
+- **Sidebar Setup section showing "Setup complete" with 0/0 keys configured.** The completion-state condition (`allRequiredDone && totalConfigured > 0`) had an edge case where it could evaluate true on weird intermediate states. Replaced with an explicit `trulyComplete` check that requires `keys.length > 0`, `totalConfigured > 0`, AND mode-specific required keys all configured. The "Setup complete" line will now never show with zero configured keys, regardless of the renderer's input.
+
+### Added
+- **Status-bar breadcrumb when Setup Wizard fires.** A 3-second `$(rocket) Legion Setup Wizard…` message now appears in the bottom-right status bar at the start of the wizard, BEFORE the QuickPick renders. If you click "Run Setup Wizard" or "Reconfigure" and don't see this breadcrumb, the click never reached the extension host — meaning the sidebar webview is running stale JS from a previous version. Fix: `Ctrl+Shift+P` → `Developer: Reload Window`. Webviews don't reload when an extension auto-updates; a window reload is required to pick up the new sidebar JS.
+
 ## [1.2.3] — 2026-05-02
 
 ### Fixed

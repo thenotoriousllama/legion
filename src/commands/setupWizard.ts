@@ -93,6 +93,16 @@ export async function setupWizard(
   sidebarProvider?: { refreshSetupState: (ctx: vscode.ExtensionContext) => Promise<void> },
   options: WizardOptions = {}
 ): Promise<void> {
+  // Visible breadcrumb so users know the click registered. If you don't see
+  // this status-bar message when clicking "Run Setup Wizard", the click never
+  // reached the extension host (most likely cause: the sidebar webview is
+  // running stale code from a previous version — reload the window with
+  // Ctrl+Shift+P → "Developer: Reload Window").
+  const breadcrumb = vscode.window.setStatusBarMessage(
+    "$(rocket) Legion Setup Wizard…",
+    3000
+  );
+
   const refresh = async () => {
     options.onKeyUpdated?.();
     await sidebarProvider?.refreshSetupState(context).catch(() => undefined);
@@ -101,6 +111,7 @@ export async function setupWizard(
   // If focused on a specific key, jump straight to the prompt
   if (options.focusKey) {
     await promptForKey(context, options.focusKey, refresh);
+    breadcrumb.dispose();
     return;
   }
 
@@ -121,7 +132,10 @@ export async function setupWizard(
     }
   );
 
-  if (!modePick) return;
+  if (!modePick) {
+    breadcrumb.dispose();
+    return;
+  }
 
   const selectedMode = modePick.label.includes("cursor-sdk")
     ? "cursor-sdk"
@@ -141,7 +155,10 @@ export async function setupWizard(
 
   if (requiredKey) {
     const saved = await promptForKey(context, requiredKey, refresh);
-    if (!saved) return; // user cancelled on required key — stop here
+    if (!saved) {
+      breadcrumb.dispose();
+      return;
+    }
   }
 
   // ── Step 4: Optional providers ─────────────────────────────────────────────
@@ -192,6 +209,7 @@ export async function setupWizard(
   if (doneChoice === "Document Repository") {
     await vscode.commands.executeCommand("legion.document");
   }
+  breadcrumb.dispose();
 }
 
 // ── Prompt for a single key ──────────────────────────────────────────────────
