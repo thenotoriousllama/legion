@@ -15,6 +15,20 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EXT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 BUNDLED="$EXT_ROOT/bundled"
 
+# v1.2.10: prevent the duplicate-webview-js bug from recurring. The sidebar
+# webview loads `media/webview.js` (resolved via extensionUri/media/...).
+# A duplicate at `src/sidebar/media/webview.js` would silently shadow the
+# real file in source control and trick anyone editing it into thinking
+# their changes are loading. They aren't. v1.2.0–v1.2.9 all hit this exact
+# foot-gun. Fail fast if the duplicate path is ever resurrected.
+if [ -d "$EXT_ROOT/src/sidebar/media" ]; then
+  echo "ERROR: src/sidebar/media/ exists — this duplicates the runtime path media/." >&2
+  echo "       The sidebar webview only loads media/webview.{js,css}; anything in" >&2
+  echo "       src/sidebar/media/ is silently ignored. Move files to media/ and delete" >&2
+  echo "       src/sidebar/media/. See CHANGELOG v1.2.10 for context." >&2
+  exit 1
+fi
+
 resolve_source() {
   if [ -n "${LEGION_SOURCE:-}" ]; then
     if [ ! -d "$LEGION_SOURCE" ]; then

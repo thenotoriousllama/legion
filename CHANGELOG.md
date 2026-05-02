@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.10] — 2026-05-02
+
+The actual fix for the broken sidebar Setup button. Every release from v1.2.0 through v1.2.9 attempted to fix this with progressively more defensive code, but none of those edits to `webview.js` ever loaded at runtime — they were going to a duplicate file that the webview never reads.
+
+### Fixed
+- **Sidebar webview was loading a stale 5.8 KB `media/webview.js` from before v1.2.0** while every code change since v1.2.0 was being saved to a duplicate at `src/sidebar/media/webview.js` (16.3 KB) that the runtime never reads. The sidebar HTML in `sidebarProvider.ts` resolves `webview.js` via `vscode.Uri.joinPath(this.extensionUri, "media", "webview.js")` — so only the file at `media/webview.js` was ever loaded. Edits to `src/sidebar/media/webview.js` had zero runtime effect.
+  - Consequences: every "fix" between v1.2.0 and v1.2.9 was a no-op for the sidebar. The "Setup Complete with 0/0" UI bug, the broken "Run Setup Wizard" / "Reconfigure" / "Open Setup Page" buttons, the missing renderer, the missing COMMANDS-array entries — all were the result of running the pre-v1.2.0 webview code on top of post-v1.2.0 HTML.
+  - v1.2.10 copies the real (16.3 KB) JS into `media/webview.js` and deletes the duplicate `src/sidebar/media/` folder so this can never recur.
+
+### Added
+- **`scripts/snapshot-bundled.sh` now fails the build** if `src/sidebar/media/` exists. Prevents anyone (including future me) from re-creating the duplicate-file foot-gun.
+
+### Notes
+- All v1.2.0–v1.2.9 changes (SecretStorage migration, Setup Wizard, Setup Page, sidebar redesign, defensive guards, CSP fixes, `openSetupPage` rename) are unchanged in v1.2.10. They just actually load now.
+
 ## [1.2.9] — 2026-05-02
 
 The sidebar Setup button has now been broken across v1.2.0–v1.2.8 despite identical wiring to working buttons. Working theory: a name collision or stale cached state somewhere in Cursor that intercepts the `setupWizard` command name. v1.2.9 sidesteps the entire problem with a brand-new, never-used identifier end-to-end.
