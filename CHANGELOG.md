@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.8] — 2026-05-02
+
+Strategy reset on the sidebar setup UX. Six releases (v1.2.0–v1.2.7) tried progressively more defensive fixes for the in-sidebar setup card — broken buttons, "Setup complete" with 0/0, click handlers not firing — without resolution. v1.2.8 deletes the setup card entirely from the sidebar and replaces it with a single "Open Setup Page" button in the same proven environment as the 14 other working sidebar buttons (Initialize, Document, Update, etc.).
+
+### Removed
+- **Sidebar setup card**. The card with the SVG progress ring, per-key rows, paste buttons, complete-state collapse, etc. is gone. It lived inside `<details>` inside `<div class="setup-card">` with backdrop-filter glass + gradient-border `::before` — that environment kept producing button-click failures and rendering bugs that we couldn't reproduce or fully fix. Removed.
+
+### Added
+- **"Open Setup Page" button** in the sidebar's primary action area, directly above "Initialize Repository". Same `btn-primary` styling, same auto-wiring via the `COMMANDS` array, same exact mechanism as `Initialize`, `Document`, `Update`, and the other 14 buttons that you confirmed work. Click opens the full Setup Page WebviewPanel in the editor area (the `legion.setupWizard` command from v1.2.6).
+
+### Notes
+- The Setup Page (`Legion: Setup` command, also accessible from the new sidebar button) is unchanged from v1.2.7 and remains the single source of truth for invocation mode + API key configuration. The `setupState` host→webview message is now a no-op in the sidebar (the page has its own state), but the message is still sent so other code paths don't error.
+
 ## [1.2.7] — 2026-05-02
 
 ### Fixed

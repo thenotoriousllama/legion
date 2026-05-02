@@ -723,23 +723,32 @@ footer {
 /* ── Wizard CTA row ─────────────────────────────── */
 
 .setup-wizard-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 8px 2px;
+  padding: 6px 0 2px;
 }
 
+/* Solid button (mirrors .btn-primary) — was a flat link in v1.2.0–v1.2.6,
+   user feedback wanted a proper button. */
 .setup-wizard-btn {
-  font-size: 10.5px;
-  color: var(--vscode-textLink-foreground, #3794ff);
-  background: transparent;
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #ffffff);
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+  text-align: center;
   border: none;
   cursor: pointer;
-  padding: 0;
-  text-decoration: none;
   font-family: inherit;
+  transition: background 0.1s;
 }
-.setup-wizard-btn:hover { text-decoration: underline; }
+.setup-wizard-btn:hover {
+  background: var(--vscode-button-hoverBackground, #1177bb);
+}
+.setup-wizard-btn:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: 1px;
+}
 
 /* ── Complete state (collapsed summary) ─────────── */
 

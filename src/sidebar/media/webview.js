@@ -48,19 +48,6 @@
     });
   }
 
-  // ── Setup section wiring ──────────────────────────
-  // v1.2.5: setupWizard / setupReconfigure are now wired via COMMANDS array
-  // above. The Reconfigure button additionally needs to open the <details>
-  // (since it's normally inside the collapsed-complete summary) before firing.
-  const setupReconfigBtn = document.getElementById("setupReconfigure");
-  if (setupReconfigBtn) {
-    setupReconfigBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const details = document.getElementById("setupDetails");
-      if (details) details.setAttribute("open", "");
-    }, true); // capture phase — runs BEFORE the COMMANDS click handler
-  }
-
   // ── Request initial state from host ──────────────
   vscode.postMessage({ command: "requestState" });
 
@@ -157,9 +144,12 @@
       }
     }
 
-    // ── Setup state (API key inventory) ──────────────
+    // ── Setup state (v1.2.8: setup-card removed; message is a no-op now.
+    //   The dedicated Setup Page WebviewPanel is the source of truth for
+    //   API-key status. The sidebar just has an "Open Setup Page" button. ──
     if (msg.type === "setupState") {
-      renderSetupSection(msg.keys || [], msg.mode || "cursor-sdk");
+      // Intentionally no-op. Kept so the host can still send the message
+      // without errors — the page's own webview handles its own state.
     }
 
     if (msg.type === "contradictionCount") {
@@ -177,6 +167,16 @@
   });
 
   // ── Setup section renderer ────────────────────────
+  // v1.2.8: The setup card in the sidebar (progress ring, per-key rows,
+  // complete state) was removed in favor of a single "Open Setup Page"
+  // button in the action area. The Setup Page WebviewPanel is the source
+  // of truth for API key state.
+  //
+  // The renderSetupSection function below is dead code (no longer called —
+  // the setupState message handler above is a no-op now) but is kept
+  // verbatim because its early-return guard `if (!card || ...) return;`
+  // makes it harmless: every getElementById will return null since the
+  // setup-card HTML is gone, and the function exits cleanly.
 
   /** SVG icons for the setup rows (monoline, 14×14, currentColor). */
   const ICONS = {
@@ -342,7 +342,7 @@
     // handler wasn't firing on some installs; this guarantees a working
     // handler exists after every setupState message arrives.
     if (wizardRow) {
-      wizardRow.innerHTML = `<button class="setup-wizard-btn" id="setupWizard" type="button">Open Setup Page →</button>`;
+      wizardRow.innerHTML = `<button class="setup-wizard-btn" id="setupWizard" type="button">Open Setup Page</button>`;
       const btn = wizardRow.querySelector("#setupWizard");
       if (btn) {
         btn.addEventListener("click", (e) => {

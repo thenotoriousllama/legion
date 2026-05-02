@@ -291,38 +291,6 @@ export class LegionSidebarProvider implements vscode.WebviewViewProvider {
       </div>
     </header>
 
-    <!-- ── Setup section (v1.2.0+, ID convention v1.2.5) ──────────── -->
-    <!-- IDs setupWizard + setupReconfigure match COMMANDS-array entries -->
-    <div class="setup-card" id="setupCard" style="display:none">
-      <details id="setupDetails" open>
-        <summary>
-          <div class="setup-complete-line" id="setupCompleteLine">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <circle cx="6" cy="6" r="5.5" stroke="var(--vscode-testing-iconPassed,#73c991)" stroke-width="1"/>
-              <path d="M3 6l2 2 4-4" stroke="var(--vscode-testing-iconPassed,#73c991)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Setup complete</span>
-            <button class="setup-complete-reconfig" id="setupReconfigure" type="button">Reconfigure</button>
-          </div>
-          <div class="setup-header-title" id="setupIncompleteTitle">Setup</div>
-          <div class="setup-progress-ring" id="setupRing">
-            <svg viewBox="0 0 32 32" aria-hidden="true">
-              <circle class="setup-ring-track" cx="16" cy="16" r="12"/>
-              <circle class="setup-ring-fill" id="setupRingFill" cx="16" cy="16" r="12"
-                stroke-dasharray="75.4" stroke-dashoffset="75.4"/>
-            </svg>
-            <div class="setup-ring-text" id="setupRingText">0/0</div>
-          </div>
-          <span class="setup-toggle-icon" id="setupToggleIcon">›</span>
-        </summary>
-        <div class="setup-body" id="setupBody">
-          <div class="setup-wizard-row">
-            <button class="setup-wizard-btn" id="setupWizard" type="button">Run Setup Wizard →</button>
-          </div>
-        </div>
-      </details>
-    </div>
-
     <!-- ── Status bar ───────────────────────── -->
     <div class="status-bar">
       <div class="status-dot" id="statusDot"></div>
@@ -340,6 +308,12 @@ export class LegionSidebarProvider implements vscode.WebviewViewProvider {
 
     <!-- ── Actions ──────────────────────────── -->
     <div class="actions-area">
+
+      <!-- Primary: Setup (v1.2.8 — moved out of broken setup-card into proven action area) -->
+      <button id="setupWizard" class="btn-primary" type="button"
+        title="Open the full Legion Setup page — pick invocation mode, configure API keys, paste from clipboard, all on one screen.">
+        Open Setup Page
+      </button>
 
       <!-- Primary: Initialize -->
       <button id="initialize" class="btn-primary" type="button"
