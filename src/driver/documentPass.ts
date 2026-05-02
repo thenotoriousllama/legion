@@ -56,9 +56,12 @@ export async function runDocumentPass(
     {
       location: vscode.ProgressLocation.Notification,
       title: `Legion: ${modeLabel(mode)}`,
-      cancellable: false,
+      // v1.2.15: Adds the X button on the toast. Token is checked at every
+      // await boundary in the chunk pipeline so the user can stop runaway
+      // jobs without waiting for them to finish or restarting the IDE.
+      cancellable: true,
     },
-    async (progress) => {
+    async (progress, token) => {
       // ── 1. Walk the repo (monorepo-aware) ────────────────────────────────
       progress.report({ message: "Walking repository…", increment: 5 });
       const baseIgnore = await loadLegionIgnore(repoRoot);
@@ -123,6 +126,7 @@ export async function runDocumentPass(
       const incrementPerChunk = Math.max(1, Math.floor(70 / chunks.length));
 
       await runWithConcurrency(chunks, maxParallel, async (chunk, idx) => {
+        if (token.isCancellationRequested) return;
         progress.report({
           message: `${invocationMode === "queue-file" ? "Waiting for" : "Processing"} chunk ${
             idx + 1
@@ -131,7 +135,7 @@ export async function runDocumentPass(
         });
 
         const chunkFiles = await loadChunkContent(repoRoot, chunk);
-        if (chunkFiles.length === 0) return; // all files disappeared between walk and read
+        if (chunkFiles.length === 0) return;
 
         const absFiles = chunk.files.map((r) => path.join(repoRoot, r.replace(/\//g, path.sep)));
         const gitCtx = await getGitContextMany(repoRoot, absFiles);
@@ -151,8 +155,10 @@ export async function runDocumentPass(
           callout_vocabulary: CALLOUT_VOCABULARY,
         };
 
+        if (token.isCancellationRequested) return;
         try {
           const response = await invokeAgent("wiki-guardian", payload, repoRoot, context);
+          if (token.isCancellationRequested) return;
           chunkResults.push({ label: chunk.label, payload, response });
         } catch (e) {
           chunkErrors.push(
@@ -161,7 +167,18 @@ export async function runDocumentPass(
             }`
           );
         }
-      });
+      }, token);
+
+      // Cancel-fast: skip library-guardian, reconcile, auto-commit if the
+      // user clicked X on the toast. Pages already written by completed
+      // chunks stay on disk — that's the user's choice to keep or revert.
+      if (token.isCancellationRequested) {
+        vscode.window.showWarningMessage(
+          `Legion: ${modeLabel(mode)} cancelled — ${chunkResults.length} of ${chunks.length} chunk(s) completed before cancel. ` +
+            `Pages already written remain on disk; reconcile + auto-commit skipped.`
+        );
+        return;
+      }
 
       // ── 6a. Invoke library-guardian per top-level module (parallel) ──────
       if (mode !== "lint") {
@@ -173,6 +190,7 @@ export async function runDocumentPass(
             [...moduleGroups.entries()],
             maxParallel,
             async ([moduleName, absModFiles]) => {
+              if (token.isCancellationRequested) return;
               const moduleChunkFiles = await Promise.all(
                 absModFiles.map(async (abs) => {
                   const rel = path.relative(repoRoot, abs).replace(/\\/g, "/");
@@ -196,6 +214,7 @@ export async function runDocumentPass(
                 page_caps: PAGE_CAPS,
                 callout_vocabulary: CALLOUT_VOCABULARY,
               };
+              if (token.isCancellationRequested) return;
               try {
                 await invokeAgent("library-guardian", libPayload, repoRoot, context);
               } catch (e) {
@@ -203,9 +222,17 @@ export async function runDocumentPass(
                   `library-guardian for "${moduleName}" failed: ${e instanceof Error ? e.message : String(e)}`
                 );
               }
-            }
+            },
+            token
           );
         }
+      }
+
+      if (token.isCancellationRequested) {
+        vscode.window.showWarningMessage(
+          `Legion: ${modeLabel(mode)} cancelled during library-guardian phase. Reconcile + auto-commit skipped.`
+        );
+        return;
       }
 
       // ── 6b. Reconcile global wiki state ──────────────────────────────────
@@ -347,17 +374,23 @@ function parseFrontmatter(content: string): Record<string, unknown> {
 /**
  * Process `items` with at most `limit` concurrent async workers.
  * Worker slots are refilled as they complete — no fixed batch-slicing.
+ *
+ * If `token` is provided and becomes cancelled, workers stop dispatching
+ * new items immediately. Already-running `fn(item)` calls finish naturally
+ * (we can't safely interrupt mid-call without a cooperative AbortSignal).
  */
 async function runWithConcurrency<T>(
   items: T[],
   limit: number,
-  fn: (item: T, idx: number) => Promise<void>
+  fn: (item: T, idx: number) => Promise<void>,
+  token?: vscode.CancellationToken
 ): Promise<void> {
   if (items.length === 0) return;
   let cursor = 0;
 
   async function worker(): Promise<void> {
     for (;;) {
+      if (token?.isCancellationRequested) return;
       const idx = cursor++;
       if (idx >= items.length) return;
       await fn(items[idx], idx);

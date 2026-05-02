@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.15] — 2026-05-02
+
+### Added
+- **Cancel button on the Document / Update / Scan-Directory progress toast.** The progress notification was previously `cancellable: false`, leaving users with no way to stop a runaway pass without restarting the IDE. Toast now shows VS Code's standard X button. The `CancellationToken` is checked at every await boundary in the chunk pipeline (worker pool dispatch, before each agent invocation, after each agent invocation, between phases). On cancel: stops dispatching new chunks, lets currently-running agent calls finish naturally (can't safely interrupt mid-RPC without cooperative AbortSignal support in `@cursor/sdk`), then surfaces a "cancelled — N of M chunks completed" toast and skips library-guardian, reconcile, and auto-commit. Pages already written by completed chunks remain on disk so the user can keep or revert them.
+
 ## [1.2.14] — 2026-05-02
 
 ### Fixed
