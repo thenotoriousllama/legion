@@ -1,4 +1,671 @@
 {
-  "files": {},
-  "last_scan": null
+  "files": {
+    ".cursor/skills/ai-platform-weapon/guides/05-pydantic-ai.md": {
+      "hash": "4e23ed3d1d83e9e7f1b8515e6230afeb3c09a9d37bcafede7e63a8b8036bd0ef",
+      "ingested_at": "2026-05-02T13:29:42.542Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/05-pydantic-ai.md",
+        "library/knowledge-base/wiki/entities/06-rag-architecture.md",
+        "library/knowledge-base/wiki/entities/07-chunking-strategies.md",
+        "library/knowledge-base/wiki/entities/08-embedding-model-choice.md",
+        "library/knowledge-base/wiki/entities/09-qdrant-vector-db.md",
+        "library/knowledge-base/wiki/entities/10-graphrag-with-neo4j.md",
+        "library/knowledge-base/wiki/concepts/layered-rag-retrieval-stack.md",
+        "library/knowledge-base/wiki/concepts/embedding-and-hybrid-vector-store.md",
+        "library/knowledge-base/wiki/concepts/from-vector-rag-to-graphrag.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/guides/06-rag-architecture.md": {
+      "hash": "60b476b60d527620c5f1234651ade599632f1223401daec4a111294a51e918b1",
+      "ingested_at": "2026-05-02T13:29:42.542Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/05-pydantic-ai.md",
+        "library/knowledge-base/wiki/entities/06-rag-architecture.md",
+        "library/knowledge-base/wiki/entities/07-chunking-strategies.md",
+        "library/knowledge-base/wiki/entities/08-embedding-model-choice.md",
+        "library/knowledge-base/wiki/entities/09-qdrant-vector-db.md",
+        "library/knowledge-base/wiki/entities/10-graphrag-with-neo4j.md",
+        "library/knowledge-base/wiki/concepts/layered-rag-retrieval-stack.md",
+        "library/knowledge-base/wiki/concepts/embedding-and-hybrid-vector-store.md",
+        "library/knowledge-base/wiki/concepts/from-vector-rag-to-graphrag.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/guides/07-chunking-strategies.md": {
+      "hash": "6c71f69e74021c64c2f1f0e6db313cdaecada1e9729c21160b5a3d4f94244814",
+      "ingested_at": "2026-05-02T13:29:42.542Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/05-pydantic-ai.md",
+        "library/knowledge-base/wiki/entities/06-rag-architecture.md",
+        "library/knowledge-base/wiki/entities/07-chunking-strategies.md",
+        "library/knowledge-base/wiki/entities/08-embedding-model-choice.md",
+        "library/knowledge-base/wiki/entities/09-qdrant-vector-db.md",
+        "library/knowledge-base/wiki/entities/10-graphrag-with-neo4j.md",
+        "library/knowledge-base/wiki/concepts/layered-rag-retrieval-stack.md",
+        "library/knowledge-base/wiki/concepts/embedding-and-hybrid-vector-store.md",
+        "library/knowledge-base/wiki/concepts/from-vector-rag-to-graphrag.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/guides/08-embedding-model-choice.md": {
+      "hash": "76450096dae69216f4632aec862c27773e5ca15e9633a09f5db8075a98c369da",
+      "ingested_at": "2026-05-02T13:29:42.543Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/05-pydantic-ai.md",
+        "library/knowledge-base/wiki/entities/06-rag-architecture.md",
+        "library/knowledge-base/wiki/entities/07-chunking-strategies.md",
+        "library/knowledge-base/wiki/entities/08-embedding-model-choice.md",
+        "library/knowledge-base/wiki/entities/09-qdrant-vector-db.md",
+        "library/knowledge-base/wiki/entities/10-graphrag-with-neo4j.md",
+        "library/knowledge-base/wiki/concepts/layered-rag-retrieval-stack.md",
+        "library/knowledge-base/wiki/concepts/embedding-and-hybrid-vector-store.md",
+        "library/knowledge-base/wiki/concepts/from-vector-rag-to-graphrag.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/guides/09-qdrant-vector-db.md": {
+      "hash": "5c9aa7328a83d6f013d113f907c2565aeba3aa37fe75f3cec1797e17ffa49f0e",
+      "ingested_at": "2026-05-02T13:29:42.543Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/05-pydantic-ai.md",
+        "library/knowledge-base/wiki/entities/06-rag-architecture.md",
+        "library/knowledge-base/wiki/entities/07-chunking-strategies.md",
+        "library/knowledge-base/wiki/entities/08-embedding-model-choice.md",
+        "library/knowledge-base/wiki/entities/09-qdrant-vector-db.md",
+        "library/knowledge-base/wiki/entities/10-graphrag-with-neo4j.md",
+        "library/knowledge-base/wiki/concepts/layered-rag-retrieval-stack.md",
+        "library/knowledge-base/wiki/concepts/embedding-and-hybrid-vector-store.md",
+        "library/knowledge-base/wiki/concepts/from-vector-rag-to-graphrag.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/guides/10-graphrag-with-neo4j.md": {
+      "hash": "c85cd0c05169d45f329acf2c3332c9c6ff3eb6866d66a188ef4b190ac19ebf47",
+      "ingested_at": "2026-05-02T13:29:42.543Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/05-pydantic-ai.md",
+        "library/knowledge-base/wiki/entities/06-rag-architecture.md",
+        "library/knowledge-base/wiki/entities/07-chunking-strategies.md",
+        "library/knowledge-base/wiki/entities/08-embedding-model-choice.md",
+        "library/knowledge-base/wiki/entities/09-qdrant-vector-db.md",
+        "library/knowledge-base/wiki/entities/10-graphrag-with-neo4j.md",
+        "library/knowledge-base/wiki/concepts/layered-rag-retrieval-stack.md",
+        "library/knowledge-base/wiki/concepts/embedding-and-hybrid-vector-store.md",
+        "library/knowledge-base/wiki/concepts/from-vector-rag-to-graphrag.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/agents/library-guardian.md": {
+      "hash": "0ea426c0ca4014a6977c2690a4d2ef6ac7d49b959e37efafc5737795683ca2be",
+      "ingested_at": "2026-05-02T13:29:42.544Z",
+      "pages_created": [
+        "entities/library-guardian.md",
+        "entities/mind-guardian.md",
+        "entities/payments-guardian.md",
+        "entities/quality-guardian.md",
+        "entities/react-guardian.md",
+        "entities/security-guardian.md",
+        "concepts/legion-guardian-escalation-handoffs.md",
+        "concepts/library-folder-lifecycle-and-qa-boundary.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/agents/mind-guardian.md": {
+      "hash": "c265f77e5c8e79ab23126e1599875f366377a577c86dc672258289c064e975bd",
+      "ingested_at": "2026-05-02T13:29:42.544Z",
+      "pages_created": [
+        "entities/library-guardian.md",
+        "entities/mind-guardian.md",
+        "entities/payments-guardian.md",
+        "entities/quality-guardian.md",
+        "entities/react-guardian.md",
+        "entities/security-guardian.md",
+        "concepts/legion-guardian-escalation-handoffs.md",
+        "concepts/library-folder-lifecycle-and-qa-boundary.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/agents/payments-guardian.md": {
+      "hash": "ec82c1b62d3f39df06569d5cc5af7912372c862ea82d410bbaea4d85aa98cf2e",
+      "ingested_at": "2026-05-02T13:29:42.544Z",
+      "pages_created": [
+        "entities/library-guardian.md",
+        "entities/mind-guardian.md",
+        "entities/payments-guardian.md",
+        "entities/quality-guardian.md",
+        "entities/react-guardian.md",
+        "entities/security-guardian.md",
+        "concepts/legion-guardian-escalation-handoffs.md",
+        "concepts/library-folder-lifecycle-and-qa-boundary.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/agents/quality-guardian.md": {
+      "hash": "c1158117fc31471636f36e74ac36746d2565555227f1ca247fcf85d8db89c41e",
+      "ingested_at": "2026-05-02T13:29:42.544Z",
+      "pages_created": [
+        "entities/library-guardian.md",
+        "entities/mind-guardian.md",
+        "entities/payments-guardian.md",
+        "entities/quality-guardian.md",
+        "entities/react-guardian.md",
+        "entities/security-guardian.md",
+        "concepts/legion-guardian-escalation-handoffs.md",
+        "concepts/library-folder-lifecycle-and-qa-boundary.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/agents/react-guardian.md": {
+      "hash": "aee5a685143c37633dfeee89ea2ff5fb9585aa9305de4aca014db5558b01bcfd",
+      "ingested_at": "2026-05-02T13:29:42.545Z",
+      "pages_created": [
+        "entities/library-guardian.md",
+        "entities/mind-guardian.md",
+        "entities/payments-guardian.md",
+        "entities/quality-guardian.md",
+        "entities/react-guardian.md",
+        "entities/security-guardian.md",
+        "concepts/legion-guardian-escalation-handoffs.md",
+        "concepts/library-folder-lifecycle-and-qa-boundary.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/agents/security-guardian.md": {
+      "hash": "023b6cac3c3ab51b42a294db0c765ff73e7ee4edfc94794273fa166393e97017",
+      "ingested_at": "2026-05-02T13:29:42.545Z",
+      "pages_created": [
+        "entities/library-guardian.md",
+        "entities/mind-guardian.md",
+        "entities/payments-guardian.md",
+        "entities/quality-guardian.md",
+        "entities/react-guardian.md",
+        "entities/security-guardian.md",
+        "concepts/legion-guardian-escalation-handoffs.md",
+        "concepts/library-folder-lifecycle-and-qa-boundary.md"
+      ],
+      "pages_updated": []
+    },
+    ".claude-plugin/commands/legion-document.md": {
+      "hash": "c2be95df9476d046ce7dd2c82b12b21f667014fdee96693e29b74fa577570c39",
+      "ingested_at": "2026-05-02T13:29:42.545Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/legion-document.md",
+        "library/knowledge-base/wiki/entities/legion-find.md",
+        "library/knowledge-base/wiki/entities/legion-research.md",
+        "library/knowledge-base/wiki/entities/plugin.md",
+        "library/knowledge-base/wiki/concepts/claude-code-legion-plugin.md",
+        "library/knowledge-base/wiki/concepts/legion-cli-document-mode.md",
+        "library/knowledge-base/wiki/concepts/legion-cli-find-mode.md",
+        "library/knowledge-base/wiki/concepts/legion-cli-autoresearch-mode.md"
+      ],
+      "pages_updated": []
+    },
+    ".claude-plugin/commands/legion-find.md": {
+      "hash": "ba066a9c8326e3f6f5fbc0b304296f4ed607d5f5c4a22f8784e70309e6306780",
+      "ingested_at": "2026-05-02T13:29:42.546Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/legion-document.md",
+        "library/knowledge-base/wiki/entities/legion-find.md",
+        "library/knowledge-base/wiki/entities/legion-research.md",
+        "library/knowledge-base/wiki/entities/plugin.md",
+        "library/knowledge-base/wiki/concepts/claude-code-legion-plugin.md",
+        "library/knowledge-base/wiki/concepts/legion-cli-document-mode.md",
+        "library/knowledge-base/wiki/concepts/legion-cli-find-mode.md",
+        "library/knowledge-base/wiki/concepts/legion-cli-autoresearch-mode.md"
+      ],
+      "pages_updated": []
+    },
+    ".claude-plugin/commands/legion-research.md": {
+      "hash": "d973d8e9a11875cb5ba170dcc18d18443862c25517af10a7e5215a7f42105187",
+      "ingested_at": "2026-05-02T13:29:42.546Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/legion-document.md",
+        "library/knowledge-base/wiki/entities/legion-find.md",
+        "library/knowledge-base/wiki/entities/legion-research.md",
+        "library/knowledge-base/wiki/entities/plugin.md",
+        "library/knowledge-base/wiki/concepts/claude-code-legion-plugin.md",
+        "library/knowledge-base/wiki/concepts/legion-cli-document-mode.md",
+        "library/knowledge-base/wiki/concepts/legion-cli-find-mode.md",
+        "library/knowledge-base/wiki/concepts/legion-cli-autoresearch-mode.md"
+      ],
+      "pages_updated": []
+    },
+    ".claude-plugin/plugin.json": {
+      "hash": "624bc37ac21a2dd7fdd82c5bc92009abbb1db03dc5fd5a38902f5f6239c9794b",
+      "ingested_at": "2026-05-02T13:29:42.546Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/legion-document.md",
+        "library/knowledge-base/wiki/entities/legion-find.md",
+        "library/knowledge-base/wiki/entities/legion-research.md",
+        "library/knowledge-base/wiki/entities/plugin.md",
+        "library/knowledge-base/wiki/concepts/claude-code-legion-plugin.md",
+        "library/knowledge-base/wiki/concepts/legion-cli-document-mode.md",
+        "library/knowledge-base/wiki/concepts/legion-cli-find-mode.md",
+        "library/knowledge-base/wiki/concepts/legion-cli-autoresearch-mode.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/agents/seo-aeo-guardian.md": {
+      "hash": "918da6cccdc7ec5ba519c78099adcaefb7b28180a84e6d909bf0f279da17007d",
+      "ingested_at": "2026-05-02T13:29:42.546Z",
+      "pages_created": [
+        "entities/seo-aeo-guardian.md",
+        "entities/ux-ui-guardian.md",
+        "entities/wiki-guardian.md",
+        "entities/wiki-hot-context.md",
+        "entities/graphrag-enterprise-qa-qdrant-neo4j.md",
+        "entities/streaming-chat-vercel-ai-sdk-assistant-ui.md",
+        "concepts/legion-cursor-guardian-agent-documents.md",
+        "concepts/wiki-hot-cache-cursor-rule.md",
+        "concepts/ai-platform-weapon-example-patterns.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/agents/ux-ui-guardian.md": {
+      "hash": "a06cc2e981becba5b24a04031be66998ad10cd6058e88300d550f567b7108ad0",
+      "ingested_at": "2026-05-02T13:29:42.546Z",
+      "pages_created": [
+        "entities/seo-aeo-guardian.md",
+        "entities/ux-ui-guardian.md",
+        "entities/wiki-guardian.md",
+        "entities/wiki-hot-context.md",
+        "entities/graphrag-enterprise-qa-qdrant-neo4j.md",
+        "entities/streaming-chat-vercel-ai-sdk-assistant-ui.md",
+        "concepts/legion-cursor-guardian-agent-documents.md",
+        "concepts/wiki-hot-cache-cursor-rule.md",
+        "concepts/ai-platform-weapon-example-patterns.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/agents/wiki-guardian.md": {
+      "hash": "123eb7dccb2cbb3a7dc06e9c08313350aca2d4a6e465129e9beae0a76614a07d",
+      "ingested_at": "2026-05-02T13:29:42.546Z",
+      "pages_created": [
+        "entities/seo-aeo-guardian.md",
+        "entities/ux-ui-guardian.md",
+        "entities/wiki-guardian.md",
+        "entities/wiki-hot-context.md",
+        "entities/graphrag-enterprise-qa-qdrant-neo4j.md",
+        "entities/streaming-chat-vercel-ai-sdk-assistant-ui.md",
+        "concepts/legion-cursor-guardian-agent-documents.md",
+        "concepts/wiki-hot-cache-cursor-rule.md",
+        "concepts/ai-platform-weapon-example-patterns.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/rules/wiki-hot-context.md": {
+      "hash": "6df6a958bdcaa89695846c49a37d1cf810dd480990d52a6d8815df7e58800920",
+      "ingested_at": "2026-05-02T13:29:42.547Z",
+      "pages_created": [
+        "entities/seo-aeo-guardian.md",
+        "entities/ux-ui-guardian.md",
+        "entities/wiki-guardian.md",
+        "entities/wiki-hot-context.md",
+        "entities/graphrag-enterprise-qa-qdrant-neo4j.md",
+        "entities/streaming-chat-vercel-ai-sdk-assistant-ui.md",
+        "concepts/legion-cursor-guardian-agent-documents.md",
+        "concepts/wiki-hot-cache-cursor-rule.md",
+        "concepts/ai-platform-weapon-example-patterns.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/examples/graphrag-enterprise-qa-qdrant-neo4j.md": {
+      "hash": "6e36c96dab90a0194618c3aad28cc0dcad55c07cad81c2dde086c23219bf7279",
+      "ingested_at": "2026-05-02T13:29:42.547Z",
+      "pages_created": [
+        "entities/seo-aeo-guardian.md",
+        "entities/ux-ui-guardian.md",
+        "entities/wiki-guardian.md",
+        "entities/wiki-hot-context.md",
+        "entities/graphrag-enterprise-qa-qdrant-neo4j.md",
+        "entities/streaming-chat-vercel-ai-sdk-assistant-ui.md",
+        "concepts/legion-cursor-guardian-agent-documents.md",
+        "concepts/wiki-hot-cache-cursor-rule.md",
+        "concepts/ai-platform-weapon-example-patterns.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/examples/streaming-chat-vercel-ai-sdk-assistant-ui.md": {
+      "hash": "094ec739578a515ce84355cfae0930246b38c5847bde05f6764fb8f21476f41c",
+      "ingested_at": "2026-05-02T13:29:42.547Z",
+      "pages_created": [
+        "entities/seo-aeo-guardian.md",
+        "entities/ux-ui-guardian.md",
+        "entities/wiki-guardian.md",
+        "entities/wiki-hot-context.md",
+        "entities/graphrag-enterprise-qa-qdrant-neo4j.md",
+        "entities/streaming-chat-vercel-ai-sdk-assistant-ui.md",
+        "concepts/legion-cursor-guardian-agent-documents.md",
+        "concepts/wiki-hot-cache-cursor-rule.md",
+        "concepts/ai-platform-weapon-example-patterns.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/guides/11-llm-gateway-and-obs.md": {
+      "hash": "3f4c43905d46bcf0b8031afa6a64f87b12f3434826af6adbcce21bc8fb725d10",
+      "ingested_at": "2026-05-02T13:29:42.547Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/concepts/ai-platform-gateway-obs-maturity-matrix.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-gateway-choice-tree.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-observability-choice-tree.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-chat-copilot-ui-boundary.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-chat-library-matrix.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-evals-discipline-trio-and-golden-sets.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-evals-calibration-and-cadence.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-common-failure-modes-triage.md",
+        "library/knowledge-base/wiki/concepts/anthropic-contextual-retrieval.md",
+        "library/knowledge-base/wiki/entities/ai-platform-reports-readme-retired.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/guides/12-chat-copilot-ui.md": {
+      "hash": "bceb37c2fb1c60bf6f2c13d71693369f3f2077999a8130e4e745a5d704b2f7a2",
+      "ingested_at": "2026-05-02T13:29:42.547Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/concepts/ai-platform-gateway-obs-maturity-matrix.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-gateway-choice-tree.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-observability-choice-tree.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-chat-copilot-ui-boundary.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-chat-library-matrix.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-evals-discipline-trio-and-golden-sets.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-evals-calibration-and-cadence.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-common-failure-modes-triage.md",
+        "library/knowledge-base/wiki/concepts/anthropic-contextual-retrieval.md",
+        "library/knowledge-base/wiki/entities/ai-platform-reports-readme-retired.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/guides/13-evals-discipline.md": {
+      "hash": "b8ad61da0695f59ee21e6b2e15c1c4c8a2b38fbc1385ece9486c47ad7207537d",
+      "ingested_at": "2026-05-02T13:29:42.547Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/concepts/ai-platform-gateway-obs-maturity-matrix.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-gateway-choice-tree.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-observability-choice-tree.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-chat-copilot-ui-boundary.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-chat-library-matrix.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-evals-discipline-trio-and-golden-sets.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-evals-calibration-and-cadence.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-common-failure-modes-triage.md",
+        "library/knowledge-base/wiki/concepts/anthropic-contextual-retrieval.md",
+        "library/knowledge-base/wiki/entities/ai-platform-reports-readme-retired.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/guides/14-common-failure-modes.md": {
+      "hash": "599445cc6e113fc37885df238018d8dc35d5933a28c9af56bb2307beceef5bc7",
+      "ingested_at": "2026-05-02T13:29:42.547Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/concepts/ai-platform-gateway-obs-maturity-matrix.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-gateway-choice-tree.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-observability-choice-tree.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-chat-copilot-ui-boundary.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-chat-library-matrix.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-evals-discipline-trio-and-golden-sets.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-evals-calibration-and-cadence.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-common-failure-modes-triage.md",
+        "library/knowledge-base/wiki/concepts/anthropic-contextual-retrieval.md",
+        "library/knowledge-base/wiki/entities/ai-platform-reports-readme-retired.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/reports/README.md": {
+      "hash": "d7499246e29a8a426fd0689e4d913860d872f0e24b14b01c5846a6055b7ed49e",
+      "ingested_at": "2026-05-02T13:29:42.548Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/concepts/ai-platform-gateway-obs-maturity-matrix.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-gateway-choice-tree.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-observability-choice-tree.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-chat-copilot-ui-boundary.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-chat-library-matrix.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-evals-discipline-trio-and-golden-sets.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-evals-calibration-and-cadence.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-common-failure-modes-triage.md",
+        "library/knowledge-base/wiki/concepts/anthropic-contextual-retrieval.md",
+        "library/knowledge-base/wiki/entities/ai-platform-reports-readme-retired.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/research/2026-04-25-anthropic-contextual-retrieval.md": {
+      "hash": "c636a1440a03b93b09199321f78063820111e0b5947260d0608361f919dc9ee5",
+      "ingested_at": "2026-05-02T13:29:42.548Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/concepts/ai-platform-gateway-obs-maturity-matrix.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-gateway-choice-tree.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-observability-choice-tree.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-chat-copilot-ui-boundary.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-chat-library-matrix.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-evals-discipline-trio-and-golden-sets.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-evals-calibration-and-cadence.md",
+        "library/knowledge-base/wiki/concepts/ai-platform-common-failure-modes-triage.md",
+        "library/knowledge-base/wiki/concepts/anthropic-contextual-retrieval.md",
+        "library/knowledge-base/wiki/entities/ai-platform-reports-readme-retired.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/examples/vanilla-rag-mastra-qdrant.md": {
+      "hash": "fdf2d5bde29253556bd564dbe56de5d35cb3a096f55925e743c8c6205474caed",
+      "ingested_at": "2026-05-02T13:29:42.548Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/vanilla-rag-mastra-qdrant.md",
+        "library/knowledge-base/wiki/entities/00-principles.md",
+        "library/knowledge-base/wiki/entities/01-orchestration-framework-choice.md",
+        "library/knowledge-base/wiki/entities/02-mastra.md",
+        "library/knowledge-base/wiki/entities/03-vercel-ai-sdk.md",
+        "library/knowledge-base/wiki/entities/04-langchain-langgraph.md",
+        "library/knowledge-base/wiki/concepts/recursive-character-chunking-vectara-default.md",
+        "library/knowledge-base/wiki/concepts/mastra-vercel-ai-sdk-split.md",
+        "library/knowledge-base/wiki/concepts/greenfield-rag-mastra-qdrant-pattern.md",
+        "library/knowledge-base/wiki/concepts/multi-agent-graph-orchestration-langgraph.md",
+        "library/knowledge-base/wiki/concepts/evals-or-it-doesnt-ship-rag-agents.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/guides/00-principles.md": {
+      "hash": "84c04514ab497cd6121e3ca08fe1fc5803929971ab82c9e7c9dfb43e45c635d2",
+      "ingested_at": "2026-05-02T13:29:42.548Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/vanilla-rag-mastra-qdrant.md",
+        "library/knowledge-base/wiki/entities/00-principles.md",
+        "library/knowledge-base/wiki/entities/01-orchestration-framework-choice.md",
+        "library/knowledge-base/wiki/entities/02-mastra.md",
+        "library/knowledge-base/wiki/entities/03-vercel-ai-sdk.md",
+        "library/knowledge-base/wiki/entities/04-langchain-langgraph.md",
+        "library/knowledge-base/wiki/concepts/recursive-character-chunking-vectara-default.md",
+        "library/knowledge-base/wiki/concepts/mastra-vercel-ai-sdk-split.md",
+        "library/knowledge-base/wiki/concepts/greenfield-rag-mastra-qdrant-pattern.md",
+        "library/knowledge-base/wiki/concepts/multi-agent-graph-orchestration-langgraph.md",
+        "library/knowledge-base/wiki/concepts/evals-or-it-doesnt-ship-rag-agents.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/guides/01-orchestration-framework-choice.md": {
+      "hash": "595f82c923585515ff5cc595568c8024fd0efa818bbd1479eb36ec391cbb4e7e",
+      "ingested_at": "2026-05-02T13:29:42.548Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/vanilla-rag-mastra-qdrant.md",
+        "library/knowledge-base/wiki/entities/00-principles.md",
+        "library/knowledge-base/wiki/entities/01-orchestration-framework-choice.md",
+        "library/knowledge-base/wiki/entities/02-mastra.md",
+        "library/knowledge-base/wiki/entities/03-vercel-ai-sdk.md",
+        "library/knowledge-base/wiki/entities/04-langchain-langgraph.md",
+        "library/knowledge-base/wiki/concepts/recursive-character-chunking-vectara-default.md",
+        "library/knowledge-base/wiki/concepts/mastra-vercel-ai-sdk-split.md",
+        "library/knowledge-base/wiki/concepts/greenfield-rag-mastra-qdrant-pattern.md",
+        "library/knowledge-base/wiki/concepts/multi-agent-graph-orchestration-langgraph.md",
+        "library/knowledge-base/wiki/concepts/evals-or-it-doesnt-ship-rag-agents.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/guides/02-mastra.md": {
+      "hash": "30b8cef7b0e05d1c0b84d5456a21ff1ddb51714e2a9334e9637a1af2c6517d9a",
+      "ingested_at": "2026-05-02T13:29:42.548Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/vanilla-rag-mastra-qdrant.md",
+        "library/knowledge-base/wiki/entities/00-principles.md",
+        "library/knowledge-base/wiki/entities/01-orchestration-framework-choice.md",
+        "library/knowledge-base/wiki/entities/02-mastra.md",
+        "library/knowledge-base/wiki/entities/03-vercel-ai-sdk.md",
+        "library/knowledge-base/wiki/entities/04-langchain-langgraph.md",
+        "library/knowledge-base/wiki/concepts/recursive-character-chunking-vectara-default.md",
+        "library/knowledge-base/wiki/concepts/mastra-vercel-ai-sdk-split.md",
+        "library/knowledge-base/wiki/concepts/greenfield-rag-mastra-qdrant-pattern.md",
+        "library/knowledge-base/wiki/concepts/multi-agent-graph-orchestration-langgraph.md",
+        "library/knowledge-base/wiki/concepts/evals-or-it-doesnt-ship-rag-agents.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/guides/03-vercel-ai-sdk.md": {
+      "hash": "66362dd72a334e5658bed759460ba47c12c01a1e8819f1cf52b5d9c2d8d9975d",
+      "ingested_at": "2026-05-02T13:29:42.548Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/vanilla-rag-mastra-qdrant.md",
+        "library/knowledge-base/wiki/entities/00-principles.md",
+        "library/knowledge-base/wiki/entities/01-orchestration-framework-choice.md",
+        "library/knowledge-base/wiki/entities/02-mastra.md",
+        "library/knowledge-base/wiki/entities/03-vercel-ai-sdk.md",
+        "library/knowledge-base/wiki/entities/04-langchain-langgraph.md",
+        "library/knowledge-base/wiki/concepts/recursive-character-chunking-vectara-default.md",
+        "library/knowledge-base/wiki/concepts/mastra-vercel-ai-sdk-split.md",
+        "library/knowledge-base/wiki/concepts/greenfield-rag-mastra-qdrant-pattern.md",
+        "library/knowledge-base/wiki/concepts/multi-agent-graph-orchestration-langgraph.md",
+        "library/knowledge-base/wiki/concepts/evals-or-it-doesnt-ship-rag-agents.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/guides/04-langchain-langgraph.md": {
+      "hash": "fd5b62ffa032a5071bf18fa5d01444a2489c7f58ab3a3b26e706fc9b8de84fc6",
+      "ingested_at": "2026-05-02T13:29:42.549Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/vanilla-rag-mastra-qdrant.md",
+        "library/knowledge-base/wiki/entities/00-principles.md",
+        "library/knowledge-base/wiki/entities/01-orchestration-framework-choice.md",
+        "library/knowledge-base/wiki/entities/02-mastra.md",
+        "library/knowledge-base/wiki/entities/03-vercel-ai-sdk.md",
+        "library/knowledge-base/wiki/entities/04-langchain-langgraph.md",
+        "library/knowledge-base/wiki/concepts/recursive-character-chunking-vectara-default.md",
+        "library/knowledge-base/wiki/concepts/mastra-vercel-ai-sdk-split.md",
+        "library/knowledge-base/wiki/concepts/greenfield-rag-mastra-qdrant-pattern.md",
+        "library/knowledge-base/wiki/concepts/multi-agent-graph-orchestration-langgraph.md",
+        "library/knowledge-base/wiki/concepts/evals-or-it-doesnt-ship-rag-agents.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/research/2026-04-25-chat-ui-libraries.md": {
+      "hash": "f7dc031591ad5d4002955a443db48dba14992bce6454baa61c4f4b593d986944",
+      "ingested_at": "2026-05-02T13:29:42.549Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/2026-04-25-chat-ui-libraries.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-embedding-models-2026.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-graphrag-qdrant-neo4j.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-llm-gateways-obs.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-mastra-positioning.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-orchestration-frameworks-2026.md",
+        "library/knowledge-base/wiki/concepts/chat-copilot-ui-decision-tree-2026.md",
+        "library/knowledge-base/wiki/concepts/embedding-model-choice-matrix-2026.md",
+        "library/knowledge-base/wiki/concepts/graphrag-qdrant-neo4j-retriever-pattern.md",
+        "library/knowledge-base/wiki/concepts/llm-gateway-and-observability-stacks.md",
+        "library/knowledge-base/wiki/concepts/mastra-positioning-and-composition.md",
+        "library/knowledge-base/wiki/concepts/orchestration-framework-landscape-2026.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/research/2026-04-25-embedding-models-2026.md": {
+      "hash": "c2e6e0dd205e45d43977b545795e2d3180fa1c17bafb3c5218583ef88f26df51",
+      "ingested_at": "2026-05-02T13:29:42.549Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/2026-04-25-chat-ui-libraries.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-embedding-models-2026.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-graphrag-qdrant-neo4j.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-llm-gateways-obs.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-mastra-positioning.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-orchestration-frameworks-2026.md",
+        "library/knowledge-base/wiki/concepts/chat-copilot-ui-decision-tree-2026.md",
+        "library/knowledge-base/wiki/concepts/embedding-model-choice-matrix-2026.md",
+        "library/knowledge-base/wiki/concepts/graphrag-qdrant-neo4j-retriever-pattern.md",
+        "library/knowledge-base/wiki/concepts/llm-gateway-and-observability-stacks.md",
+        "library/knowledge-base/wiki/concepts/mastra-positioning-and-composition.md",
+        "library/knowledge-base/wiki/concepts/orchestration-framework-landscape-2026.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/research/2026-04-25-graphrag-qdrant-neo4j.md": {
+      "hash": "ae74ddb6ef604a0b53356d151ad24bc0a36c556f13c59dc688091a2b91024fd3",
+      "ingested_at": "2026-05-02T13:29:42.549Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/2026-04-25-chat-ui-libraries.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-embedding-models-2026.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-graphrag-qdrant-neo4j.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-llm-gateways-obs.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-mastra-positioning.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-orchestration-frameworks-2026.md",
+        "library/knowledge-base/wiki/concepts/chat-copilot-ui-decision-tree-2026.md",
+        "library/knowledge-base/wiki/concepts/embedding-model-choice-matrix-2026.md",
+        "library/knowledge-base/wiki/concepts/graphrag-qdrant-neo4j-retriever-pattern.md",
+        "library/knowledge-base/wiki/concepts/llm-gateway-and-observability-stacks.md",
+        "library/knowledge-base/wiki/concepts/mastra-positioning-and-composition.md",
+        "library/knowledge-base/wiki/concepts/orchestration-framework-landscape-2026.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/research/2026-04-25-llm-gateways-obs.md": {
+      "hash": "1c2740788aa44ff3f15b4973c7189b5169ee77dd3f8c5bcc8458d452e7e6ca14",
+      "ingested_at": "2026-05-02T13:29:42.549Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/2026-04-25-chat-ui-libraries.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-embedding-models-2026.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-graphrag-qdrant-neo4j.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-llm-gateways-obs.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-mastra-positioning.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-orchestration-frameworks-2026.md",
+        "library/knowledge-base/wiki/concepts/chat-copilot-ui-decision-tree-2026.md",
+        "library/knowledge-base/wiki/concepts/embedding-model-choice-matrix-2026.md",
+        "library/knowledge-base/wiki/concepts/graphrag-qdrant-neo4j-retriever-pattern.md",
+        "library/knowledge-base/wiki/concepts/llm-gateway-and-observability-stacks.md",
+        "library/knowledge-base/wiki/concepts/mastra-positioning-and-composition.md",
+        "library/knowledge-base/wiki/concepts/orchestration-framework-landscape-2026.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/research/2026-04-25-mastra-positioning.md": {
+      "hash": "01583cde2f61337e93a2d0cf2220a8ecc5f7fb11250a74ecb655798afe3ddd09",
+      "ingested_at": "2026-05-02T13:29:42.549Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/2026-04-25-chat-ui-libraries.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-embedding-models-2026.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-graphrag-qdrant-neo4j.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-llm-gateways-obs.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-mastra-positioning.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-orchestration-frameworks-2026.md",
+        "library/knowledge-base/wiki/concepts/chat-copilot-ui-decision-tree-2026.md",
+        "library/knowledge-base/wiki/concepts/embedding-model-choice-matrix-2026.md",
+        "library/knowledge-base/wiki/concepts/graphrag-qdrant-neo4j-retriever-pattern.md",
+        "library/knowledge-base/wiki/concepts/llm-gateway-and-observability-stacks.md",
+        "library/knowledge-base/wiki/concepts/mastra-positioning-and-composition.md",
+        "library/knowledge-base/wiki/concepts/orchestration-framework-landscape-2026.md"
+      ],
+      "pages_updated": []
+    },
+    ".cursor/skills/ai-platform-weapon/research/2026-04-25-orchestration-frameworks-2026.md": {
+      "hash": "c6a211d0d43576807ac510dd11c3cb891fa1f839aa561ea02bf26b6b81fa81c3",
+      "ingested_at": "2026-05-02T13:29:42.549Z",
+      "pages_created": [
+        "library/knowledge-base/wiki/entities/2026-04-25-chat-ui-libraries.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-embedding-models-2026.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-graphrag-qdrant-neo4j.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-llm-gateways-obs.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-mastra-positioning.md",
+        "library/knowledge-base/wiki/entities/2026-04-25-orchestration-frameworks-2026.md",
+        "library/knowledge-base/wiki/concepts/chat-copilot-ui-decision-tree-2026.md",
+        "library/knowledge-base/wiki/concepts/embedding-model-choice-matrix-2026.md",
+        "library/knowledge-base/wiki/concepts/graphrag-qdrant-neo4j-retriever-pattern.md",
+        "library/knowledge-base/wiki/concepts/llm-gateway-and-observability-stacks.md",
+        "library/knowledge-base/wiki/concepts/mastra-positioning-and-composition.md",
+        "library/knowledge-base/wiki/concepts/orchestration-framework-landscape-2026.md"
+      ],
+      "pages_updated": []
+    }
+  },
+  "last_scan": "2026-05-02T13:29:42.526Z"
 }

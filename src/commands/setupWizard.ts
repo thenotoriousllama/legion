@@ -28,24 +28,40 @@ interface WizardOptions {
 
 // ── Step definitions ────────────────────────────────────────────────────────
 
-const MODE_ITEMS: vscode.QuickPickItem[] = [
+/**
+ * UI modes shown in the QuickPick. Each maps to underlying settings:
+ *   `direct-anthropic`  → agentInvocationMode=direct-anthropic-api, apiProvider=anthropic
+ *   `direct-openrouter` → agentInvocationMode=direct-anthropic-api, apiProvider=openrouter
+ *   `queue-file`        → agentInvocationMode=queue-file (apiProvider untouched)
+ *
+ * `cursor-sdk` is intentionally hidden in v1.2.13. Existing cursor-sdk users
+ * keep their settings; they just can't pick it from the wizard right now.
+ */
+interface ModeItem extends vscode.QuickPickItem {
+  uiMode: "direct-anthropic" | "direct-openrouter" | "queue-file";
+}
+
+const MODE_ITEMS: ModeItem[] = [
   {
-    label: "$(cloud) cursor-sdk",
-    description: "Recommended for Cursor users",
+    uiMode: "direct-anthropic",
+    label: "$(key) Anthropic",
+    description: "Claude direct via Anthropic Messages API",
     detail:
-      "Uses @cursor/sdk — invokes guardians via Cursor's agent runtime. " +
-      "Requires a Cursor API key (paid plan). Agents have full file-system access.",
+      "Uses your Anthropic API key. Fast, reliable, works in VS Code, Cursor, " +
+      "devcontainers, and CI. Get a key at console.anthropic.com.",
   },
   {
-    label: "$(key) direct-anthropic-api",
-    description: "Works everywhere, no Cursor subscription needed",
+    uiMode: "direct-openrouter",
+    label: "$(globe) OpenRouter",
+    description: "300+ models via one OpenAI-compatible gateway",
     detail:
-      "Calls Anthropic (Claude) or OpenRouter directly. Fast, reliable, " +
-      "works in VS Code, Cursor, devcontainers, and CI. Best for most users.",
+      "Use Claude, GPT-4, Llama, Gemini, Mistral, and more with one OpenRouter " +
+      "API key. Get a key at openrouter.ai/keys.",
   },
   {
-    label: "$(list-unordered) queue-file",
-    description: "Manual — write request files, process via /legion-drain",
+    uiMode: "queue-file",
+    label: "$(list-unordered) Manual (queue-file)",
+    description: "Write request files, process via /legion-drain",
     detail:
       "Legion writes JSON payloads to .legion/queue/. You process them manually " +
       "with a Cursor slash command. Full control, no API key required.",
@@ -117,12 +133,20 @@ export async function setupWizard(
 
   // ── Step 1: Pick invocation mode (QuickPick — appears at top of screen, unmissable) ─
   const cfg = vscode.workspace.getConfiguration("legion");
-  const currentMode = cfg.get<string>("agentInvocationMode", "cursor-sdk");
+  const currentAgentMode = cfg.get<string>("agentInvocationMode", "direct-anthropic-api");
+  const currentProvider = cfg.get<string>("apiProvider", "anthropic");
+  // Collapse (agentMode, provider) → uiMode so we can pre-select the right item.
+  const currentUiMode: ModeItem["uiMode"] =
+    currentAgentMode === "queue-file"
+      ? "queue-file"
+      : currentProvider === "openrouter"
+      ? "direct-openrouter"
+      : "direct-anthropic";
 
   const modePick = await vscode.window.showQuickPick(
     MODE_ITEMS.map((item) => ({
       ...item,
-      picked: item.label.includes(currentMode),
+      picked: item.uiMode === currentUiMode,
     })),
     {
       title: "Legion Setup (1/2) — Invocation mode",
@@ -137,20 +161,29 @@ export async function setupWizard(
     return;
   }
 
-  const selectedMode = modePick.label.includes("cursor-sdk")
-    ? "cursor-sdk"
-    : modePick.label.includes("direct-anthropic-api")
-    ? "direct-anthropic-api"
-    : "queue-file";
+  const selectedUiMode = modePick.uiMode;
 
-  await cfg.update("agentInvocationMode", selectedMode, vscode.ConfigurationTarget.Global);
+  // Translate UI mode → underlying settings. CRITICAL: write both
+  // `agentInvocationMode` AND `apiProvider` together. Writing only the agent
+  // mode is what caused v1.2.0–v1.2.12's "OpenRouter user gets Anthropic-key-
+  // required error" bug — the app code reads `apiProvider`, but we never
+  // wrote it from the wizard.
+  if (selectedUiMode === "direct-anthropic") {
+    await cfg.update("agentInvocationMode", "direct-anthropic-api", vscode.ConfigurationTarget.Global);
+    await cfg.update("apiProvider", "anthropic", vscode.ConfigurationTarget.Global);
+  } else if (selectedUiMode === "direct-openrouter") {
+    await cfg.update("agentInvocationMode", "direct-anthropic-api", vscode.ConfigurationTarget.Global);
+    await cfg.update("apiProvider", "openrouter", vscode.ConfigurationTarget.Global);
+  } else {
+    await cfg.update("agentInvocationMode", "queue-file", vscode.ConfigurationTarget.Global);
+  }
 
   // ── Step 3: Required key for chosen mode ───────────────────────────────────
   let requiredKey: SecretKey | null = null;
-  if (selectedMode === "cursor-sdk") {
-    requiredKey = "cursorApiKey";
-  } else if (selectedMode === "direct-anthropic-api") {
+  if (selectedUiMode === "direct-anthropic") {
     requiredKey = "anthropicApiKey";
+  } else if (selectedUiMode === "direct-openrouter") {
+    requiredKey = "openRouterApiKey";
   }
 
   if (requiredKey) {
@@ -193,13 +226,13 @@ export async function setupWizard(
   await context.globalState.update(WIZARD_COMPLETED_FLAG, true);
   await refresh();
 
-  const setupState = await getSetupState(context, selectedMode);
+  const setupState = await getSetupState(context, selectedUiMode);
   const configuredCount = setupState.filter((s) => s.configured).length;
   const totalCount = setupState.length;
 
   const doneChoice = await vscode.window.showInformationMessage(
     `Legion: Setup complete — ${configuredCount}/${totalCount} keys configured. ` +
-      (selectedMode === "queue-file"
+      (selectedUiMode === "queue-file"
         ? "Queue-file mode needs no API key — you're ready."
         : "Run Document Repository to build your wiki."),
     "Document Repository",

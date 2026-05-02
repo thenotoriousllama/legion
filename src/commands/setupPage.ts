@@ -85,12 +85,23 @@ export class SetupPagePanel {
 
             case "setMode":
               if (msg.mode) {
+                // UI modes ↔ underlying settings:
+                //   "direct-anthropic"   → agentInvocationMode=direct-anthropic-api, apiProvider=anthropic
+                //   "direct-openrouter"  → agentInvocationMode=direct-anthropic-api, apiProvider=openrouter
+                //   "queue-file"         → agentInvocationMode=queue-file (apiProvider untouched)
+                // Why split: the underlying `direct-anthropic-api` setting value covers both
+                // providers and is disambiguated by `apiProvider`. Without writing both,
+                // users who picked "OpenRouter" still got Anthropic-key-required errors.
                 const cfg = vscode.workspace.getConfiguration("legion");
-                await cfg.update(
-                  "agentInvocationMode",
-                  msg.mode,
-                  vscode.ConfigurationTarget.Global
-                );
+                if (msg.mode === "direct-anthropic") {
+                  await cfg.update("agentInvocationMode", "direct-anthropic-api", vscode.ConfigurationTarget.Global);
+                  await cfg.update("apiProvider", "anthropic", vscode.ConfigurationTarget.Global);
+                } else if (msg.mode === "direct-openrouter") {
+                  await cfg.update("agentInvocationMode", "direct-anthropic-api", vscode.ConfigurationTarget.Global);
+                  await cfg.update("apiProvider", "openrouter", vscode.ConfigurationTarget.Global);
+                } else if (msg.mode === "queue-file") {
+                  await cfg.update("agentInvocationMode", "queue-file", vscode.ConfigurationTarget.Global);
+                }
                 await this._pushState();
                 await this._sidebarRefresh?.();
               }
@@ -167,9 +178,19 @@ export class SetupPagePanel {
 
   private async _pushState(): Promise<void> {
     const cfg = vscode.workspace.getConfiguration("legion");
-    const mode = cfg.get<string>("agentInvocationMode", "cursor-sdk");
-    const keys = await getSetupState(this._context, mode);
-    void this._panel.webview.postMessage({ type: "setupState", keys, mode });
+    const agentMode = cfg.get<string>("agentInvocationMode", "direct-anthropic-api");
+    const apiProvider = cfg.get<string>("apiProvider", "anthropic");
+    // Collapse (agentInvocationMode, apiProvider) → single UI mode id that
+    // matches the cards rendered in the webview. Legacy `cursor-sdk` users
+    // pass through unchanged so we don't clobber their settings just by
+    // opening the page; they simply see no card highlighted.
+    let uiMode = "direct-anthropic";
+    if (agentMode === "queue-file") uiMode = "queue-file";
+    else if (agentMode === "cursor-sdk") uiMode = "cursor-sdk";
+    else if (apiProvider === "openrouter") uiMode = "direct-openrouter";
+    else uiMode = "direct-anthropic";
+    const keys = await getSetupState(this._context, uiMode);
+    void this._panel.webview.postMessage({ type: "setupState", keys, mode: uiMode });
   }
 
   dispose(): void {
@@ -546,26 +567,26 @@ export class SetupPagePanel {
   const vscode = acquireVsCodeApi();
   const MODE_CARDS = [
     {
-      id: "cursor-sdk",
-      name: "cursor-sdk",
-      tagline: "Cursor agent runtime (recommended for Cursor users)",
-      detail: "Invokes guardians via @cursor/sdk. Requires a Cursor API key (paid plan)."
+      id: "direct-anthropic",
+      name: "Anthropic",
+      tagline: "Claude direct — claude.ai/console.anthropic.com",
+      detail: "Calls Anthropic's Messages API directly. Requires an Anthropic API key."
     },
     {
-      id: "direct-anthropic-api",
-      name: "direct-anthropic-api",
-      tagline: "Anthropic / OpenRouter — works everywhere",
-      detail: "Calls Anthropic Claude or OpenRouter directly. No Cursor subscription needed."
+      id: "direct-openrouter",
+      name: "OpenRouter",
+      tagline: "300+ models via one gateway",
+      detail: "OpenAI-compatible. Use Claude, GPT-4, Llama, Gemini, Mistral, and more with one key."
     },
     {
       id: "queue-file",
-      name: "queue-file",
-      tagline: "Manual processing via /legion-drain",
-      detail: "Writes JSON request files to .legion/queue/. No API key required."
+      name: "Manual",
+      tagline: "Write JSON requests, process via /legion-drain",
+      detail: "No API key required. Legion writes payloads to .legion/queue/; you process them yourself."
     },
   ];
 
-  let currentMode = "cursor-sdk";
+  let currentMode = "direct-anthropic";
   let currentKeys = [];
 
   // ── Mode picker ─────────────────────────────────

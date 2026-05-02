@@ -14,6 +14,20 @@ Maintained by the Legion VS Code extension's TypeScript driver — wiki-guardian
 
 ## Entries
 
+## [2026-05-02 09:29] document | .cursor (6 files) [5/115] | created: 9, updated: 0
+
+## [2026-05-02 09:29] document | .cursor (6 files) [2/115] | created: 8, updated: 0
+
+## [2026-05-02 09:29] document | .claude-plugin (4 files) | created: 8, updated: 0
+
+## [2026-05-02 09:29] document | .cursor (6 files) [3/115] | created: 9, updated: 0
+
+## [2026-05-02 09:29] document | .cursor (6 files) [6/115] | created: 10, updated: 0
+
+## [2026-05-02 09:29] document | .cursor (6 files) [4/115] | created: 11, updated: 0
+
+## [2026-05-02 09:29] document | .cursor (6 files) [7/115] | created: 12, updated: 0
+
 _(driver appends entries here as agent invocations complete; format: `## [YYYY-MM-DD HH:MM] <mode> | <chunk-name> | <pages-touched>`)_
 
 ---

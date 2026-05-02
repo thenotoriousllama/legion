@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.13] — 2026-05-02
+
+### Fixed
+- **OpenRouter users hit `legion.anthropicApiKey ... is required when apiProvider is 'anthropic'` even after configuring their OpenRouter key.** Root cause: the Setup Page and Setup Wizard wrote `legion.agentInvocationMode = "direct-anthropic-api"` but never wrote `legion.apiProvider`. The agent invoker reads `apiProvider` to decide between Anthropic and OpenRouter, so it defaulted to `"anthropic"` and demanded the Anthropic key — even when the user had only entered an OpenRouter one. The lone "direct-anthropic-api" UI card lumped both providers together with no way to choose between them.
+- **Initializer auto-fire wizard nagged OpenRouter users with a fully-configured OpenRouter key.** Previously only checked `anthropicApiKey` for `direct-anthropic-api` mode. Now resolves the active provider from both `agentInvocationMode` and `apiProvider` and only nags if that specific key is missing.
+
+### Changed
+- **Setup Page mode picker now has separate Anthropic and OpenRouter cards.** Picking one writes both `agentInvocationMode` and `apiProvider` atomically, so the agent invoker resolves the right provider on first try. Cursor card removed for now (existing `cursor-sdk` users keep working — the mode is hidden, not deleted).
+- **Setup Wizard QuickPick mirrors the same restructure** — separate "Anthropic" and "OpenRouter" entries, no `cursor-sdk` option, both settings written together on selection.
+- **`SECRET_KEYS` metadata** — `anthropicApiKey.required = "direct-anthropic"` and `openRouterApiKey.required = "direct-openrouter"` (was `null`). These are UI-mode ids, distinct from `legion.agentInvocationMode` setting values, because one setting value (`direct-anthropic-api`) maps to two UI choices.
+
 ## [1.2.12] — 2026-05-02
 
 ### Fixed

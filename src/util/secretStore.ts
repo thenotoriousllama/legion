@@ -27,14 +27,18 @@ export const SECRET_KEYS = {
   anthropicApiKey: {
     label: "Anthropic API key",
     envVars: ["LEGION_ANTHROPIC_API_KEY"],
-    required: "direct-anthropic-api" as const,
+    // UI mode id (see setupPage MODE_CARDS / setupWizard MODE_ITEMS).
+    // Distinct from `legion.agentInvocationMode` setting value because
+    // a single setting value (`direct-anthropic-api`) maps to two UI
+    // choices: anthropic vs. openrouter (driven by `legion.apiProvider`).
+    required: "direct-anthropic" as const,
     helpUrl: "https://console.anthropic.com/settings/keys",
     placeholder: "sk-ant-...",
   },
   openRouterApiKey: {
     label: "OpenRouter API key",
     envVars: ["LEGION_OPENROUTER_API_KEY"],
-    required: null,
+    required: "direct-openrouter" as const,
     helpUrl: "https://openrouter.ai/keys",
     placeholder: "sk-or-...",
   },

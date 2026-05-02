@@ -301,12 +301,18 @@ export async function runInitializer(
   const wizardDone = context.globalState.get<boolean>(WIZARD_COMPLETED_FLAG);
   if (!wizardDone) {
     const cfg = vscode.workspace.getConfiguration("legion");
-    const mode = cfg.get<string>("agentInvocationMode", "cursor-sdk");
-    const keyMap: Record<string, SecretKey> = {
-      "cursor-sdk": "cursorApiKey",
-      "direct-anthropic-api": "anthropicApiKey",
-    };
-    const requiredKey = keyMap[mode];
+    const agentMode = cfg.get<string>("agentInvocationMode", "direct-anthropic-api");
+    const apiProvider = cfg.get<string>("apiProvider", "anthropic");
+    // Resolve the actual key the user needs based on BOTH settings, not just
+    // agentInvocationMode. (Pre-v1.2.13 we only checked anthropicApiKey for
+    // direct-anthropic-api mode, which auto-fired the wizard for OpenRouter
+    // users who already had their openRouterApiKey set.)
+    let requiredKey: SecretKey | null = null;
+    if (agentMode === "cursor-sdk") {
+      requiredKey = "cursorApiKey";
+    } else if (agentMode === "direct-anthropic-api") {
+      requiredKey = apiProvider === "openrouter" ? "openRouterApiKey" : "anthropicApiKey";
+    }
     if (requiredKey) {
       getSecret(context, requiredKey).then((val) => {
         if (!val) {
@@ -314,7 +320,6 @@ export async function runInitializer(
             vscode.commands.executeCommand("legion.setupWizard");
           }, 1500);
         } else {
-          // Key is present — mark wizard done so we don't check again
           context.globalState.update(WIZARD_COMPLETED_FLAG, true);
         }
       }).catch(() => undefined);
