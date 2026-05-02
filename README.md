@@ -12,9 +12,9 @@ Auth, DB, DevOps, payments, security, UX, design-system, SEO/AEO audits.<br/>
 
 <br/>
 
-[![Version](https://img.shields.io/visual-studio-marketplace/v/thenotoriousllama.legion?style=for-the-badge&label=VS%20Code&color=0B0F19)](https://marketplace.visualstudio.com/items?itemName=thenotoriousllama.legion)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/thenotoriousllama.legion?style=for-the-badge&color=0B0F19)](https://marketplace.visualstudio.com/items?itemName=thenotoriousllama.legion)
-[![Rating](https://img.shields.io/visual-studio-marketplace/r/thenotoriousllama.legion?style=for-the-badge&color=0B0F19)](https://marketplace.visualstudio.com/items?itemName=thenotoriousllama.legion&ssr=false#review-details)
+[![VS Code Marketplace](https://vsmarketplacebadges.dev/version-short/thenotoriousllama.legion.svg?style=for-the-badge&label=VS%20Code&color=0B0F19)](https://marketplace.visualstudio.com/items?itemName=thenotoriousllama.legion)
+[![Installs](https://vsmarketplacebadges.dev/installs-short/thenotoriousllama.legion.svg?style=for-the-badge&color=0B0F19)](https://marketplace.visualstudio.com/items?itemName=thenotoriousllama.legion)
+[![Rating](https://vsmarketplacebadges.dev/rating-short/thenotoriousllama.legion.svg?style=for-the-badge&color=0B0F19)](https://marketplace.visualstudio.com/items?itemName=thenotoriousllama.legion&ssr=false#review-details)
 [![GitHub stars](https://img.shields.io/github/stars/thenotoriousllama/legion?style=for-the-badge&color=0B0F19)](https://github.com/thenotoriousllama/legion)
 [![License](https://img.shields.io/badge/license-Source%20Available-0B0F19?style=for-the-badge)](LICENSE)
 
