@@ -2,7 +2,7 @@
   "name": "legion",
   "displayName": "Legion",
   "description": "The top tool for AI augmented development — a full AI agent army for any codebase. Deploys wiki-guardian (entity-graph wiki with [[backlinks]], ADR detection, contradiction protocol), library-guardian (module narrative + PRD authorship), mind-guardian (cognitive layer: RAG, coach routing, memory, evaluation), auth-guardian, db-guardian, devops-guardian, payments-guardian, quality-guardian, security-guardian, react-guardian, ux-ui-guardian, design-system-guardian, seo-aeo-guardian, and asset-guardian. Runs document/update/lint passes with parallel agent invocation, reconciles a compounding wiki, surfaces entity hovers and code-lens in the editor, generates Mermaid entity graphs, posts PR wiki diffs via GitHub Actions, and federates entity stubs across repos.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publisher": "thenotoriousllama",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",

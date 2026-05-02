@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.2] — 2026-05-01
+
+Documentation-only release. Republished to push the updated README to the VS Code Marketplace listing (the Marketplace freezes the README at publish time).
+
+### Changed
+- **README — Cursor-first framing.** Hero, CTA row, and Quickstart now lead with Cursor as the primary editor. The architecture is engineered around Cursor's subagent runtime; VS Code is a supported install path and the second Quickstart variant. New sub-line clarifies that the extension is packaged for the VS Code Marketplace specifically so it installs in either editor.
+- **README — Quickstart split into "In Cursor (recommended)" and "In VS Code"** with explicit step-by-step instructions for each. The VS Code section documents the `direct-anthropic-api` invocation mode + `LEGION_ANTHROPIC_API_KEY` setup for users who don't have the Cursor CLI on PATH.
+- **README — badge row replaced.** The previous badges used Shields.io's `/visual-studio-marketplace/*` endpoints, which Microsoft locked down and Shields.io retired in April 2026 ([badges/shields PR #11792](https://github.com/badges/shields/pull/11792)). The badges were rendering as literal "RETIRED BADGE" placeholder text. Replaced with five dynamic GitHub-API-backed badges (release version, release pipeline status, last commit, GitHub stars) plus a labeled License badge (LSAL is not an SPDX identifier so the GitHub-detected license badge wouldn't render correctly).
+
 ## [1.0.1] — 2026-05-01
 
 First public 1.x release. Establishes the production publishing pipeline.
