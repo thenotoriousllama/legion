@@ -15,3 +15,7 @@ esbuild.config.mjs
 companion-plugins/**
 schemas/**
 library/**
+media/mario-portrait.png
+media/bmc.png
+.github/**
+*.vsix

@@ -493,6 +493,7 @@
     }
   },
   "scripts": {
+    "vscode:prepublish": "npm run compile:all",
     "compile": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
     "compile:cli": "esbuild src/cli/legionCli.ts --bundle --outfile=dist/cli.js --format=cjs --platform=node --sourcemap",
     "compile:mcp": "esbuild src/mcp/legionMcpServer.ts --bundle --outfile=dist/mcp-server.js --format=cjs --platform=node --external:vscode --sourcemap",
