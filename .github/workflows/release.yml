@@ -154,6 +154,11 @@ jobs:
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.enabled == 'true'
+        with:
+          ref: ${{ needs.release.outputs.tag }}
+
       - uses: actions/download-artifact@v4
         if: steps.gate.outputs.enabled == 'true'
         with:
@@ -163,6 +168,41 @@ jobs:
         if: steps.gate.outputs.enabled == 'true'
         with:
           node-version: "20"
+
+      # Self-heal: Open VSX requires the publisher namespace to exist before any
+      # extension can be published under it (unlike VS Code Marketplace, which
+      # auto-creates namespaces from the publisher account on first use). We
+      # query the public namespace endpoint (no auth required) to check
+      # existence, and only call `create-namespace` when it's actually missing.
+      # This is idempotent — every release after the first one is a quick 200
+      # check + skip. First release after a publisher change auto-creates.
+      - name: Ensure Open VSX namespace exists
+        if: steps.gate.outputs.enabled == 'true'
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: |
+          PUBLISHER=$(node -p "require('./package.json').publisher")
+          if [ -z "$PUBLISHER" ] || [ "$PUBLISHER" = "undefined" ]; then
+            echo "::error::Could not read 'publisher' from package.json"
+            exit 1
+          fi
+          echo "Checking Open VSX namespace '$PUBLISHER'…"
+          HTTP_CODE=$(curl -sS -o /tmp/ns-resp.json -w "%{http_code}" \
+            "https://open-vsx.org/api/$PUBLISHER")
+          case "$HTTP_CODE" in
+            200)
+              echo "Namespace '$PUBLISHER' already exists — proceeding to publish"
+              ;;
+            404)
+              echo "Namespace '$PUBLISHER' does not exist — creating now"
+              npx --yes ovsx create-namespace "$PUBLISHER" -p "$OVSX_PAT"
+              ;;
+            *)
+              echo "::error::Unexpected HTTP $HTTP_CODE from Open VSX namespace API"
+              cat /tmp/ns-resp.json
+              exit 1
+              ;;
+          esac
 
       - name: Publish to Open VSX
         if: steps.gate.outputs.enabled == 'true'

@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.5] — 2026-05-02
+
+Release-pipeline self-heal. v1.0.4 published cleanly to the VS Code Marketplace but the parallel `open-vsx` job failed at the publish step with `❌ Unknown publisher: thenotoriousllama` — Open VSX (unlike Microsoft's Marketplace) requires the publisher namespace to be explicitly registered before any extension can be uploaded under it. v1.0.5 ships the workflow patch that auto-creates the namespace on demand, so this never blocks a release again.
+
+### Fixed
+- **`.github/workflows/release.yml`** — the `open-vsx` job now does a state check against `https://open-vsx.org/api/<publisher>` (the public namespace endpoint, no auth required) before publishing. If the response is HTTP 200 the namespace is already registered and the job proceeds straight to upload; if 404 it calls `npx ovsx create-namespace` with the existing `OVSX_PAT` and then proceeds; any other status code fails loudly with the response body. The job also now does a tag-pinned `actions/checkout@v4` (using the new `needs.release.outputs.tag` output) so it can read the `publisher` field from `package.json` instead of hardcoding the publisher name — future-proofs the workflow against publisher renames.
+
+### Distribution
+- v1.0.5 is the first version of Legion available on the [Open VSX Registry](https://open-vsx.org/extension/thenotoriousllama/legion). Users on [VSCodium](https://vscodium.com/), [Eclipse Theia](https://theia-ide.org/), [Gitpod](https://www.gitpod.io/), and other VS Code-compatible editors that don't ship Microsoft's proprietary marketplace endpoint can now install Legion via the same `Extensions` panel flow as Marketplace users. v1.0.4 remains Marketplace-only as a historical artifact — no functional difference between v1.0.4 and v1.0.5 in the extension code itself.
+
 ## [1.0.4] — 2026-05-02
 
 Distribution-only release. Republished to push the v1.0.3 sidebar fix to the [Open VSX Registry](https://open-vsx.org/extension/thenotoriousllama/legion) now that the `OVSX_PAT` repository secret is configured. No functional code changes since v1.0.3 — the version bump is required because both the VS Code Marketplace and Open VSX reject duplicate version uploads.
