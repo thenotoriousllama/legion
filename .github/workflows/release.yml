@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   # ──────────────────────────────────────────────────────────────────────────
-  # Build job — matrix across the five platforms Cursor's SDK supports.
+  # Build job — matrix across the platforms Cursor's SDK supports.
   #
   # Each job runs on the actual target platform so `npm ci` pulls the
   # platform-correct sqlite3 native binary and the matching @cursor/sdk-<plat>
@@ -24,9 +24,15 @@ jobs:
   # Marketplace and Open VSX both serve each user the right one based on the
   # target metadata.
   #
-  # NOTE: There is no @cursor/sdk-win32-arm64 on npm yet, so Windows-on-ARM
-  # is intentionally absent from the matrix. Those users get a clear error
-  # at runtime telling them to switch to direct-anthropic-api mode.
+  # NOTE: Two platforms Cursor's SDK supports are intentionally absent:
+  #   • darwin-x64 — `macos-13` is the only x64 macOS runner GitHub offers,
+  #     and queue times often exceed 30 min during peak hours, blocking the
+  #     whole matrix. v1.1.0 ships without it; Intel Mac users should set
+  #     `legion.agentInvocationMode` to `direct-anthropic-api`. A future
+  #     release can re-add it via cross-compilation on `macos-latest` (arm64)
+  #     with `npm install --cpu=x64 --os=darwin`.
+  #   • win32-arm64 — no `@cursor/sdk-win32-arm64` on npm yet (Cursor hasn't
+  #     published it). Same workaround: `direct-anthropic-api`.
   # ──────────────────────────────────────────────────────────────────────────
   build:
     name: Build VSIX (${{ matrix.target }})
@@ -36,8 +42,6 @@ jobs:
         include:
           - target: win32-x64
             os: windows-latest
-          - target: darwin-x64
-            os: macos-13
           - target: darwin-arm64
             os: macos-latest
           - target: linux-x64
