@@ -1,0 +1,3539 @@
+{
+  "version": 1,
+  "head_sha": "34ae71b70ed4a104267fe96759e210c1ca4d4ae8",
+  "entries": {
+    ".gitattributes": {
+      "created_commit": "edd33445d13c8deecf631a81fd4e57ccc1a0b5c4",
+      "created_at": "2026-05-01T23:59:48-04:00",
+      "last_commit": {
+        "sha": "edd33445d13c8deecf631a81fd4e57ccc1a0b5c4",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-01T23:59:48-04:00",
+        "message": "fix(sidebar): automatically refresh repo state after wiki changes"
+      },
+      "recent_commits": [
+        {
+          "sha": "edd33445d13c8deecf631a81fd4e57ccc1a0b5c4",
+          "timestamp": "2026-05-01T23:59:48-04:00",
+          "message": "fix(sidebar): automatically refresh repo state after wiki changes"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    ".vscodeignore": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "6205f3674933629a9a8292ac8f06be7dc45191b3",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T03:38:52-04:00",
+        "message": "feat(invocation): replace cursor-cli mode with @cursor/sdk integration"
+      },
+      "recent_commits": [
+        {
+          "sha": "6205f3674933629a9a8292ac8f06be7dc45191b3",
+          "timestamp": "2026-05-02T03:38:52-04:00",
+          "message": "feat(invocation): replace cursor-cli mode with @cursor/sdk integration"
+        },
+        {
+          "sha": "b1041fe2c322dc44bac9431371d3d6c065b30052",
+          "timestamp": "2026-05-01T22:34:44-04:00",
+          "message": "fix(ci): clone legion-project source-of-truth before snapshot"
+        },
+        {
+          "sha": "a123fc340064a0c2b10699a318f99f665cb2503b",
+          "timestamp": "2026-05-01T21:45:11-04:00",
+          "message": "chore: update .vscodeignore and package.json for improved build process"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "5 commits in last 10"
+      }
+    },
+    ".legionignore": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "34ae71b70ed4a104267fe96759e210c1ca4d4ae8",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T14:20:37-04:00",
+        "message": "v1.2.19 — really actually exclude .cursor/, .claude-plugin/, secrets"
+      },
+      "recent_commits": [
+        {
+          "sha": "34ae71b70ed4a104267fe96759e210c1ca4d4ae8",
+          "timestamp": "2026-05-02T14:20:37-04:00",
+          "message": "v1.2.19 — really actually exclude .cursor/, .claude-plugin/, secrets"
+        },
+        {
+          "sha": "ef028886c65e663a28c10e4e0d41a01d96a884d8",
+          "timestamp": "2026-05-02T10:13:34-04:00",
+          "message": "v1.2.14 — force-overwrite god on Initialize, expand .legionignore"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "4 commits in last 10"
+      }
+    },
+    "CHANGELOG.md": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "34ae71b70ed4a104267fe96759e210c1ca4d4ae8",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T14:20:37-04:00",
+        "message": "v1.2.19 — really actually exclude .cursor/, .claude-plugin/, secrets"
+      },
+      "recent_commits": [
+        {
+          "sha": "34ae71b70ed4a104267fe96759e210c1ca4d4ae8",
+          "timestamp": "2026-05-02T14:20:37-04:00",
+          "message": "v1.2.19 — really actually exclude .cursor/, .claude-plugin/, secrets"
+        },
+        {
+          "sha": "32ab34ec87b84427836a99bc16c7fd14bcb9a66b",
+          "timestamp": "2026-05-02T14:14:09-04:00",
+          "message": "v1.2.18 — Setup Page becomes Legion Dashboard (4 tabs + live activity)"
+        },
+        {
+          "sha": "963dc0f9fb5acabbe78468da008e63fbaf79b6ef",
+          "timestamp": "2026-05-02T10:50:25-04:00",
+          "message": "v1.2.17 — OpenRouter model picker + 4 perf wins (git cache, combined git log, document-diff mode, fast-model toggle)"
+        },
+        {
+          "sha": "d1d1328656668d26759bbb0855b515f96ffc298b",
+          "timestamp": "2026-05-02T10:30:49-04:00",
+          "message": "v1.2.16 — make Document/Update 3–5x faster"
+        },
+        {
+          "sha": "93eb0223f0c9a9a5e4a994a098705d22f7f8154f",
+          "timestamp": "2026-05-02T10:18:18-04:00",
+          "message": "v1.2.15 — add Cancel button to documentation pass progress toast"
+        },
+        {
+          "sha": "ef028886c65e663a28c10e4e0d41a01d96a884d8",
+          "timestamp": "2026-05-02T10:13:34-04:00",
+          "message": "v1.2.14 — force-overwrite god on Initialize, expand .legionignore"
+        },
+        {
+          "sha": "802798daf7dec45074630f167eefdc1724825a92",
+          "timestamp": "2026-05-02T09:38:09-04:00",
+          "message": "v1.2.13 — split Anthropic + OpenRouter into distinct UI modes, drop Cursor card"
+        },
+        {
+          "sha": "d62e0791b998800ae36ea5f79e32a147d41446de",
+          "timestamp": "2026-05-02T08:44:00-04:00",
+          "message": "v1.2.12 — bootstrap CURSOR_RIPGREP_PATH so @cursor/sdk stops throwing"
+        },
+        {
+          "sha": "8d4e2547e7c7c02fd996f4f1918b6a0175ece0f2",
+          "timestamp": "2026-05-02T08:22:26-04:00",
+          "message": "v1.2.11 — fix `god` skill never installed by Initialize Repository"
+        },
+        {
+          "sha": "3ca3eaef29affdfc1c009f4c9177f916cde0f0fa",
+          "timestamp": "2026-05-02T08:15:58-04:00",
+          "message": "fix(sidebar): copy real webview.js to runtime media/ path; v1.2.0-1.2.9 fixes were no-ops"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "10 commits in last 10"
+      }
+    },
+    ".gitignore": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "7e8b552ed607916f47de0b6b4a35e936e27dbada",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:25:11-04:00",
+        "message": "security: fix 2 Critical + 1 High findings from features 001-010 audit"
+      },
+      "recent_commits": [
+        {
+          "sha": "7e8b552ed607916f47de0b6b4a35e936e27dbada",
+          "timestamp": "2026-04-30T23:25:11-04:00",
+          "message": "security: fix 2 Critical + 1 High findings from features 001-010 audit"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "3 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/src/commands/dependencyGraph.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/src/views/ContradictionInboxView.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:17:48-04:00",
+        "message": "feat: Legion v0.7.0 - features 001-010 + Obsidian companion plugin ship"
+      },
+      "recent_commits": [
+        {
+          "sha": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+          "timestamp": "2026-04-30T23:17:48-04:00",
+          "message": "feat: Legion v0.7.0 - features 001-010 + Obsidian companion plugin ship"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/package.json": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "f1533c03e68a4f9fb0c33ccc84101f376dcc5791",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-01T21:39:54-04:00",
+        "message": "chore: update LICENSE, package.json, and README for Legion v1.0.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "f1533c03e68a4f9fb0c33ccc84101f376dcc5791",
+          "timestamp": "2026-05-01T21:39:54-04:00",
+          "message": "chore: update LICENSE, package.json, and README for Legion v1.0.0"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/src/commands/triggerUpdate.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/src/main.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/src/utils/configReader.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/esbuild.config.mjs": {
+      "created_commit": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+      "created_at": "2026-04-30T23:17:48-04:00",
+      "last_commit": {
+        "sha": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:17:48-04:00",
+        "message": "feat: Legion v0.7.0 - features 001-010 + Obsidian companion plugin ship"
+      },
+      "recent_commits": [
+        {
+          "sha": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+          "timestamp": "2026-04-30T23:17:48-04:00",
+          "message": "feat: Legion v0.7.0 - features 001-010 + Obsidian companion plugin ship"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/assets/legion-vault-colors.css": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/.gitignore": {
+      "created_commit": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+      "created_at": "2026-04-30T23:17:48-04:00",
+      "last_commit": {
+        "sha": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:17:48-04:00",
+        "message": "feat: Legion v0.7.0 - features 001-010 + Obsidian companion plugin ship"
+      },
+      "recent_commits": [
+        {
+          "sha": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+          "timestamp": "2026-04-30T23:17:48-04:00",
+          "message": "feat: Legion v0.7.0 - features 001-010 + Obsidian companion plugin ship"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "media/legion-activitybar.svg": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/src/widgets/AnnotateButton.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:17:48-04:00",
+        "message": "feat: Legion v0.7.0 - features 001-010 + Obsidian companion plugin ship"
+      },
+      "recent_commits": [
+        {
+          "sha": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+          "timestamp": "2026-04-30T23:17:48-04:00",
+          "message": "feat: Legion v0.7.0 - features 001-010 + Obsidian companion plugin ship"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/manifest.json": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "f1533c03e68a4f9fb0c33ccc84101f376dcc5791",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-01T21:39:54-04:00",
+        "message": "chore: update LICENSE, package.json, and README for Legion v1.0.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "f1533c03e68a4f9fb0c33ccc84101f376dcc5791",
+          "timestamp": "2026-05-01T21:39:54-04:00",
+          "message": "chore: update LICENSE, package.json, and README for Legion v1.0.0"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "package.json": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "34ae71b70ed4a104267fe96759e210c1ca4d4ae8",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T14:20:37-04:00",
+        "message": "v1.2.19 — really actually exclude .cursor/, .claude-plugin/, secrets"
+      },
+      "recent_commits": [
+        {
+          "sha": "34ae71b70ed4a104267fe96759e210c1ca4d4ae8",
+          "timestamp": "2026-05-02T14:20:37-04:00",
+          "message": "v1.2.19 — really actually exclude .cursor/, .claude-plugin/, secrets"
+        },
+        {
+          "sha": "32ab34ec87b84427836a99bc16c7fd14bcb9a66b",
+          "timestamp": "2026-05-02T14:14:09-04:00",
+          "message": "v1.2.18 — Setup Page becomes Legion Dashboard (4 tabs + live activity)"
+        },
+        {
+          "sha": "963dc0f9fb5acabbe78468da008e63fbaf79b6ef",
+          "timestamp": "2026-05-02T10:50:25-04:00",
+          "message": "v1.2.17 — OpenRouter model picker + 4 perf wins (git cache, combined git log, document-diff mode, fast-model toggle)"
+        },
+        {
+          "sha": "d1d1328656668d26759bbb0855b515f96ffc298b",
+          "timestamp": "2026-05-02T10:30:49-04:00",
+          "message": "v1.2.16 — make Document/Update 3–5x faster"
+        },
+        {
+          "sha": "93eb0223f0c9a9a5e4a994a098705d22f7f8154f",
+          "timestamp": "2026-05-02T10:18:18-04:00",
+          "message": "v1.2.15 — add Cancel button to documentation pass progress toast"
+        },
+        {
+          "sha": "ef028886c65e663a28c10e4e0d41a01d96a884d8",
+          "timestamp": "2026-05-02T10:13:34-04:00",
+          "message": "v1.2.14 — force-overwrite god on Initialize, expand .legionignore"
+        },
+        {
+          "sha": "802798daf7dec45074630f167eefdc1724825a92",
+          "timestamp": "2026-05-02T09:38:09-04:00",
+          "message": "v1.2.13 — split Anthropic + OpenRouter into distinct UI modes, drop Cursor card"
+        },
+        {
+          "sha": "d62e0791b998800ae36ea5f79e32a147d41446de",
+          "timestamp": "2026-05-02T08:44:00-04:00",
+          "message": "v1.2.12 — bootstrap CURSOR_RIPGREP_PATH so @cursor/sdk stops throwing"
+        },
+        {
+          "sha": "8d4e2547e7c7c02fd996f4f1918b6a0175ece0f2",
+          "timestamp": "2026-05-02T08:22:26-04:00",
+          "message": "v1.2.11 — fix `god` skill never installed by Initialize Repository"
+        },
+        {
+          "sha": "3ca3eaef29affdfc1c009f4c9177f916cde0f0fa",
+          "timestamp": "2026-05-02T08:15:58-04:00",
+          "message": "fix(sidebar): copy real webview.js to runtime media/ path; v1.2.0-1.2.9 fixes were no-ops"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "10 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/tsconfig.json": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/versions.json": {
+      "created_commit": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+      "created_at": "2026-04-30T23:17:48-04:00",
+      "last_commit": {
+        "sha": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:17:48-04:00",
+        "message": "feat: Legion v0.7.0 - features 001-010 + Obsidian companion plugin ship"
+      },
+      "recent_commits": [
+        {
+          "sha": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+          "timestamp": "2026-04-30T23:17:48-04:00",
+          "message": "feat: Legion v0.7.0 - features 001-010 + Obsidian companion plugin ship"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/README.md": {
+      "created_commit": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+      "created_at": "2026-04-30T23:17:48-04:00",
+      "last_commit": {
+        "sha": "f1533c03e68a4f9fb0c33ccc84101f376dcc5791",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-01T21:39:54-04:00",
+        "message": "chore: update LICENSE, package.json, and README for Legion v1.0.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "f1533c03e68a4f9fb0c33ccc84101f376dcc5791",
+          "timestamp": "2026-05-01T21:39:54-04:00",
+          "message": "chore: update LICENSE, package.json, and README for Legion v1.0.0"
+        },
+        {
+          "sha": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+          "timestamp": "2026-04-30T23:17:48-04:00",
+          "message": "feat: Legion v0.7.0 - features 001-010 + Obsidian companion plugin ship"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/styles.css": {
+      "created_commit": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+      "created_at": "2026-04-30T23:17:48-04:00",
+      "last_commit": {
+        "sha": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:17:48-04:00",
+        "message": "feat: Legion v0.7.0 - features 001-010 + Obsidian companion plugin ship"
+      },
+      "recent_commits": [
+        {
+          "sha": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+          "timestamp": "2026-04-30T23:17:48-04:00",
+          "message": "feat: Legion v0.7.0 - features 001-010 + Obsidian companion plugin ship"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "LICENSE": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "f1533c03e68a4f9fb0c33ccc84101f376dcc5791",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-01T21:39:54-04:00",
+        "message": "chore: update LICENSE, package.json, and README for Legion v1.0.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "f1533c03e68a4f9fb0c33ccc84101f376dcc5791",
+          "timestamp": "2026-05-01T21:39:54-04:00",
+          "message": "chore: update LICENSE, package.json, and README for Legion v1.0.0"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "3 commits in last 10"
+      }
+    },
+    "media/legion-icon.svg": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "media/webview.css": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "b5ef3df746d1ef82b3222f2d09bd40a2b2b9d34f",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T08:00:23-04:00",
+        "message": "feat(sidebar): scrap setup-card, add Open Setup Page button to proven action area"
+      },
+      "recent_commits": [
+        {
+          "sha": "b5ef3df746d1ef82b3222f2d09bd40a2b2b9d34f",
+          "timestamp": "2026-05-02T08:00:23-04:00",
+          "message": "feat(sidebar): scrap setup-card, add Open Setup Page button to proven action area"
+        },
+        {
+          "sha": "0408bdbb4faa98c36340c6005b95940e852d9d80",
+          "timestamp": "2026-05-02T07:16:51-04:00",
+          "message": "fix(sidebar): wire setup buttons via COMMANDS array + class-based complete state with !important"
+        },
+        {
+          "sha": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+          "timestamp": "2026-05-02T04:59:15-04:00",
+          "message": "feat(onboarding): SecretStorage keys + Setup Wizard + beautiful sidebar panel"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "4 commits in last 10"
+      }
+    },
+    "companion-plugins/legion-obsidian/src/views/LegionStatusPanel.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:17:48-04:00",
+        "message": "feat: Legion v0.7.0 - features 001-010 + Obsidian companion plugin ship"
+      },
+      "recent_commits": [
+        {
+          "sha": "c37989d84fa87bf04c1a2b0a66af181c4ab99138",
+          "timestamp": "2026-04-30T23:17:48-04:00",
+          "message": "feat: Legion v0.7.0 - features 001-010 + Obsidian companion plugin ship"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "media/bmc.png": {
+      "created_commit": "f1533c03e68a4f9fb0c33ccc84101f376dcc5791",
+      "created_at": "2026-05-01T21:39:54-04:00",
+      "last_commit": {
+        "sha": "f1533c03e68a4f9fb0c33ccc84101f376dcc5791",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-01T21:39:54-04:00",
+        "message": "chore: update LICENSE, package.json, and README for Legion v1.0.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "f1533c03e68a4f9fb0c33ccc84101f376dcc5791",
+          "timestamp": "2026-05-01T21:39:54-04:00",
+          "message": "chore: update LICENSE, package.json, and README for Legion v1.0.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "media/legion-icon.png": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "README.md": {
+      "created_commit": "13cb3b2246433146e33e776576f3feb4994df3c2",
+      "created_at": "2026-04-30T05:59:18-04:00",
+      "last_commit": {
+        "sha": "6205f3674933629a9a8292ac8f06be7dc45191b3",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T03:38:52-04:00",
+        "message": "feat(invocation): replace cursor-cli mode with @cursor/sdk integration"
+      },
+      "recent_commits": [
+        {
+          "sha": "6205f3674933629a9a8292ac8f06be7dc45191b3",
+          "timestamp": "2026-05-02T03:38:52-04:00",
+          "message": "feat(invocation): replace cursor-cli mode with @cursor/sdk integration"
+        },
+        {
+          "sha": "4ef61e0674156398ce61a2bc07f88a52572ce7b0",
+          "timestamp": "2026-05-01T22:52:04-04:00",
+          "message": "docs(readme): elevate Cursor as the primary editor"
+        },
+        {
+          "sha": "289b3c4e7f983b490ab94388195720985167a2bd",
+          "timestamp": "2026-05-01T22:49:50-04:00",
+          "message": "fix(readme): use labeled License badge (LSAL not in SPDX)"
+        },
+        {
+          "sha": "5168e0865291bfdc28f935c705880b74e3c02c3d",
+          "timestamp": "2026-05-01T22:49:04-04:00",
+          "message": "fix(readme): use dynamic GitHub-API badges instead of broken Marketplace endpoints"
+        },
+        {
+          "sha": "b8d0ef3e41ddcc7e2216a479ca5fe6b6f0764706",
+          "timestamp": "2026-05-01T22:44:27-04:00",
+          "message": "fix(readme): replace retired Shields.io marketplace badges with vsmarketplacebadges.dev"
+        },
+        {
+          "sha": "f1533c03e68a4f9fb0c33ccc84101f376dcc5791",
+          "timestamp": "2026-05-01T21:39:54-04:00",
+          "message": "chore: update LICENSE, package.json, and README for Legion v1.0.0"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        },
+        {
+          "sha": "13cb3b2246433146e33e776576f3feb4994df3c2",
+          "timestamp": "2026-04-30T05:59:18-04:00",
+          "message": "Initial commit"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "9 commits in last 10"
+      }
+    },
+    "scripts/snapshot-bundled.sh": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "3ca3eaef29affdfc1c009f4c9177f916cde0f0fa",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T08:15:58-04:00",
+        "message": "fix(sidebar): copy real webview.js to runtime media/ path; v1.2.0-1.2.9 fixes were no-ops"
+      },
+      "recent_commits": [
+        {
+          "sha": "3ca3eaef29affdfc1c009f4c9177f916cde0f0fa",
+          "timestamp": "2026-05-02T08:15:58-04:00",
+          "message": "fix(sidebar): copy real webview.js to runtime media/ path; v1.2.0-1.2.9 fixes were no-ops"
+        },
+        {
+          "sha": "b1041fe2c322dc44bac9431371d3d6c065b30052",
+          "timestamp": "2026-05-01T22:34:44-04:00",
+          "message": "fix(ci): clone legion-project source-of-truth before snapshot"
+        },
+        {
+          "sha": "ee9ada8d1f9bafb69c7fe8c1de23ace5db5324b2",
+          "timestamp": "2026-04-30T06:27:03-04:00",
+          "message": "Update for folder tree"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "4 commits in last 10"
+      }
+    },
+    "media/mario-portrait.png": {
+      "created_commit": "f1533c03e68a4f9fb0c33ccc84101f376dcc5791",
+      "created_at": "2026-05-01T21:39:54-04:00",
+      "last_commit": {
+        "sha": "f1533c03e68a4f9fb0c33ccc84101f376dcc5791",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-01T21:39:54-04:00",
+        "message": "chore: update LICENSE, package.json, and README for Legion v1.0.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "f1533c03e68a4f9fb0c33ccc84101f376dcc5791",
+          "timestamp": "2026-05-01T21:39:54-04:00",
+          "message": "chore: update LICENSE, package.json, and README for Legion v1.0.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "schemas/guardian-schema.json": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/cli/legionCli.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/commands/createSharedConfig.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/commands/findEntity.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/commands/archaeology.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/commands/exportWiki.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/commands/drainAgenda.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T05:06:42-04:00",
+        "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+      },
+      "recent_commits": [
+        {
+          "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+          "timestamp": "2026-05-02T05:06:42-04:00",
+          "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+        },
+        {
+          "sha": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+          "timestamp": "2026-05-02T04:59:15-04:00",
+          "message": "feat(onboarding): SecretStorage keys + Setup Wizard + beautiful sidebar panel"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "3 commits in last 10"
+      }
+    },
+    "src/commands/installGuardian.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/commands/initialize.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T06:25:41-04:00",
+        "message": "First draft pre-cursor testing"
+      },
+      "recent_commits": [
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/commands/document.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T05:06:42-04:00",
+        "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+      },
+      "recent_commits": [
+        {
+          "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+          "timestamp": "2026-05-02T05:06:42-04:00",
+          "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "45b34a0641e37d2bd9a1d88bb87f79d6ff62f558",
+          "timestamp": "2026-04-30T07:12:54-04:00",
+          "message": "v0.2.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "4 commits in last 10"
+      }
+    },
+    "src/commands/installPrReviewBot.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:35:49-04:00",
+        "message": "fix: address QA Critical findings from 2026-04-30 audit"
+      },
+      "recent_commits": [
+        {
+          "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+          "timestamp": "2026-04-30T23:35:49-04:00",
+          "message": "fix: address QA Critical findings from 2026-04-30 audit"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "src/commands/autoresearch.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T05:06:42-04:00",
+        "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+      },
+      "recent_commits": [
+        {
+          "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+          "timestamp": "2026-05-02T05:06:42-04:00",
+          "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+        },
+        {
+          "sha": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+          "timestamp": "2026-05-02T04:59:15-04:00",
+          "message": "feat(onboarding): SecretStorage keys + Setup Wizard + beautiful sidebar panel"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "3 commits in last 10"
+      }
+    },
+    "src/commands/onboardingBrief.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/commands/setupPage.ts": {
+      "created_commit": "6646ebaa4209f856a9bd602f572754f63a8107df",
+      "created_at": "2026-05-02T07:36:28-04:00",
+      "last_commit": {
+        "sha": "32ab34ec87b84427836a99bc16c7fd14bcb9a66b",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T14:14:09-04:00",
+        "message": "v1.2.18 — Setup Page becomes Legion Dashboard (4 tabs + live activity)"
+      },
+      "recent_commits": [
+        {
+          "sha": "32ab34ec87b84427836a99bc16c7fd14bcb9a66b",
+          "timestamp": "2026-05-02T14:14:09-04:00",
+          "message": "v1.2.18 — Setup Page becomes Legion Dashboard (4 tabs + live activity)"
+        },
+        {
+          "sha": "963dc0f9fb5acabbe78468da008e63fbaf79b6ef",
+          "timestamp": "2026-05-02T10:50:25-04:00",
+          "message": "v1.2.17 — OpenRouter model picker + 4 perf wins (git cache, combined git log, document-diff mode, fast-model toggle)"
+        },
+        {
+          "sha": "802798daf7dec45074630f167eefdc1724825a92",
+          "timestamp": "2026-05-02T09:38:09-04:00",
+          "message": "v1.2.13 — split Anthropic + OpenRouter into distinct UI modes, drop Cursor card"
+        },
+        {
+          "sha": "2a072eadcd81299213a0dacea43018c3c46c08a0",
+          "timestamp": "2026-05-02T07:51:26-04:00",
+          "message": "fix(sidebar+page): defensive button wiring + inline Legion SVG hero icon"
+        },
+        {
+          "sha": "6646ebaa4209f856a9bd602f572754f63a8107df",
+          "timestamp": "2026-05-02T07:36:28-04:00",
+          "message": "feat(setup): full WebviewPanel setup page replaces QuickPick chain"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "5 commits in last 10"
+      }
+    },
+    "src/commands/resolveContradiction.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/commands/saveConversation.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/commands/updateGuardians.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/commands/lint.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "src/commands/openInObsidian.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/context/claudeMdWriter.test.ts": {
+      "created_commit": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+      "created_at": "2026-04-30T23:35:49-04:00",
+      "last_commit": {
+        "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:35:49-04:00",
+        "message": "fix: address QA Critical findings from 2026-04-30 audit"
+      },
+      "recent_commits": [
+        {
+          "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+          "timestamp": "2026-04-30T23:35:49-04:00",
+          "message": "fix: address QA Critical findings from 2026-04-30 audit"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/commands/scanDirectory.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "45b34a0641e37d2bd9a1d88bb87f79d6ff62f558",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T07:12:54-04:00",
+        "message": "v0.2.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "45b34a0641e37d2bd9a1d88bb87f79d6ff62f558",
+          "timestamp": "2026-04-30T07:12:54-04:00",
+          "message": "v0.2.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "src/dashboard/charts/chartUtils.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/context/claudeMdWriter.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/dashboard/charts/lineChart.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/dashboard/charts/adrBarChart.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/dashboard/charts/contradictionChart.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/commands/update.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T05:06:42-04:00",
+        "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+      },
+      "recent_commits": [
+        {
+          "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+          "timestamp": "2026-05-02T05:06:42-04:00",
+          "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "45b34a0641e37d2bd9a1d88bb87f79d6ff62f558",
+          "timestamp": "2026-04-30T07:12:54-04:00",
+          "message": "v0.2.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "4 commits in last 10"
+      }
+    },
+    "src/commands/setupWizard.ts": {
+      "created_commit": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+      "created_at": "2026-05-02T04:59:15-04:00",
+      "last_commit": {
+        "sha": "802798daf7dec45074630f167eefdc1724825a92",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T09:38:09-04:00",
+        "message": "v1.2.13 — split Anthropic + OpenRouter into distinct UI modes, drop Cursor card"
+      },
+      "recent_commits": [
+        {
+          "sha": "802798daf7dec45074630f167eefdc1724825a92",
+          "timestamp": "2026-05-02T09:38:09-04:00",
+          "message": "v1.2.13 — split Anthropic + OpenRouter into distinct UI modes, drop Cursor card"
+        },
+        {
+          "sha": "174b29787a784a63671256f2663b5e3d68d5fb1b",
+          "timestamp": "2026-05-02T07:01:40-04:00",
+          "message": "fix(sidebar): defensive Setup Complete guard + wizard breadcrumb for stuck-install diagnosis"
+        },
+        {
+          "sha": "aece9e72b852df559e24f6719cdf57ed488ec2e3",
+          "timestamp": "2026-05-02T06:44:37-04:00",
+          "message": "fix(wizard): remove silent welcome toast — open directly to mode QuickPick"
+        },
+        {
+          "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+          "timestamp": "2026-05-02T05:06:42-04:00",
+          "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+        },
+        {
+          "sha": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+          "timestamp": "2026-05-02T04:59:15-04:00",
+          "message": "feat(onboarding): SecretStorage keys + Setup Wizard + beautiful sidebar panel"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "5 commits in last 10"
+      }
+    },
+    "src/commands/ingestUrl.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T05:06:42-04:00",
+        "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+      },
+      "recent_commits": [
+        {
+          "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+          "timestamp": "2026-05-02T05:06:42-04:00",
+          "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+        },
+        {
+          "sha": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+          "timestamp": "2026-05-02T04:59:15-04:00",
+          "message": "feat(onboarding): SecretStorage keys + Setup Wizard + beautiful sidebar panel"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "3 commits in last 10"
+      }
+    },
+    "src/dashboard/charts/stackedAreaChart.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/dashboard/markdownTable.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/agentInvoker.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "963dc0f9fb5acabbe78468da008e63fbaf79b6ef",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T10:50:25-04:00",
+        "message": "v1.2.17 — OpenRouter model picker + 4 perf wins (git cache, combined git log, document-diff mode, fast-model toggle)"
+      },
+      "recent_commits": [
+        {
+          "sha": "963dc0f9fb5acabbe78468da008e63fbaf79b6ef",
+          "timestamp": "2026-05-02T10:50:25-04:00",
+          "message": "v1.2.17 — OpenRouter model picker + 4 perf wins (git cache, combined git log, document-diff mode, fast-model toggle)"
+        },
+        {
+          "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+          "timestamp": "2026-05-02T05:06:42-04:00",
+          "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+        },
+        {
+          "sha": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+          "timestamp": "2026-05-02T04:59:15-04:00",
+          "message": "feat(onboarding): SecretStorage keys + Setup Wizard + beautiful sidebar panel"
+        },
+        {
+          "sha": "6205f3674933629a9a8292ac8f06be7dc45191b3",
+          "timestamp": "2026-05-02T03:38:52-04:00",
+          "message": "feat(invocation): replace cursor-cli mode with @cursor/sdk integration"
+        },
+        {
+          "sha": "6701d822cc4648f98a34aa23ccaa07182b31a5dd",
+          "timestamp": "2026-05-02T03:10:27-04:00",
+          "message": "fix(cursor-cli): handle Windows .cmd shim + clear ENOENT error"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "7 commits in last 10"
+      }
+    },
+    "src/dashboard/charts/moduleCoverageChart.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/addressAllocator.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/dashboard/dashboardPanel.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "7e8b552ed607916f47de0b6b4a35e936e27dbada",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:25:11-04:00",
+        "message": "security: fix 2 Critical + 1 High findings from features 001-010 audit"
+      },
+      "recent_commits": [
+        {
+          "sha": "7e8b552ed607916f47de0b6b4a35e936e27dbada",
+          "timestamp": "2026-04-30T23:25:11-04:00",
+          "message": "security: fix 2 Critical + 1 High findings from features 001-010 audit"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "src/driver/chunkPlanner.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "d1d1328656668d26759bbb0855b515f96ffc298b",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T10:30:49-04:00",
+        "message": "v1.2.16 — make Document/Update 3–5x faster"
+      },
+      "recent_commits": [
+        {
+          "sha": "d1d1328656668d26759bbb0855b515f96ffc298b",
+          "timestamp": "2026-05-02T10:30:49-04:00",
+          "message": "v1.2.16 — make Document/Update 3–5x faster"
+        },
+        {
+          "sha": "45b34a0641e37d2bd9a1d88bb87f79d6ff62f558",
+          "timestamp": "2026-04-30T07:12:54-04:00",
+          "message": "v0.2.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "3 commits in last 10"
+      }
+    },
+    "src/driver/documentPass.ts": {
+      "created_commit": "45b34a0641e37d2bd9a1d88bb87f79d6ff62f558",
+      "created_at": "2026-04-30T07:12:54-04:00",
+      "last_commit": {
+        "sha": "32ab34ec87b84427836a99bc16c7fd14bcb9a66b",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T14:14:09-04:00",
+        "message": "v1.2.18 — Setup Page becomes Legion Dashboard (4 tabs + live activity)"
+      },
+      "recent_commits": [
+        {
+          "sha": "32ab34ec87b84427836a99bc16c7fd14bcb9a66b",
+          "timestamp": "2026-05-02T14:14:09-04:00",
+          "message": "v1.2.18 — Setup Page becomes Legion Dashboard (4 tabs + live activity)"
+        },
+        {
+          "sha": "963dc0f9fb5acabbe78468da008e63fbaf79b6ef",
+          "timestamp": "2026-05-02T10:50:25-04:00",
+          "message": "v1.2.17 — OpenRouter model picker + 4 perf wins (git cache, combined git log, document-diff mode, fast-model toggle)"
+        },
+        {
+          "sha": "d1d1328656668d26759bbb0855b515f96ffc298b",
+          "timestamp": "2026-05-02T10:30:49-04:00",
+          "message": "v1.2.16 — make Document/Update 3–5x faster"
+        },
+        {
+          "sha": "93eb0223f0c9a9a5e4a994a098705d22f7f8154f",
+          "timestamp": "2026-05-02T10:18:18-04:00",
+          "message": "v1.2.15 — add Cancel button to documentation pass progress toast"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "45b34a0641e37d2bd9a1d88bb87f79d6ff62f558",
+          "timestamp": "2026-04-30T07:12:54-04:00",
+          "message": "v0.2.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "6 commits in last 10"
+      }
+    },
+    "src/driver/boundaryScorer.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/federationFetcher.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/cronParser.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/gitCommit.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/hashDiff.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T06:25:41-04:00",
+        "message": "First draft pre-cursor testing"
+      },
+      "recent_commits": [
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/initializer.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "34ae71b70ed4a104267fe96759e210c1ca4d4ae8",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T14:20:37-04:00",
+        "message": "v1.2.19 — really actually exclude .cursor/, .claude-plugin/, secrets"
+      },
+      "recent_commits": [
+        {
+          "sha": "34ae71b70ed4a104267fe96759e210c1ca4d4ae8",
+          "timestamp": "2026-05-02T14:20:37-04:00",
+          "message": "v1.2.19 — really actually exclude .cursor/, .claude-plugin/, secrets"
+        },
+        {
+          "sha": "ef028886c65e663a28c10e4e0d41a01d96a884d8",
+          "timestamp": "2026-05-02T10:13:34-04:00",
+          "message": "v1.2.14 — force-overwrite god on Initialize, expand .legionignore"
+        },
+        {
+          "sha": "802798daf7dec45074630f167eefdc1724825a92",
+          "timestamp": "2026-05-02T09:38:09-04:00",
+          "message": "v1.2.13 — split Anthropic + OpenRouter into distinct UI modes, drop Cursor card"
+        },
+        {
+          "sha": "8d4e2547e7c7c02fd996f4f1918b6a0175ece0f2",
+          "timestamp": "2026-05-02T08:22:26-04:00",
+          "message": "v1.2.11 — fix `god` skill never installed by Initialize Repository"
+        },
+        {
+          "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+          "timestamp": "2026-05-02T05:06:42-04:00",
+          "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+        },
+        {
+          "sha": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+          "timestamp": "2026-05-02T04:59:15-04:00",
+          "message": "feat(onboarding): SecretStorage keys + Setup Wizard + beautiful sidebar panel"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "8 commits in last 10"
+      }
+    },
+    "media/webview.js": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "3ca3eaef29affdfc1c009f4c9177f916cde0f0fa",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T08:15:58-04:00",
+        "message": "fix(sidebar): copy real webview.js to runtime media/ path; v1.2.0-1.2.9 fixes were no-ops"
+      },
+      "recent_commits": [
+        {
+          "sha": "3ca3eaef29affdfc1c009f4c9177f916cde0f0fa",
+          "timestamp": "2026-05-02T08:15:58-04:00",
+          "message": "fix(sidebar): copy real webview.js to runtime media/ path; v1.2.0-1.2.9 fixes were no-ops"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "src/commands/foldLog.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/postCommitHook.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T06:25:41-04:00",
+        "message": "First draft pre-cursor testing"
+      },
+      "recent_commits": [
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/graphBuilder.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/gitContext.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "963dc0f9fb5acabbe78468da008e63fbaf79b6ef",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T10:50:25-04:00",
+        "message": "v1.2.17 — OpenRouter model picker + 4 perf wins (git cache, combined git log, document-diff mode, fast-model toggle)"
+      },
+      "recent_commits": [
+        {
+          "sha": "963dc0f9fb5acabbe78468da008e63fbaf79b6ef",
+          "timestamp": "2026-05-02T10:50:25-04:00",
+          "message": "v1.2.17 — OpenRouter model picker + 4 perf wins (git cache, combined git log, document-diff mode, fast-model toggle)"
+        },
+        {
+          "sha": "d1d1328656668d26759bbb0855b515f96ffc298b",
+          "timestamp": "2026-05-02T10:30:49-04:00",
+          "message": "v1.2.16 — make Document/Update 3–5x faster"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "3 commits in last 10"
+      }
+    },
+    "src/driver/reconciler.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "45b34a0641e37d2bd9a1d88bb87f79d6ff62f558",
+          "timestamp": "2026-04-30T07:12:54-04:00",
+          "message": "v0.2.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "3 commits in last 10"
+      }
+    },
+    "src/driver/gitContextCache.ts": {
+      "created_commit": "963dc0f9fb5acabbe78468da008e63fbaf79b6ef",
+      "created_at": "2026-05-02T10:50:25-04:00",
+      "last_commit": {
+        "sha": "963dc0f9fb5acabbe78468da008e63fbaf79b6ef",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T10:50:25-04:00",
+        "message": "v1.2.17 — OpenRouter model picker + 4 perf wins (git cache, combined git log, document-diff mode, fast-model toggle)"
+      },
+      "recent_commits": [
+        {
+          "sha": "963dc0f9fb5acabbe78468da008e63fbaf79b6ef",
+          "timestamp": "2026-05-02T10:50:25-04:00",
+          "message": "v1.2.17 — OpenRouter model picker + 4 perf wins (git cache, combined git log, document-diff mode, fast-model toggle)"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/llmClient.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/repoState.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/researchAgenda.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/searchProviders.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/researchPass.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/sharedConfig.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "34ae71b70ed4a104267fe96759e210c1ca4d4ae8",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T14:20:37-04:00",
+        "message": "v1.2.19 — really actually exclude .cursor/, .claude-plugin/, secrets"
+      },
+      "recent_commits": [
+        {
+          "sha": "34ae71b70ed4a104267fe96759e210c1ca4d4ae8",
+          "timestamp": "2026-05-02T14:20:37-04:00",
+          "message": "v1.2.19 — really actually exclude .cursor/, .claude-plugin/, secrets"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "src/driver/semanticSearch.test.ts": {
+      "created_commit": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+      "created_at": "2026-04-30T23:35:49-04:00",
+      "last_commit": {
+        "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:35:49-04:00",
+        "message": "fix: address QA Critical findings from 2026-04-30 audit"
+      },
+      "recent_commits": [
+        {
+          "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+          "timestamp": "2026-04-30T23:35:49-04:00",
+          "message": "fix: address QA Critical findings from 2026-04-30 audit"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/extension.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "32ab34ec87b84427836a99bc16c7fd14bcb9a66b",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T14:14:09-04:00",
+        "message": "v1.2.18 — Setup Page becomes Legion Dashboard (4 tabs + live activity)"
+      },
+      "recent_commits": [
+        {
+          "sha": "32ab34ec87b84427836a99bc16c7fd14bcb9a66b",
+          "timestamp": "2026-05-02T14:14:09-04:00",
+          "message": "v1.2.18 — Setup Page becomes Legion Dashboard (4 tabs + live activity)"
+        },
+        {
+          "sha": "d62e0791b998800ae36ea5f79e32a147d41446de",
+          "timestamp": "2026-05-02T08:44:00-04:00",
+          "message": "v1.2.12 — bootstrap CURSOR_RIPGREP_PATH so @cursor/sdk stops throwing"
+        },
+        {
+          "sha": "b24107e9b191441a9afa43c86e648993ecaf5e5a",
+          "timestamp": "2026-05-02T08:06:13-04:00",
+          "message": "fix(sidebar): brand-new openSetupPage ID + command end-to-end (sidesteps mysterious setupWizard collision)"
+        },
+        {
+          "sha": "6646ebaa4209f856a9bd602f572754f63a8107df",
+          "timestamp": "2026-05-02T07:36:28-04:00",
+          "message": "feat(setup): full WebviewPanel setup page replaces QuickPick chain"
+        },
+        {
+          "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+          "timestamp": "2026-05-02T05:06:42-04:00",
+          "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+        },
+        {
+          "sha": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+          "timestamp": "2026-05-02T04:59:15-04:00",
+          "message": "feat(onboarding): SecretStorage keys + Setup Wizard + beautiful sidebar panel"
+        },
+        {
+          "sha": "edd33445d13c8deecf631a81fd4e57ccc1a0b5c4",
+          "timestamp": "2026-05-01T23:59:48-04:00",
+          "message": "fix(sidebar): automatically refresh repo state after wiki changes"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "9 commits in last 10"
+      }
+    },
+    "src/driver/snapshotManager.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/semanticSearch.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T05:06:42-04:00",
+        "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+      },
+      "recent_commits": [
+        {
+          "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+          "timestamp": "2026-05-02T05:06:42-04:00",
+          "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+        },
+        {
+          "sha": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+          "timestamp": "2026-05-02T04:59:15-04:00",
+          "message": "feat(onboarding): SecretStorage keys + Setup Wizard + beautiful sidebar panel"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "3 commits in last 10"
+      }
+    },
+    "src/driver/snapshotManager.test.ts": {
+      "created_commit": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+      "created_at": "2026-04-30T23:35:49-04:00",
+      "last_commit": {
+        "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:35:49-04:00",
+        "message": "fix: address QA Critical findings from 2026-04-30 audit"
+      },
+      "recent_commits": [
+        {
+          "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+          "timestamp": "2026-04-30T23:35:49-04:00",
+          "message": "fix: address QA Critical findings from 2026-04-30 audit"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/queue.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "src/guardians/communityGuardianManager.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "7e8b552ed607916f47de0b6b4a35e936e27dbada",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:25:11-04:00",
+        "message": "security: fix 2 Critical + 1 High findings from features 001-010 audit"
+      },
+      "recent_commits": [
+        {
+          "sha": "7e8b552ed607916f47de0b6b4a35e936e27dbada",
+          "timestamp": "2026-04-30T23:25:11-04:00",
+          "message": "security: fix 2 Critical + 1 High findings from features 001-010 audit"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "src/guardians/types.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/wikiExport.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:35:49-04:00",
+        "message": "fix: address QA Critical findings from 2026-04-30 audit"
+      },
+      "recent_commits": [
+        {
+          "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+          "timestamp": "2026-04-30T23:35:49-04:00",
+          "message": "fix: address QA Critical findings from 2026-04-30 audit"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "src/providers/entityHoverProvider.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/legionignore.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "34ae71b70ed4a104267fe96759e210c1ca4d4ae8",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T14:20:37-04:00",
+        "message": "v1.2.19 — really actually exclude .cursor/, .claude-plugin/, secrets"
+      },
+      "recent_commits": [
+        {
+          "sha": "34ae71b70ed4a104267fe96759e210c1ca4d4ae8",
+          "timestamp": "2026-05-02T14:20:37-04:00",
+          "message": "v1.2.19 — really actually exclude .cursor/, .claude-plugin/, secrets"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "src/providers/backlinksProvider.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/providers/wikilinkCompletionProvider.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/providers/contractValidator.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/providers/entityCodeLensProvider.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/providers/chatParticipant.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T05:06:42-04:00",
+        "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+      },
+      "recent_commits": [
+        {
+          "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+          "timestamp": "2026-05-02T05:06:42-04:00",
+          "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+        },
+        {
+          "sha": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+          "timestamp": "2026-05-02T04:59:15-04:00",
+          "message": "feat(onboarding): SecretStorage keys + Setup Wizard + beautiful sidebar panel"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "3 commits in last 10"
+      }
+    },
+    "src/driver/logFold.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/mcp/legionMcpServer.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "7e8b552ed607916f47de0b6b4a35e936e27dbada",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:25:11-04:00",
+        "message": "security: fix 2 Critical + 1 High findings from features 001-010 audit"
+      },
+      "recent_commits": [
+        {
+          "sha": "7e8b552ed607916f47de0b6b4a35e936e27dbada",
+          "timestamp": "2026-04-30T23:25:11-04:00",
+          "message": "security: fix 2 Critical + 1 High findings from features 001-010 audit"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "src/driver/coverageTracker.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/federationPublisher.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/mcp/toolHandlers.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/types/response.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T06:25:41-04:00",
+        "message": "First draft pre-cursor testing"
+      },
+      "recent_commits": [
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/util/gitRemote.test.ts": {
+      "created_commit": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+      "created_at": "2026-04-30T23:35:49-04:00",
+      "last_commit": {
+        "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:35:49-04:00",
+        "message": "fix: address QA Critical findings from 2026-04-30 audit"
+      },
+      "recent_commits": [
+        {
+          "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+          "timestamp": "2026-04-30T23:35:49-04:00",
+          "message": "fix: address QA Critical findings from 2026-04-30 audit"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/providers/wikiTreeProvider.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/util/gitRemote.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/util/activityStream.ts": {
+      "created_commit": "32ab34ec87b84427836a99bc16c7fd14bcb9a66b",
+      "created_at": "2026-05-02T14:14:09-04:00",
+      "last_commit": {
+        "sha": "32ab34ec87b84427836a99bc16c7fd14bcb9a66b",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T14:14:09-04:00",
+        "message": "v1.2.18 — Setup Page becomes Legion Dashboard (4 tabs + live activity)"
+      },
+      "recent_commits": [
+        {
+          "sha": "32ab34ec87b84427836a99bc16c7fd14bcb9a66b",
+          "timestamp": "2026-05-02T14:14:09-04:00",
+          "message": "v1.2.18 — Setup Page becomes Legion Dashboard (4 tabs + live activity)"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/types/payload.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T06:25:41-04:00",
+        "message": "First draft pre-cursor testing"
+      },
+      "recent_commits": [
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/driver/cronParser.test.ts": {
+      "created_commit": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+      "created_at": "2026-04-30T23:35:49-04:00",
+      "last_commit": {
+        "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:35:49-04:00",
+        "message": "fix: address QA Critical findings from 2026-04-30 audit"
+      },
+      "recent_commits": [
+        {
+          "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+          "timestamp": "2026-04-30T23:35:49-04:00",
+          "message": "fix: address QA Critical findings from 2026-04-30 audit"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/util/repoRoot.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/mcp/mcpConfig.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "templates/claude-plugin/commands/legion-document.md": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "templates/claude-plugin/commands/legion-find.md": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/util/sdkBootstrap.ts": {
+      "created_commit": "d62e0791b998800ae36ea5f79e32a147d41446de",
+      "created_at": "2026-05-02T08:44:00-04:00",
+      "last_commit": {
+        "sha": "d62e0791b998800ae36ea5f79e32a147d41446de",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T08:44:00-04:00",
+        "message": "v1.2.12 — bootstrap CURSOR_RIPGREP_PATH so @cursor/sdk stops throwing"
+      },
+      "recent_commits": [
+        {
+          "sha": "d62e0791b998800ae36ea5f79e32a147d41446de",
+          "timestamp": "2026-05-02T08:44:00-04:00",
+          "message": "v1.2.12 — bootstrap CURSOR_RIPGREP_PATH so @cursor/sdk stops throwing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "templates/claude-plugin/plugin.json": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/util/openrouterModels.ts": {
+      "created_commit": "963dc0f9fb5acabbe78468da008e63fbaf79b6ef",
+      "created_at": "2026-05-02T10:50:25-04:00",
+      "last_commit": {
+        "sha": "963dc0f9fb5acabbe78468da008e63fbaf79b6ef",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T10:50:25-04:00",
+        "message": "v1.2.17 — OpenRouter model picker + 4 perf wins (git cache, combined git log, document-diff mode, fast-model toggle)"
+      },
+      "recent_commits": [
+        {
+          "sha": "963dc0f9fb5acabbe78468da008e63fbaf79b6ef",
+          "timestamp": "2026-05-02T10:50:25-04:00",
+          "message": "v1.2.17 — OpenRouter model picker + 4 perf wins (git cache, combined git log, document-diff mode, fast-model toggle)"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "templates/legion-wiki-diff.yml": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "templates/claude-plugin/commands/legion-research.md": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "templates/wiki-hot.template.md": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T06:25:41-04:00",
+        "message": "First draft pre-cursor testing"
+      },
+      "recent_commits": [
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "templates/legionignore.template": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "34ae71b70ed4a104267fe96759e210c1ca4d4ae8",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T14:20:37-04:00",
+        "message": "v1.2.19 — really actually exclude .cursor/, .claude-plugin/, secrets"
+      },
+      "recent_commits": [
+        {
+          "sha": "34ae71b70ed4a104267fe96759e210c1ca4d4ae8",
+          "timestamp": "2026-05-02T14:20:37-04:00",
+          "message": "v1.2.19 — really actually exclude .cursor/, .claude-plugin/, secrets"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "2 commits in last 10"
+      }
+    },
+    "src/util/keyPrompt.ts": {
+      "created_commit": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+      "created_at": "2026-05-02T04:59:15-04:00",
+      "last_commit": {
+        "sha": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T04:59:15-04:00",
+        "message": "feat(onboarding): SecretStorage keys + Setup Wizard + beautiful sidebar panel"
+      },
+      "recent_commits": [
+        {
+          "sha": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+          "timestamp": "2026-05-02T04:59:15-04:00",
+          "message": "feat(onboarding): SecretStorage keys + Setup Wizard + beautiful sidebar panel"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "templates/wiki-index.template.md": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T06:25:41-04:00",
+        "message": "First draft pre-cursor testing"
+      },
+      "recent_commits": [
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "templates/guardian-template/skills/my-weapon.md": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/util/secretStore.ts": {
+      "created_commit": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+      "created_at": "2026-05-02T04:59:15-04:00",
+      "last_commit": {
+        "sha": "802798daf7dec45074630f167eefdc1724825a92",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T09:38:09-04:00",
+        "message": "v1.2.13 — split Anthropic + OpenRouter into distinct UI modes, drop Cursor card"
+      },
+      "recent_commits": [
+        {
+          "sha": "802798daf7dec45074630f167eefdc1724825a92",
+          "timestamp": "2026-05-02T09:38:09-04:00",
+          "message": "v1.2.13 — split Anthropic + OpenRouter into distinct UI modes, drop Cursor card"
+        },
+        {
+          "sha": "50b7fd9433e58538048761b4ae253fe06ae2b9fd",
+          "timestamp": "2026-05-02T05:06:42-04:00",
+          "message": "fix: patch all QA findings from v1.2.0 (dead code, key bypass, UI gaps)"
+        },
+        {
+          "sha": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+          "timestamp": "2026-05-02T04:59:15-04:00",
+          "message": "feat(onboarding): SecretStorage keys + Setup Wizard + beautiful sidebar panel"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "3 commits in last 10"
+      }
+    },
+    "templates/wiki-overview.template.md": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T06:25:41-04:00",
+        "message": "First draft pre-cursor testing"
+      },
+      "recent_commits": [
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "tsconfig.json": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:35:49-04:00",
+        "message": "fix: address QA Critical findings from 2026-04-30 audit"
+      },
+      "recent_commits": [
+        {
+          "sha": "614d0b8650e1f7e5567c9aea778a695f82a7faf7",
+          "timestamp": "2026-04-30T23:35:49-04:00",
+          "message": "fix: address QA Critical findings from 2026-04-30 audit"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "3 commits in last 10"
+      }
+    },
+    "src/util/frontmatter.ts": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "templates/legion-config.template.json": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T06:25:41-04:00",
+        "message": "First draft pre-cursor testing"
+      },
+      "recent_commits": [
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "templates/guardian-template/agent.md": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "templates/wiki-log.template.md": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T06:25:41-04:00",
+        "message": "First draft pre-cursor testing"
+      },
+      "recent_commits": [
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "templates/guardian-template/guardian.json": {
+      "created_commit": "0ac04288ed1123d547c47e67b849eaa236949150",
+      "created_at": "2026-04-30T23:05:51-04:00",
+      "last_commit": {
+        "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-04-30T23:05:51-04:00",
+        "message": "All the things of 0.6.0"
+      },
+      "recent_commits": [
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "1 commits in last 10"
+      }
+    },
+    "src/sidebar/sidebarProvider.ts": {
+      "created_commit": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+      "created_at": "2026-04-30T06:25:41-04:00",
+      "last_commit": {
+        "sha": "b24107e9b191441a9afa43c86e648993ecaf5e5a",
+        "author": "Mario Aldayuz",
+        "timestamp": "2026-05-02T08:06:13-04:00",
+        "message": "fix(sidebar): brand-new openSetupPage ID + command end-to-end (sidesteps mysterious setupWizard collision)"
+      },
+      "recent_commits": [
+        {
+          "sha": "b24107e9b191441a9afa43c86e648993ecaf5e5a",
+          "timestamp": "2026-05-02T08:06:13-04:00",
+          "message": "fix(sidebar): brand-new openSetupPage ID + command end-to-end (sidesteps mysterious setupWizard collision)"
+        },
+        {
+          "sha": "b5ef3df746d1ef82b3222f2d09bd40a2b2b9d34f",
+          "timestamp": "2026-05-02T08:00:23-04:00",
+          "message": "feat(sidebar): scrap setup-card, add Open Setup Page button to proven action area"
+        },
+        {
+          "sha": "0408bdbb4faa98c36340c6005b95940e852d9d80",
+          "timestamp": "2026-05-02T07:16:51-04:00",
+          "message": "fix(sidebar): wire setup buttons via COMMANDS array + class-based complete state with !important"
+        },
+        {
+          "sha": "6d99f5911e51639a97ef6a83c8a79495d154f6a3",
+          "timestamp": "2026-05-02T04:59:15-04:00",
+          "message": "feat(onboarding): SecretStorage keys + Setup Wizard + beautiful sidebar panel"
+        },
+        {
+          "sha": "edd33445d13c8deecf631a81fd4e57ccc1a0b5c4",
+          "timestamp": "2026-05-01T23:59:48-04:00",
+          "message": "fix(sidebar): automatically refresh repo state after wiki changes"
+        },
+        {
+          "sha": "0ac04288ed1123d547c47e67b849eaa236949150",
+          "timestamp": "2026-04-30T23:05:51-04:00",
+          "message": "All the things of 0.6.0"
+        },
+        {
+          "sha": "04ae39a572e3e0d5c1e47bccc46c9af1230cc43b",
+          "timestamp": "2026-04-30T06:25:41-04:00",
+          "message": "First draft pre-cursor testing"
+        }
+      ],
+      "blame_summary": {
+        "top_authors": [],
+        "churn_rate": "7 commits in last 10"
+      }
+    }
+  }
+}

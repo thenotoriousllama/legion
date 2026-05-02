@@ -381,13 +381,10 @@ function httpsPost(
 // ──────────────────────────────────────────────────────────────────────────────
 
 function parseResponse(stdoutOrContent: string): InvocationResponse {
-  // The Angel may emit JSON with surrounding chatter. Try to extract the JSON object.
   const trimmed = stdoutOrContent.trim();
-  // Fast path: pure JSON.
   try {
     return JSON.parse(trimmed);
   } catch {
-    // Slow path: find the first `{` and last `}` and try.
     const first = trimmed.indexOf("{");
     const last = trimmed.lastIndexOf("}");
     if (first >= 0 && last > first) {
@@ -395,10 +392,24 @@ function parseResponse(stdoutOrContent: string): InvocationResponse {
         return JSON.parse(trimmed.slice(first, last + 1));
       } catch (e) {
         throw new Error(
-          `Could not parse agent response as JSON: ${e instanceof Error ? e.message : String(e)}`
+          `Could not parse agent response as JSON: ${e instanceof Error ? e.message : String(e)}. ` +
+            `Snippet: ${snippet(trimmed)}`
         );
       }
     }
-    throw new Error("Agent response did not contain a JSON object.");
+    throw new Error(
+      `Agent response did not contain a JSON object. ` +
+        `The agent likely declined the task (e.g. file not worth a module narrative) ` +
+        `or hit a content policy. Snippet: ${snippet(trimmed)}`
+    );
   }
+}
+
+// v1.2.20: include the first/last few hundred characters of the response in
+// the error so the Activity tab shows what actually came back. Pre-v1.2.20
+// the message was just "Agent response did not contain a JSON object" with
+// no clue what the agent had said.
+function snippet(text: string, max = 240): string {
+  if (text.length <= max) return JSON.stringify(text);
+  return JSON.stringify(text.slice(0, max - 20) + "…[truncated]…" + text.slice(-20));
 }

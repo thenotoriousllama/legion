@@ -533,5 +533,25 @@ function groupByModule(repoRoot: string, absFiles: string[]): Map<string, string
     list.push(abs);
     groups.set(mod, list);
   }
+  // v1.2.20: drop "modules" that aren't really modules. Pre-v1.2.20,
+  // top-level files like `.gitignore`, `README.md`, `package.json`, and
+  // `tsconfig.json` each became their own one-file "module" because
+  // `topLevelModule` returns `segments[0]` for any path with ≤ 2 segments.
+  // library-guardian then got invoked with a single config file and asked to
+  // write a module narrative; it correctly responded with prose, parseResponse
+  // rejected it ("Agent response did not contain a JSON object"), and the
+  // error showed up in the Activity tab on every pass.
+  //
+  // A real module:
+  //   - has a `/` in the module name (e.g. `src/auth`, `apps/web`), OR
+  //   - contains at least 2 files. A single loose file at the top of a
+  //     monorepo segment isn't worth a module narrative.
+  for (const [mod, files] of [...groups.entries()]) {
+    const isRealPath = mod.includes("/");
+    const hasSubstance = files.length >= 2;
+    if (!isRealPath && !hasSubstance) {
+      groups.delete(mod);
+    }
+  }
   return groups;
 }

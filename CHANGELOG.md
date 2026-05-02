@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.20] — 2026-05-02
+
+### Fixed
+- **`library-guardian ✗ .gitignore: Agent response did not contain a JSON object` and the same for `README.md`, `package.json`, `tsconfig.json`, `LICENSE`, etc.** Root cause: `topLevelModule` returned `segments[0]` for any path ≤ 2 segments, so each top-level config file became its own one-file "module". library-guardian was then invoked with a single config file and asked to write a module narrative. It correctly responded with prose ("This is just a gitignore file…") — no JSON — and `parseResponse` rejected it. Fixed in `groupByModule` by dropping any module group that both (a) has no `/` in the module name AND (b) contains fewer than 2 files. wiki-guardian still produces per-file pages for those root-level files; library-guardian just doesn't try to write a "module narrative" for them.
+- **`Agent response did not contain a JSON object` errors now include a snippet of what the agent actually returned.** Pre-v1.2.20 the message was a dead end. New format: `"Agent response did not contain a JSON object. The agent likely declined the task (e.g. file not worth a module narrative) or hit a content policy. Snippet: '…first 240 chars…'"` so the Activity tab and Output channel surface enough to diagnose.
+
 ## [1.2.19] — 2026-05-02
 
 ### Fixed
