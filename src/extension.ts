@@ -38,9 +38,16 @@ import { updateGuardians } from "./commands/updateGuardians";
 import { migrateSettingsKeysToSecretStorage, getSetupState, setSecret, SECRET_KEYS, type SecretKey } from "./util/secretStore";
 import { setupWizard } from "./commands/setupWizard";
 import { SetupPagePanel } from "./commands/setupPage";
+import { bootstrapCursorSdkEnv } from "./util/sdkBootstrap";
 import * as fs from "fs/promises";
 
 export function activate(context: vscode.ExtensionContext): void {
+  // v1.2.12: Seed CURSOR_RIPGREP_PATH before anything can transitively load
+  // @cursor/sdk. Without this, the SDK's internal gitignore scanner throws
+  // "Ripgrep path not configured. Call configureRipgrepPath() at startup."
+  // on first guardian invocation. Idempotent and synchronous.
+  bootstrapCursorSdkEnv();
+
   const folders = vscode.workspace.workspaceFolders;
   // repoRoot kept for non-command initialization (watchers, providers, startup tasks)
   const repoRoot = folders?.[0]?.uri.fsPath ?? "";

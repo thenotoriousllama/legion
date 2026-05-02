@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.12] — 2026-05-02
+
+### Fixed
+- **`@cursor/sdk` "Ripgrep path not configured" floods on first guardian invocation.** The SDK's internal gitignore/cursorignore scanner shells out to ripgrep and resolves the binary in this order: `process.env.CURSOR_RIPGREP_PATH` → internal helper → `which("rg")`. When all three missed (common in fresh installs where `rg` isn't on PATH), every scan threw `Error: Ripgrep path not configured. Call configureRipgrepPath() at startup.` — multiple times per second once a guardian started. Added `src/util/sdkBootstrap.ts` and call it as the first line of `activate()`. It probes Cursor's bundled ripgrep at `<appRoot>/node_modules/@vscode/ripgrep/bin/rg{.exe}` (and the asar-unpacked variant) and seeds `CURSOR_RIPGREP_PATH` if found. Idempotent — won't clobber an existing absolute env value.
+
+### Notes
+- The `[otel.error] ... Trace spans collection is not enabled for this user` lines that appear in the Cursor Debug Console come from Cursor's own app-level OpenTelemetry exporter (`<appRoot>/node_modules/@opentelemetry/...`), not from Legion. Out of scope for this extension.
+
 ## [1.2.11] — 2026-05-02
 
 ### Fixed
